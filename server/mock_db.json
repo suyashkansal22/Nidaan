@@ -1,0 +1,376 @@
+{
+  "issues": [
+    {
+      "id": "issue_1",
+      "category": "pothole",
+      "severity": "medium",
+      "status": "reported",
+      "description": "Deep pothole in the middle of the road near Sector 4 corner, posing risk to motorbikes.",
+      "photoUrl": "https://images.unsplash.com/photo-1605514449459-92aebf7f2ba9?auto=format&fit=crop&w=600&q=80",
+      "location": {
+        "lat": 12.973598,
+        "lng": 77.59056199999999,
+        "address": "Demo City, Sector 3"
+      },
+      "citizensAffected": 28,
+      "costOfInaction": 450,
+      "slaDeadline": "2026-06-26T18:20:38.765Z",
+      "reporterReputation": 45,
+      "ward": "Ward 4 - Green Park",
+      "bids": [],
+      "assignedContractorId": null,
+      "inspectorId": null,
+      "proofOfFixUrl": null,
+      "ledgerTrail": [
+        {
+          "timestamp": "2026-06-24T18:20:38.765Z",
+          "status": "reported",
+          "actor": "Citizen_Vibe",
+          "message": "Reported pothole via Snap-to-Solve"
+        }
+      ],
+      "timestamp": "2026-06-24T18:20:38.765Z"
+    },
+    {
+      "id": "issue_2",
+      "category": "wiring",
+      "severity": "RedAlert",
+      "status": "triaged",
+      "description": "Downed power wire sparked on the sidewalk. Dangerous for pedestrians.",
+      "photoUrl": "https://images.unsplash.com/photo-1620283085439-39620a1e21c4?auto=format&fit=crop&w=600&q=80",
+      "location": {
+        "lat": 12.975598,
+        "lng": 77.59656199999999,
+        "address": "Demo City, Sector 2"
+      },
+      "citizensAffected": 142,
+      "costOfInaction": 8500,
+      "slaDeadline": "2026-06-24T22:20:38.765Z",
+      "reporterReputation": 89,
+      "ward": "Ward 12 - Aero City",
+      "bids": [],
+      "assignedContractorId": null,
+      "inspectorId": null,
+      "proofOfFixUrl": null,
+      "ledgerTrail": [
+        {
+          "timestamp": "2026-06-24T18:20:38.765Z",
+          "status": "reported",
+          "actor": "Citizen_Anil",
+          "message": "Submitted photo of live wire"
+        },
+        {
+          "timestamp": "2026-06-24T18:20:38.765Z",
+          "status": "triaged",
+          "actor": "GeminiAgent",
+          "message": "Classified severity as RedAlert and alerted Emergency Services"
+        }
+      ],
+      "timestamp": "2026-06-24T18:20:38.765Z"
+    },
+    {
+      "id": "issue_3",
+      "category": "water_leak",
+      "severity": "high",
+      "status": "bidding",
+      "description": "Underground main water pipe burst. Millions of liters of potable water flooding the street.",
+      "photoUrl": "https://images.unsplash.com/photo-1584824486509-112e4181ff6b?auto=format&fit=crop&w=600&q=80",
+      "location": {
+        "lat": 12.966598,
+        "lng": 77.595562,
+        "address": "Demo City, Sector 2"
+      },
+      "citizensAffected": 320,
+      "costOfInaction": 3200,
+      "slaDeadline": "2026-06-25T06:20:38.765Z",
+      "reporterReputation": 120,
+      "ward": "Ward 4 - Green Park",
+      "bids": [
+        {
+          "contractorId": "contractor_2",
+          "price": 9500,
+          "eta": 45,
+          "rating": 4.6,
+          "status": "pending"
+        },
+        {
+          "contractorId": "contractor_4",
+          "price": 11000,
+          "eta": 30,
+          "rating": 4.2,
+          "status": "pending"
+        }
+      ],
+      "assignedContractorId": null,
+      "inspectorId": null,
+      "proofOfFixUrl": null,
+      "ledgerTrail": [
+        {
+          "timestamp": "2026-06-24T15:20:38.765Z",
+          "status": "reported",
+          "actor": "Citizen_Sita",
+          "message": "Reported water gushing from street"
+        },
+        {
+          "timestamp": "2026-06-24T15:32:38.765Z",
+          "status": "triaged",
+          "actor": "GeminiAgent",
+          "message": "Triage complete. Deduplicated 3 identical reports."
+        },
+        {
+          "timestamp": "2026-06-24T15:50:38.765Z",
+          "status": "bidding",
+          "actor": "GeminiAgent",
+          "message": "BOM Inferred: PVC pipe, 2 couplers, concrete. Triggered reverse-auction."
+        }
+      ],
+      "timestamp": "2026-06-24T15:20:38.765Z"
+    },
+    {
+      "id": "issue_4",
+      "category": "garbage",
+      "severity": "low",
+      "status": "verified",
+      "description": "Commercial debris piled up outside community gates.",
+      "photoUrl": "https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?auto=format&fit=crop&w=600&q=80",
+      "location": {
+        "lat": 12.968598,
+        "lng": 77.591562,
+        "address": "Demo City, Sector 9"
+      },
+      "citizensAffected": 15,
+      "costOfInaction": 150,
+      "slaDeadline": "2026-06-23T18:20:38.765Z",
+      "reporterReputation": 30,
+      "ward": "Ward 8 - Malleswaram",
+      "bids": [
+        {
+          "contractorId": "contractor_1",
+          "price": 4200,
+          "eta": 120,
+          "rating": 4.8,
+          "status": "accepted"
+        }
+      ],
+      "assignedContractorId": "contractor_1",
+      "inspectorId": "resp_1",
+      "proofOfFixUrl": "https://images.unsplash.com/photo-1530587191325-3db32d826c18?auto=format&fit=crop&w=600&q=80",
+      "ledgerTrail": [
+        {
+          "timestamp": "2026-06-22T18:20:38.765Z",
+          "status": "reported",
+          "actor": "Citizen_Dev",
+          "message": "Reported heap of concrete blocks"
+        },
+        {
+          "timestamp": "2026-06-23T02:20:38.765Z",
+          "status": "assigned",
+          "actor": "GeminiAgent",
+          "message": "Assigned Apex Roadways Ltd. Escrow locked."
+        },
+        {
+          "timestamp": "2026-06-23T22:20:38.765Z",
+          "status": "fixed",
+          "actor": "contractor_1",
+          "message": "Submitted photo proof of clean site"
+        },
+        {
+          "timestamp": "2026-06-23T23:20:38.765Z",
+          "status": "verified",
+          "actor": "GeminiAgent",
+          "message": "Triple-lock proof passed. AI comparison verified. Released ₹4,200 from escrow."
+        }
+      ],
+      "timestamp": "2026-06-22T18:20:38.765Z"
+    }
+  ],
+  "contractors": [
+    {
+      "id": "contractor_1",
+      "name": "Apex Roadways Ltd",
+      "specialties": [
+        "pothole",
+        "garbage"
+      ],
+      "rating": 4.8,
+      "completedJobs": 142,
+      "location": {
+        "lat": 12.976598000000001,
+        "lng": 77.586562,
+        "address": "Demo City, Sector 11"
+      },
+      "materialsStock": [
+        {
+          "item": "Bituminous Mix",
+          "qty": 15,
+          "unit": "bags"
+        },
+        {
+          "item": "Asphalt Sealant",
+          "qty": 50,
+          "unit": "liters"
+        },
+        {
+          "item": "Road Warning Tape",
+          "qty": 10,
+          "unit": "rolls"
+        }
+      ],
+      "activeJobs": 0,
+      "reputation": 92,
+      "hourlyRate": 850
+    },
+    {
+      "id": "contractor_2",
+      "name": "HydroFix Plumbing & Piping",
+      "specialties": [
+        "water_leak",
+        "drainage"
+      ],
+      "rating": 4.6,
+      "completedJobs": 98,
+      "location": {
+        "lat": 12.965598,
+        "lng": 77.598562,
+        "address": "Demo City, Sector 13"
+      },
+      "materialsStock": [
+        {
+          "item": "PVC Pipe 3\"",
+          "qty": 8,
+          "unit": "pcs"
+        },
+        {
+          "item": "Iron Couplers",
+          "qty": 25,
+          "unit": "pcs"
+        },
+        {
+          "item": "Quick-Dry Cement",
+          "qty": 10,
+          "unit": "bags"
+        }
+      ],
+      "activeJobs": 1,
+      "reputation": 85,
+      "hourlyRate": 750
+    },
+    {
+      "id": "contractor_3",
+      "name": "VoltCare Electricals",
+      "specialties": [
+        "wiring",
+        "road_sign"
+      ],
+      "rating": 4.9,
+      "completedJobs": 215,
+      "location": {
+        "lat": 12.974598,
+        "lng": 77.601562,
+        "address": "Demo City, Sector 12"
+      },
+      "materialsStock": [
+        {
+          "item": "Copper Wire 10mm",
+          "qty": 300,
+          "unit": "meters"
+        },
+        {
+          "item": "Insulator Caps",
+          "qty": 100,
+          "unit": "pcs"
+        },
+        {
+          "item": "LED Streetlight Bulb",
+          "qty": 15,
+          "unit": "pcs"
+        }
+      ],
+      "activeJobs": 0,
+      "reputation": 97,
+      "hourlyRate": 1100
+    },
+    {
+      "id": "contractor_4",
+      "name": "Rapid Masonry & Debris",
+      "specialties": [
+        "pothole",
+        "debris",
+        "drainage"
+      ],
+      "rating": 4.2,
+      "completedJobs": 56,
+      "location": {
+        "lat": 12.969598,
+        "lng": 77.589562,
+        "address": "Demo City, Sector 15"
+      },
+      "materialsStock": [
+        {
+          "item": "River Sand",
+          "qty": 40,
+          "unit": "bags"
+        },
+        {
+          "item": "Portland Cement",
+          "qty": 30,
+          "unit": "bags"
+        },
+        {
+          "item": "Shovel & Pickaxe Set",
+          "qty": 5,
+          "unit": "sets"
+        }
+      ],
+      "activeJobs": 0,
+      "reputation": 74,
+      "hourlyRate": 600
+    }
+  ],
+  "responders": [
+    {
+      "id": "resp_1",
+      "name": "Inspector Suresh Kumar",
+      "role": "inspector",
+      "location": {
+        "lat": 12.972598,
+        "lng": 77.592562,
+        "address": "Demo City, Sector 4"
+      },
+      "status": "available"
+    },
+    {
+      "id": "resp_2",
+      "name": "Inspector Ananya Rao",
+      "role": "inspector",
+      "location": {
+        "lat": 12.967598,
+        "lng": 77.597562,
+        "address": "Demo City, Sector 5"
+      },
+      "status": "available"
+    },
+    {
+      "id": "resp_3",
+      "name": "East Ward Cleanup Crew 4",
+      "role": "crew",
+      "location": {
+        "lat": 12.979598,
+        "lng": 77.59356199999999,
+        "address": "Demo City, Sector 5"
+      },
+      "status": "busy"
+    },
+    {
+      "id": "resp_4",
+      "name": "BuildMart Supply Depot",
+      "role": "vendor",
+      "location": {
+        "lat": 12.962598,
+        "lng": 77.585562,
+        "address": "Demo City, Sector 10"
+      },
+      "status": "available"
+    }
+  ]
+}

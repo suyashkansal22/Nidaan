@@ -28,6 +28,9 @@ export function AppDataProvider({ children }) {
   const [selectedIssue, setSelectedIssue] = useState(null);
 
   const [dbType, setDbType] = useState('mock');
+  const [agentMode, setAgentMode] = useState('simulated');
+  const [workspaceLive, setWorkspaceLive] = useState(false);
+  const [mapsLive, setMapsLive] = useState(false);
   const [loading, setLoading] = useState(true);
   const [agentLoading, setAgentLoading] = useState(false);
   const [toast, setToast] = useState(null);
@@ -54,7 +57,15 @@ export function AppDataProvider({ children }) {
       try {
         const status = await (await fetch('/api/status')).json();
         setDbType(status.dbType || 'mock');
-      } catch { setDbType('mock'); }
+        setAgentMode(status.agentMode || 'simulated');
+        setWorkspaceLive(status.workspace === 'live');
+        setMapsLive(!!status.maps);
+      } catch {
+        setDbType('mock');
+        setAgentMode('simulated');
+        setWorkspaceLive(false);
+        setMapsLive(false);
+      }
       return dataIssues;
     } catch (error) {
       console.error('Error fetching data from backend APIs:', error);
@@ -178,13 +189,21 @@ export function AppDataProvider({ children }) {
     } catch (error) { console.error(error); }
   }, [fetchData, showToast]);
 
-  const handleReportFailure = useCallback(async (issueId) => {
+  const handleReportFailure = useCallback(async (issueId, reason) => {
     setAgentLoading(true);
     try {
-      const res = await fetch(`/api/issues/${issueId}/reopen`, { method: 'POST' });
+      const res = await fetch(`/api/issues/${issueId}/reopen`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reason })
+      });
       const data = await res.json();
-      if (res.ok) { await fetchData(false); setSelectedIssue(data); showToast('Warranty claim accepted — ticket reopened, contractor rating penalised.', 'danger'); }
-      else showToast('Failed to file warranty claim', 'danger');
+      if (res.ok) {
+        await fetchData(false);
+        setSelectedIssue(data);
+        showToast('Repair failure reported — ticket reopened, contractor rating penalised.', 'danger');
+      }
+      else showToast('Failed to file repair failure report', 'danger');
     } catch (error) { console.error(error); }
     finally { setAgentLoading(false); }
   }, [fetchData, showToast]);
@@ -230,7 +249,7 @@ export function AppDataProvider({ children }) {
   const value = {
     issues, contractors, responders, users,
     selectedIssue, setSelectedIssue,
-    dbType, loading, agentLoading, toast, showToast,
+    dbType, agentMode, workspaceLive, mapsLive, loading, agentLoading, toast, showToast,
     fetchData, reseed,
     handleResetDb, handleVoteIssue, handleTriggerAgent, handleRunAgent,
     handleReleaseEscrow, handleSlaSweep, handlePreparedness, handleTriggerFix,

@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { Camera, Mic, MapPin, Send, AlertTriangle, CheckCircle, Sparkles, ScanLine, Upload, Zap, Languages } from 'lucide-react';
+import { useAppData } from '../app/AppDataContext.jsx';
 
 const SAMPLE_PHOTO_LINKS = {
   pothole: 'https://images.unsplash.com/photo-1515162305285-0293e4767cc2?auto=format&fit=crop&w=600&q=80',
@@ -19,6 +20,7 @@ const PRESETS = [
 ];
 
 export default function SnapToSolve({ onIssueCreated, user }) {
+  const { agentMode } = useAppData();
   const [category, setCategory] = useState('water_leak');
   const [severity, setSeverity] = useState('high');
   const [title, setTitle] = useState('');
@@ -196,6 +198,29 @@ export default function SnapToSolve({ onIssueCreated, user }) {
         <h2 style={{ fontSize: '1.6rem', fontWeight: 800 }}>Snap to report</h2>
         <p style={{ fontSize: '0.9rem', color: 'var(--ink-muted)' }}>One photo. Gemini Flash does the paperwork — no category dropdowns needed.</p>
       </div>
+
+      {agentMode === 'simulated' && (
+        <div style={{
+          background: 'rgba(215,64,47,0.06)',
+          border: '1px dashed rgba(215,64,47,0.3)',
+          borderRadius: 'var(--radius-ctl)',
+          padding: '0.75rem 1rem',
+          fontSize: '0.8rem',
+          color: 'var(--critical)',
+          display: 'flex',
+          gap: '0.5rem',
+          alignItems: 'flex-start',
+          lineHeight: '1.35'
+        }}>
+          <AlertTriangle size={16} style={{ flexShrink: 0, marginTop: '1px' }} />
+          <div>
+            <strong>Simulated AI Mode Active:</strong> GEMINI_API_KEY is not configured in your Cloud Run environment. AI vision triage will fall back to local keyword heuristics (defaulting to Pothole if no text is typed).
+            <div style={{ marginTop: '0.3rem', fontSize: '0.75rem', opacity: 0.85 }}>
+              To enable live Gemini Flash triage, configure the <code>GEMINI_API_KEY</code> environment variable in your Google Cloud Run service settings.
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Scenario presets */}
       <div style={{ display: 'flex', gap: '0.5rem' }}>

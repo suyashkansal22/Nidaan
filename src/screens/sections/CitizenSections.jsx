@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ThumbsUp, CheckCircle, Circle, FileText, Download, Star, Users, ShieldCheck, ArrowRight, ChevronDown, ChevronUp } from 'lucide-react';
+import { ThumbsUp, CheckCircle, Circle, FileText, Download, Star, Users, ShieldCheck, ArrowRight, ChevronDown, ChevronUp, XCircle, AlertTriangle } from 'lucide-react';
 import { useAppData } from '../../app/AppDataContext.jsx';
 import { useRole } from '../../app/RoleContext.jsx';
 import SnapToSolve from '../../components/SnapToSolve.jsx';
@@ -118,8 +118,12 @@ const ListIcon = (props) => <FileText {...props} />;
 
 /* 3 — Confirm a Fix */
 export function CitizenConfirmFix() {
-  const { issues, heroIssue, showToast } = useAppData();
+  const { issues, heroIssue, showToast, handleReportFailure } = useAppData();
   const [confirmed, setConfirmed] = useState(false);
+  const [denied, setDenied] = useState(false);
+  const [showDenyForm, setShowDenyForm] = useState(false);
+  const [denyReason, setDenyReason] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
   // Prefer a freshly-fixed repair; else the hero if it's been fixed/verified; else any verified job with proof.
   const target =
@@ -162,18 +166,66 @@ export function CitizenConfirmFix() {
         ))}
       </div>
 
-      {confirmed ? (
+      {denied ? (
+        <div className="badge badge-danger" style={{ alignSelf: 'flex-start', padding: '0.6rem 0.9rem', fontSize: '0.82rem' }}>
+          <AlertTriangle size={15} /> Rejection logged. Issue auto-reopened, penalty applied to contractor rating.
+        </div>
+      ) : confirmed ? (
         <div className="badge badge-success" style={{ alignSelf: 'flex-start', padding: '0.6rem 0.9rem', fontSize: '0.82rem' }}>
           <ShieldCheck size={15} /> Thank you — repair confirmed. Your trust score rose.
         </div>
+      ) : showDenyForm ? (
+        <form onSubmit={async (e) => {
+          e.preventDefault();
+          if (!denyReason.trim()) return alert('Please enter a reason for rejection.');
+          setSubmitting(true);
+          try {
+            await handleReportFailure(target.id, denyReason.trim());
+            setDenied(true);
+            setShowDenyForm(false);
+          } catch (err) {
+            console.error(err);
+          } finally {
+            setSubmitting(false);
+          }
+        }} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', width: '100%' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+            <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--ink)' }}>Specify why the issue is not fixed:</label>
+            <textarea
+              className="field"
+              value={denyReason}
+              onChange={(e) => setDenyReason(e.target.value)}
+              placeholder="e.g., The road is still flooded / Contractor only patched half the pothole..."
+              style={{ height: '70px', resize: 'none', fontSize: '0.85rem' }}
+              required
+            />
+          </div>
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <button type="submit" className="glow-btn-primary" style={{ background: 'var(--critical)', fontSize: '0.85rem' }} disabled={submitting}>
+              {submitting ? 'Submitting Rejection…' : 'Submit Rejection & Reopen'}
+            </button>
+            <button type="button" onClick={() => setShowDenyForm(false)} className="glow-btn-secondary" style={{ fontSize: '0.85rem' }}>
+              Cancel
+            </button>
+          </div>
+        </form>
       ) : (
-        <button
-          onClick={() => { setConfirmed(true); showToast('Repair confirmed — your trust score rose +2.', 'success'); }}
-          className="glow-btn-primary"
-          style={{ alignSelf: 'flex-start', fontSize: '0.9rem' }}
-        >
-          <CheckCircle size={16} /> Approve — yes, it's fixed
-        </button>
+        <div style={{ display: 'flex', gap: '0.75rem' }}>
+          <button
+            onClick={() => { setConfirmed(true); showToast('Repair confirmed — your trust score rose +2.', 'success'); }}
+            className="glow-btn-primary"
+            style={{ fontSize: '0.9rem' }}
+          >
+            <CheckCircle size={16} /> Approve — yes, it's fixed
+          </button>
+          <button
+            onClick={() => setShowDenyForm(true)}
+            className="glow-btn-secondary"
+            style={{ border: '1px solid var(--critical-border)', color: 'var(--critical)', fontSize: '0.9rem' }}
+          >
+            <XCircle size={16} color="var(--critical)" /> Deny — no, it's not fixed
+          </button>
+        </div>
       )}
     </div>
   );

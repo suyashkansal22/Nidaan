@@ -290,6 +290,7 @@ app.post('/api/issues/:id/reopen', async (req, res) => {
     const issue = await db.getDoc('issues', req.params.id);
     if (!issue) return res.status(404).json({ error: 'Issue not found' });
     
+    const { reason } = req.body;
     const contractorId = issue.assignedContractorId;
     if (contractorId) {
       try {
@@ -313,7 +314,9 @@ app.post('/api/issues/:id/reopen', async (req, res) => {
       ledgerTrail: appendLedger(issue.ledgerTrail, {
         status: 'reported',
         actor: 'Citizen-Auditor',
-        message: 'Warranty Claim Failed: Physical repair failed within warranty window. Penalty applied to contractor rating. Issue auto-reopened.'
+        message: reason
+          ? `Repair Rejected: ${reason}. Issue auto-reopened, penalty applied.`
+          : 'Warranty Claim Failed: Physical repair failed within warranty window. Penalty applied to contractor rating. Issue auto-reopened.'
       })
     });
     res.json(updated);

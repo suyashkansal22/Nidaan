@@ -4,6 +4,13 @@ import dotenv from 'dotenv';
 import { db } from './db.js';
 import { seedDatabase } from './seed.js';
 import { runOrchestrator } from './orchestrator.js';
+import { appendLedger, verifyChain } from './ledger.js';
+import { triagePhoto } from './triage.js';
+import {
+  generateDailyBrief, detectCrossIssueClusters, optimizeBudget,
+  searchCivicMemory, buildPetition, weatherPreposition
+} from './intelligence.js';
+import { sendCalendarInvite, sendGmail, pushToSheets } from './workspace.js';
 
 dotenv.config();
 
@@ -39,7 +46,7 @@ app.get('/api/issues/:id', async (req, res) => {
 // 3. Create a new issue (citizen snaps/voices report)
 app.post('/api/issues', async (req, res) => {
   try {
-    const { category, severity, description, location, voiceUrl, photoUrl, reporterReputation } = req.body;
+    const { category, severity, description, title, suggestedDept, location, voiceUrl, photoUrl, reporterReputation, reporterId } = req.body;
     
     // Check for nearby matching issues to deduplicate
     const issues = await db.getCollection('issues');
@@ -70,16 +77,12 @@ app.post('/api/issues', async (req, res) => {
       // Deduplicate: merge reports by increasing count of affected citizens
       const updated = await db.updateDoc('issues', existingDuplicate.id, {
         citizensAffected: (existingDuplicate.citizensAffected || 1) + 1,
-        // Append log to ledger trail
-        ledgerTrail: [
-          ...(existingDuplicate.ledgerTrail || []),
-          {
-            timestamp: new Date().toISOString(),
-            status: existingDuplicate.status,
-            actor: 'System-Deduplicator',
-            message: `Deduplicated matching report. Affected count increased to ${(existingDuplicate.citizensAffected || 1) + 1}.`
-          }
-        ]
+        // Append log to tamper-evident ledger trail
+        ledgerTrail: appendLedger(existingDuplicate.ledgerTrail, {
+          status: existingDuplicate.status,
+          actor: 'System-Deduplicator',
+          message: `Deduplicated matching report. Affected count increased to ${(existingDuplicate.citizensAffected || 1) + 1}.`
+        })
       });
       console.log(`Deduplicated new report. Merged with issue: ${existingDuplicate.id}`);
       return res.status(200).json({ deduplicated: true, issue: updated });
@@ -97,31 +100,48 @@ app.post('/api/issues', async (req, res) => {
     else if (severity === 'high') costPerDay = 3000;
     else if (severity === 'medium') costPerDay = 800;
 
+    const isEmergency = severity === 'RedAlert';
     const newIssue = {
       category: category || 'pothole',
       severity: severity || 'medium',
       status: 'reported',
+      title: title || `${(category || 'issue').replace('_', ' ')} reported`,
       description: description || 'No description provided.',
+      suggestedDept: suggestedDept || null,
+      emergency: isEmergency,
       location: location || { lat: 12.9716, lng: 77.5946, address: 'Demo City' },
       citizensAffected: 1,
       costOfInaction: costPerDay,
       slaDeadline: new Date(Date.now() + slaHours * 3600 * 1000).toISOString(),
       reporterReputation: reporterReputation || 20,
-      ward: location.ward || 'Ward 4 - Green Park',
+      reporterId: reporterId || null,
+      ward: location?.ward || 'Ward 4 - Green Park',
       bids: [],
       assignedContractorId: null,
       inspectorId: null,
       proofOfFixUrl: null,
       voiceUrl: voiceUrl || null,
       photoUrl: photoUrl || 'https://images.unsplash.com/photo-1515162305285-0293e4767cc2?auto=format&fit=crop&w=600&q=80',
-      ledgerTrail: [
-        { timestamp: new Date().toISOString(), status: 'reported', actor: 'Citizen', message: 'Report created via Nidaan' }
-      ],
+      ledgerTrail: appendLedger([], {
+        status: 'reported',
+        actor: 'Citizen',
+        message: isEmergency
+          ? 'RedAlert report created via Nidaan — routed to the emergency lane.'
+          : 'Report created via Nidaan'
+      }),
       timestamp: new Date().toISOString()
     };
 
     const saved = await db.addDoc('issues', newIssue);
-    
+
+    // Reward the reporter's trust score for filing a report
+    if (reporterId) {
+      try {
+        const user = await db.getDoc('users', reporterId);
+        if (user) await db.updateDoc('users', reporterId, { reports: (user.reports || 0) + 1, trustScore: Math.min(100, (user.trustScore || 20) + 2) });
+      } catch { /* users collection optional */ }
+    }
+
     // Auto-trigger the first orchestrator agent loop step in background
     runOrchestrator(saved.id, 'reported').catch(err => console.error('Agent error:', err));
 
@@ -155,10 +175,9 @@ app.get('/api/responders', async (req, res) => {
 app.post('/api/issues/:id/trigger', async (req, res) => {
   try {
     const issue = await db.getDoc('issues', req.params.id);
-    if (!issue) return res.status(440).json({ error: 'Issue not found' });
-    
-    const logs = await runOrchestrator(issue.id, issue.status);
-    const updated = await db.getDoc('issues', req.params.id);
+    if (!issue) return res.status(404).json({ error: 'Issue not found' });
+
+    const { logs, issue: updated } = await runOrchestrator(issue.id, issue.status);
     res.json({ logs, issue: updated });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -172,23 +191,21 @@ app.post('/api/issues/:id/fix', async (req, res) => {
     const issue = await db.getDoc('issues', req.params.id);
     if (!issue) return res.status(404).json({ error: 'Issue not found' });
     
-    const ledgerEntry = {
-      timestamp: new Date().toISOString(),
-      status: 'fixed',
-      actor: 'Contractor',
-      message: 'Uploaded post-fix image proof. Awaiting AI and inspector sign-off.'
-    };
-    
-    const updated = await db.updateDoc('issues', req.params.id, {
+    await db.updateDoc('issues', req.params.id, {
       status: 'fixed',
       proofOfFixUrl: proofOfFixUrl || 'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=600&q=80',
-      ledgerTrail: [...(issue.ledgerTrail || []), ledgerEntry]
+      ledgerTrail: appendLedger(issue.ledgerTrail, {
+        status: 'fixed',
+        actor: 'Contractor',
+        tool: 'submitProofOfFix',
+        message: 'Uploaded post-fix image proof. Awaiting triple-lock AI + inspector + citizen sign-off.'
+      })
     });
-    
-    // Trigger agent verification step in background
-    runOrchestrator(updated.id, 'fixed').catch(err => console.error('Agent error:', err));
-    
-    res.json(updated);
+
+    // Run the triple-lock verification (populates verification.allGreen) but do NOT
+    // release escrow — the Pay button stays locked until the official releases it.
+    const { issue: verified } = await runOrchestrator(req.params.id, 'fixed');
+    res.json(verified);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -202,33 +219,37 @@ app.post('/api/issues/:id/vote', async (req, res) => {
     
     const newCount = (issue.citizensAffected || 1) + 1;
     let updateFields = { citizensAffected: newCount };
-    
+
+    // Generate a single group-petition object once enough citizens are affected (PressurePath 4c)
+    const PETITION_THRESHOLD = 25;
+    let petitioned = false;
+    if (newCount >= PETITION_THRESHOLD && !issue.petition) {
+      petitioned = true;
+      updateFields.petition = buildPetition(issue, newCount);
+    }
+
     // Automatically trigger escalation if collective pressure crosses 50 votes and still not assigned
     let escalated = false;
     if (newCount >= 50 && ['reported', 'triaged', 'bidding'].includes(issue.status)) {
       escalated = true;
-      const ledgerEntry = {
-        timestamp: new Date().toISOString(),
+      updateFields.status = 'escalated';
+      updateFields.ledgerTrail = appendLedger(issue.ledgerTrail, {
         status: 'escalated',
         actor: 'PressurePath-Agent',
         message: `Collective pressure threshold breached (${newCount} citizens). Auto-generated legal RTI grievance drafted and routed.`
-      };
-      updateFields.status = 'escalated';
-      updateFields.ledgerTrail = [...(issue.ledgerTrail || []), ledgerEntry];
+      });
     } else {
-      updateFields.ledgerTrail = [
-        ...(issue.ledgerTrail || []),
-        {
-          timestamp: new Date().toISOString(),
-          status: issue.status,
-          actor: 'Citizen-Voter',
-          message: `Citizen upvoted report. Active support increased to ${newCount} members.`
-        }
-      ];
+      updateFields.ledgerTrail = appendLedger(issue.ledgerTrail, {
+        status: issue.status,
+        actor: 'Citizen-Voter',
+        message: petitioned
+          ? `Citizen support reached ${newCount}. Group petition auto-assembled and ready to file.`
+          : `Citizen upvoted report. Active support increased to ${newCount} members.`
+      });
     }
-    
+
     const updated = await db.updateDoc('issues', req.params.id, updateFields);
-    res.json({ escalated, issue: updated });
+    res.json({ escalated, petitioned, issue: updated });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -280,20 +301,17 @@ app.post('/api/issues/:id/reopen', async (req, res) => {
       }
     }
 
-    const ledgerEntry = {
-      timestamp: new Date().toISOString(),
-      status: 'reported',
-      actor: 'Citizen-Auditor',
-      message: 'Warranty Claim Failed: Physical repair failed. Penalty applied to contractor rating. Issue auto-reopened.'
-    };
-
     const updated = await db.updateDoc('issues', req.params.id, {
       status: 'reported',
       assignedContractorId: null,
       inspectorId: null,
       proofOfFixUrl: null,
       bids: [],
-      ledgerTrail: [...(issue.ledgerTrail || []), ledgerEntry]
+      ledgerTrail: appendLedger(issue.ledgerTrail, {
+        status: 'reported',
+        actor: 'Citizen-Auditor',
+        message: 'Warranty Claim Failed: Physical repair failed within warranty window. Penalty applied to contractor rating. Issue auto-reopened.'
+      })
     });
     res.json(updated);
   } catch (error) {
@@ -312,16 +330,13 @@ app.post('/api/issues/:id/donate', async (req, res) => {
     const currentRaised = issue.crowdfundRaised || 0;
     const newTotal = currentRaised + donationAmount;
     
-    const ledgerEntry = {
-      timestamp: new Date().toISOString(),
-      status: issue.status,
-      actor: 'Citizen-Donors',
-      message: `Received citizen crowdfunding contribution of ₹${donationAmount}. Total raised: ₹${newTotal}.`
-    };
-    
     const updated = await db.updateDoc('issues', req.params.id, {
       crowdfundRaised: newTotal,
-      ledgerTrail: [...(issue.ledgerTrail || []), ledgerEntry]
+      ledgerTrail: appendLedger(issue.ledgerTrail, {
+        status: issue.status,
+        actor: 'Citizen-Donors',
+        message: `Received citizen crowdfunding contribution of ₹${donationAmount}. Total raised: ₹${newTotal}.`
+      })
     });
     res.json(updated);
   } catch (error) {
@@ -334,8 +349,175 @@ app.get('/api/status', (req, res) => {
   res.json({
     dbType: db.getDbType(),
     agentMode: process.env.GEMINI_API_KEY ? 'gemini' : 'simulated',
+    workspace: !!process.env.GOOGLE_WORKSPACE_TOKEN ? 'live' : 'pluggable',
+    maps: !!process.env.GOOGLE_MAPS_API_KEY,
     time: new Date().toISOString()
   });
+});
+
+// 9. AI photo triage — Gemini Flash classifies a photo into {type, severity, title, description, suggestedDept}
+app.post('/api/triage', async (req, res) => {
+  try {
+    const { photoUrl, photoBase64, mimeType, hint } = req.body;
+    const result = await triagePhoto({ photoUrl, photoBase64, mimeType, hint });
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// 10. Tamper-evident ledger verification (GlassLedger 6c)
+app.get('/api/issues/:id/verify-ledger', async (req, res) => {
+  try {
+    const issue = await db.getDoc('issues', req.params.id);
+    if (!issue) return res.status(404).json({ error: 'Issue not found' });
+    res.json(verifyChain(issue.ledgerTrail || []));
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// 11. Autonomous full resolution run — drives the issue reported -> verified, streaming step logs
+app.post('/api/issues/:id/run', async (req, res) => {
+  try {
+    const issue = await db.getDoc('issues', req.params.id);
+    if (!issue) return res.status(404).json({ error: 'Issue not found' });
+    const { logs, issue: finalIssue } = await runOrchestrator(issue.id, issue.status, { autoRun: true });
+    res.json({ logs, issue: finalIssue });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// 12. Release escrow — only succeeds when the triple-lock verification is all-green (Proof-Gated Pay 3f / 2c)
+app.post('/api/issues/:id/release', async (req, res) => {
+  try {
+    const issue = await db.getDoc('issues', req.params.id);
+    if (!issue) return res.status(404).json({ error: 'Issue not found' });
+    const v = issue.verification;
+    if (!v || !v.allGreen) {
+      return res.status(409).json({ error: 'Payout locked — triple-lock proof is not all green yet.', verification: v || null });
+    }
+    const { logs, issue: finalIssue } = await runOrchestrator(issue.id, 'release', {});
+    res.json({ logs, issue: finalIssue });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// 13. SLA sweep — escalate every open issue whose deadline has passed (PressurePath 4b)
+app.post('/api/sla/sweep', async (req, res) => {
+  try {
+    const issues = await db.getCollection('issues');
+    const now = Date.now();
+    const escalated = [];
+    for (const issue of issues) {
+      const breached = issue.slaDeadline && new Date(issue.slaDeadline).getTime() < now;
+      const open = !['verified', 'escalated'].includes(issue.status);
+      if (breached && open) {
+        const result = await runOrchestrator(issue.id, 'sla_breach', {});
+        escalated.push({ id: issue.id, logs: result.logs });
+      }
+    }
+    res.json({ escalatedCount: escalated.length, escalated });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// 14. Intelligence layer (Fix-It-Right 5b-5f, GlassLedger briefs)
+app.get('/api/intelligence/brief', async (req, res) => {
+  try {
+    const issues = await db.getCollection('issues');
+    const brief = await generateDailyBrief(issues);
+    res.json(brief);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/intelligence/clusters', async (req, res) => {
+  try {
+    const issues = await db.getCollection('issues');
+    res.json(detectCrossIssueClusters(issues));
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/intelligence/budget', async (req, res) => {
+  try {
+    const { budget } = req.body;
+    const issues = await db.getCollection('issues');
+    res.json(optimizeBudget(issues, Number(budget) || 100000));
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/intelligence/memory', async (req, res) => {
+  try {
+    const issues = await db.getCollection('issues');
+    res.json(searchCivicMemory(issues, req.query.q || ''));
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// 15. Preparedness pre-dispatch — proactive crew staging before any citizen reports (5b)
+app.post('/api/preparedness', async (req, res) => {
+  try {
+    const { trigger } = req.body; // e.g. 'heavy_rain'
+    const responders = await db.getCollection('responders');
+    res.json(weatherPreposition(trigger || 'heavy_rain', responders));
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// 16. Workspace touchpoints — Calendar invite + Gmail filing (labeled pluggable unless a token is set)
+app.post('/api/issues/:id/workspace/calendar', async (req, res) => {
+  try {
+    const issue = await db.getDoc('issues', req.params.id);
+    if (!issue) return res.status(404).json({ error: 'Issue not found' });
+    const result = await sendCalendarInvite(issue, req.body || {});
+    const updated = await db.updateDoc('issues', issue.id, {
+      ledgerTrail: appendLedger(issue.ledgerTrail, {
+        status: issue.status, actor: 'Workspace-Calendar',
+        message: result.message
+      })
+    });
+    res.json({ result, issue: updated });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/issues/:id/workspace/gmail', async (req, res) => {
+  try {
+    const issue = await db.getDoc('issues', req.params.id);
+    if (!issue) return res.status(404).json({ error: 'Issue not found' });
+    const result = await sendGmail(issue, req.body || {});
+    const updated = await db.updateDoc('issues', issue.id, {
+      ledgerTrail: appendLedger(issue.ledgerTrail, {
+        status: issue.status, actor: 'Workspace-Gmail',
+        message: result.message
+      })
+    });
+    res.json({ result, issue: updated });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// 17. Users / reporter reputation (TruthMesh 2b)
+app.get('/api/users', async (req, res) => {
+  try {
+    const users = await db.getCollection('users');
+    res.json(users.sort((a, b) => (b.trustScore || 0) - (a.trustScore || 0)));
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 // 9. Reset/Seed database endpoint

@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import {
   IndianRupee, ShieldCheck, Lock, Unlock, Image as ImageIcon, CheckCircle, Circle,
-  UserPlus, HardHat, FileText, Send, Hammer, Activity, Award, ArrowRight
+  UserPlus, HardHat, FileText, Send, Hammer, Activity, Award, ArrowRight, Download, Calendar, Mail
 } from 'lucide-react';
 
 export default function FixForceMarketplace({
-  issue, contractors, onTriggerFix, loading, onRegisterContractor, onReportFailure, onDonate
+  issue, contractors, onTriggerFix, loading, onRegisterContractor, onReportFailure, onDonate, onReleaseEscrow, onWorkspace
 }) {
   const [activeSubTab, setActiveSubTab] = useState('dispatch');
   const [proofUrl, setProofUrl] = useState('https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=600&q=80');
@@ -70,7 +70,28 @@ export default function FixForceMarketplace({
   };
 
   const handleInspectorOverride = () => {
-    alert(`Inspector override recorded on Google Calendar for ${overrideInspector}.`);
+    const name = overrideInspector === 'resp_1' ? 'Inspector Suresh Kumar' : 'Inspector Ananya Rao';
+    if (onWorkspace) onWorkspace(issue.id, 'calendar', { inspectorName: name });
+  };
+
+  const buildRTIText = (issue) => `MEMORANDUM OF GRIEVANCE
+TO: Public Works Department / Municipal Grievance Cell
+SUBJECT: Unresolved Public Hazard — SLA Breach (Ticket #${issue.id})
+WARD: ${issue.ward}
+
+Formal notification under Section 6 of the RTI Act regarding the unresolved civic issue: ${issue.category.replace('_', ' ').toUpperCase()} reported on ${new Date(issue.timestamp).toLocaleDateString()}.
+
+Despite a community pressure rating of ${issue.citizensAffected} affected citizens, the department failed to resolve within ${issue.severity === 'RedAlert' ? '4 hours' : '48 hours'}.
+
+Daily economic cost of inaction: ₹${issue.costOfInaction}. Please register this in the public audit ledger and provide a dated action plan within 30 days as mandated.`;
+
+  const downloadRTI = (issue) => {
+    const blob = new Blob([buildRTIText(issue)], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `RTI_grievance_${issue.id}.txt`;
+    document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
   };
 
   const cardHead = (issue) => (
@@ -309,11 +330,23 @@ export default function FixForceMarketplace({
               );
             })()}
 
-            {/* FIXED — before/after diff + triple-lock + escrow about to release */}
-            {issue.status === 'fixed' && (
+            {/* FIXED — before/after diff + triple-lock + proof-gated escrow release */}
+            {issue.status === 'fixed' && (() => {
+              const v = issue.verification;
+              const locks = v ? [
+                ['AI Vision diff', v.aiDiff?.note, v.aiDiff?.pass, v.aiDiff?.score],
+                ['Citizen confirm', v.citizenConfirm?.note, v.citizenConfirm?.pass],
+                ['Street View GPS', v.streetView?.note, v.streetView?.pass],
+              ] : [
+                ['AI Vision diff', 'Awaiting Gemini before/after comparison…', false],
+                ['Citizen confirm', 'Awaiting nearby-citizen confirm-ping…', false],
+                ['Street View GPS', 'Awaiting GPS / Street View match…', false],
+              ];
+              const allGreen = v?.allGreen;
+              return (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                <div style={{ background: 'var(--alert-tint)', border: '1px solid rgba(224,138,30,.3)', borderRadius: 'var(--radius-ctl)', padding: '0.75rem 1rem', fontSize: '0.82rem', color: 'var(--ink)' }}>
-                  <strong>Pending verification.</strong> Proof uploaded. Trigger the agent step on the right to run the triple-lock and release escrow.
+                <div style={{ background: allGreen ? 'var(--grass-tint)' : 'var(--alert-tint)', border: `1px solid ${allGreen ? 'rgba(91,170,71,.35)' : 'rgba(224,138,30,.3)'}`, borderRadius: 'var(--radius-ctl)', padding: '0.75rem 1rem', fontSize: '0.82rem', color: 'var(--ink)' }}>
+                  <strong>{allGreen ? 'Triple-lock passed.' : 'Pending verification.'}</strong> {allGreen ? 'All three proof locks are green — escrow can be released below.' : 'Proof uploaded. The agent is running the triple-lock; the Pay button stays locked until all three pass.'}
                 </div>
 
                 {/* Before / After with AI verdict ribbon */}
@@ -326,27 +359,29 @@ export default function FixForceMarketplace({
                     <span className="badge badge-success" style={{ alignSelf: 'flex-start' }}>After</span>
                     <img src={issue.proofOfFixUrl || proofUrl} alt="After" style={{ width: '100%', height: '140px', objectFit: 'cover', borderRadius: 'var(--radius-ctl)', border: '1px solid var(--cream-300)' }} />
                   </div>
-                  {/* verdict ribbon */}
                   <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, 60%)', background: 'var(--ink-strong)', color: '#fff', padding: '0.3rem 0.7rem', borderRadius: '99px', fontSize: '0.7rem', fontWeight: 700, fontFamily: 'var(--font-mono)', boxShadow: 'var(--shadow-lift)', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                    <ShieldCheck size={13} color="var(--grass)" /> PASS · 0.94
+                    <ShieldCheck size={13} color="var(--grass)" /> {v?.aiDiff?.score ? `PASS · ${v.aiDiff.score}` : 'PASS · 0.94'}
                   </div>
                 </div>
 
-                {/* Triple-lock checklist */}
+                {/* Triple-lock checklist (live verification) */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                  {[
-                    ['AI Vision diff', 'Gemini compared images — 94% match, surface repaired.'],
-                    ['Citizen confirm', 'SMS ping confirmed by nearby resident (Rep 89).'],
-                    ['Street View GPS', 'Metadata coordinates match the repair location.'],
-                  ].map(([t, d], i) => (
-                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.78rem', background: 'var(--grass-tint)', padding: '0.5rem 0.7rem', borderRadius: 'var(--radius-ctl)', border: '1px solid rgba(91,170,71,.25)' }}>
-                      <CheckCircle size={16} color="var(--grass-600)" />
+                  {locks.map(([t, d, pass], i) => (
+                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.78rem', background: pass ? 'var(--grass-tint)' : 'var(--cream-200)', padding: '0.5rem 0.7rem', borderRadius: 'var(--radius-ctl)', border: `1px solid ${pass ? 'rgba(91,170,71,.25)' : 'var(--cream-400)'}` }}>
+                      {pass ? <CheckCircle size={16} color="var(--grass-600)" /> : <Circle size={16} color="var(--ink-muted)" />}
                       <span><strong style={{ color: 'var(--ink-strong)' }}>{t}</strong> — <span style={{ color: 'var(--ink-muted)' }}>{d}</span></span>
                     </div>
                   ))}
                 </div>
+
+                {/* Proof-gated Pay button */}
+                <div style={{ display: 'flex', gap: '0.6rem', alignItems: 'center' }}>
+                  <button onClick={() => onReleaseEscrow && onReleaseEscrow(issue.id)} disabled={!allGreen || loading} className="glow-btn-primary" style={{ flex: 1, justifyContent: 'center', opacity: allGreen ? 1 : 0.6 }}>
+                    {allGreen ? <Unlock size={15} /> : <Lock size={15} />} {allGreen ? 'Release escrow payment' : 'Payout locked'}
+                  </button>
+                </div>
               </div>
-            )}
+            ); })()}
 
             {/* VERIFIED — escrow released (unlock) + warranty + scorecard */}
             {issue.status === 'verified' && (
@@ -424,19 +459,26 @@ export default function FixForceMarketplace({
                   </div>
                 </div>
 
-                <h3 style={{ fontSize: '0.9rem' }}>Drafted RTI grievance</h3>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <h3 style={{ fontSize: '0.9rem' }}>Auto-drafted RTI grievance</h3>
+                  <div style={{ display: 'flex', gap: '0.4rem' }}>
+                    <button onClick={() => downloadRTI(issue)} className="glow-btn-secondary" style={{ padding: '0.35rem 0.6rem', fontSize: '0.72rem' }}><Download size={12} /> Download</button>
+                    <button onClick={() => onWorkspace && onWorkspace(issue.id, 'gmail', { body: buildRTIText(issue) })} className="glow-btn-primary" style={{ padding: '0.35rem 0.6rem', fontSize: '0.72rem' }}><Mail size={12} /> File via Gmail</button>
+                  </div>
+                </div>
                 <pre className="sunken" style={{ padding: '1rem', fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: 'var(--ink-muted)', whiteSpace: 'pre-wrap', lineHeight: 1.5, borderRadius: 'var(--radius-ctl)', margin: 0 }}>
-{`MEMORANDUM OF GRIEVANCE
-TO: Public Works Department / Municipal Grievance Cell
-SUBJECT: Unresolved Public Hazard — SLA Breach (Ticket #${issue.id})
-WARD: ${issue.ward}
-
-Formal notification under Section 6 of the RTI Act regarding the unresolved civic issue: ${issue.category.replace('_', ' ').toUpperCase()} reported on ${new Date(issue.timestamp).toLocaleDateString()}.
-
-Despite a community pressure rating of ${issue.citizensAffected} affected citizens, the department failed to resolve within ${issue.severity === 'RedAlert' ? '4 hours' : '48 hours'}.
-
-Daily economic cost of inaction: ₹${issue.costOfInaction}. Please register this in the public audit ledger.`}
+{buildRTIText(issue)}
                 </pre>
+
+                {issue.petition && (
+                  <div style={{ background: 'var(--teal-tint)', border: '1px solid rgba(26,169,160,.25)', borderRadius: 'var(--radius-ctl)', padding: '1rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
+                      <span style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--ink-strong)' }}>{issue.petition.title}</span>
+                      <span className="badge badge-info">{issue.petition.signatures} signatures</span>
+                    </div>
+                    <p style={{ fontSize: '0.72rem', color: 'var(--ink-muted)', whiteSpace: 'pre-wrap', lineHeight: 1.5 }}>{issue.petition.body}</p>
+                  </div>
+                )}
               </div>
             )}
           </div>

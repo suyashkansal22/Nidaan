@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { LayoutDashboard, Map, Camera, Briefcase, RefreshCw, TrendingUp } from 'lucide-react';
+import { LayoutDashboard, Map, Camera, Briefcase, RefreshCw, TrendingUp, Brain, Scale, LogOut } from 'lucide-react';
 import LoopPipeline from './LoopPipeline.jsx';
 
 function useCountUp(target, duration = 900) {
@@ -20,17 +20,22 @@ function useCountUp(target, duration = 900) {
   return val;
 }
 
-export default function Layout({ children, activeTab, setActiveTab, onResetDb, dbType, issues = [] }) {
+export default function Layout({ children, activeTab, setActiveTab, onResetDb, dbType, issues = [], user, onSignOut }) {
   const openIssues = issues.filter(i => i.status !== 'verified');
   const dailyRisk = openIssues.reduce((acc, i) => acc + (i.costOfInaction || 0), 0);
   const animatedRisk = useCountUp(dailyRisk);
 
-  const tabs = [
-    { id: 'dashboard',   label: 'War Room',       icon: LayoutDashboard },
+  const isCitizen = user?.role === 'citizen';
+  const allTabs = [
+    { id: 'dashboard',   label: 'War Room',        icon: LayoutDashboard, official: true },
     { id: 'radar',       label: 'Responder Radar', icon: Map },
-    { id: 'report',      label: 'Snap-to-Solve',  icon: Camera },
-    { id: 'marketplace', label: 'FixForce',       icon: Briefcase },
+    { id: 'report',      label: 'Snap-to-Solve',   icon: Camera },
+    { id: 'marketplace', label: 'FixForce',        icon: Briefcase },
+    { id: 'insights',    label: 'Fix-It-Right',    icon: Brain, official: true },
+    { id: 'scorecard',   label: 'GlassLedger',     icon: Scale },
   ];
+  // Citizens see the reporter-first set; officials get the full war room.
+  const tabs = isCitizen ? allTabs.filter(t => !t.official) : allTabs;
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', position: 'relative' }}>
@@ -109,6 +114,21 @@ export default function Layout({ children, activeTab, setActiveTab, onResetDb, d
           <span className={`badge ${dbType === 'firestore' ? 'badge-success' : 'badge-warning'}`} style={{ fontFamily: 'var(--font-mono)', textTransform: 'uppercase' }}>
             DB: {dbType}
           </span>
+
+          {user && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', paddingLeft: '0.5rem', borderLeft: '1px solid var(--cream-300)' }}>
+              <span style={{ width: '32px', height: '32px', borderRadius: '50%', background: user.role === 'official' ? 'var(--ink-strong)' : 'var(--teal)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.8rem' }} title={`${user.name} · trust ${user.trustScore}`}>
+                {(user.name || '?')[0]}
+              </span>
+              <div style={{ lineHeight: 1.05, display: 'none' }} className="user-meta">
+                <div style={{ fontSize: '0.74rem', fontWeight: 700, color: 'var(--ink-strong)' }}>{user.name}</div>
+                <span style={{ fontSize: '0.6rem', color: 'var(--teal-600)', textTransform: 'capitalize', fontWeight: 600 }}>{user.role}</span>
+              </div>
+              <button onClick={onSignOut} title="Sign out" className="glow-btn-secondary" style={{ padding: '0.4rem', borderRadius: 'var(--radius-ctl)' }}>
+                <LogOut size={15} />
+              </button>
+            </div>
+          )}
         </div>
       </header>
 

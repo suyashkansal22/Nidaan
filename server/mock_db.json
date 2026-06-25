@@ -1,6 +1,44 @@
 {
   "issues": [
     {
+      "id": "issue_burstpipe",
+      "category": "water_leak",
+      "severity": "high",
+      "status": "reported",
+      "title": "Burst water main flooding the road",
+      "description": "Underground water main burst near the Sector 7 junction — high-pressure jet flooding the carriageway and wasting thousands of litres of potable water.",
+      "suggestedDept": "Water & Sewerage Board",
+      "emergency": false,
+      "photoUrl": "https://images.unsplash.com/photo-1584824486509-112e4181ff6b?auto=format&fit=crop&w=600&q=80",
+      "location": {
+        "lat": 12.973098,
+        "lng": 77.598062,
+        "address": "Demo City, Sector 7"
+      },
+      "citizensAffected": 64,
+      "costOfInaction": 4200,
+      "slaDeadline": "2026-06-26T02:29:01.442Z",
+      "reporterReputation": 92,
+      "reporterId": "user_sita",
+      "ward": "Ward 7 - Indira Nagar",
+      "bids": [],
+      "assignedContractorId": null,
+      "inspectorId": null,
+      "proofOfFixUrl": null,
+      "ledgerTrail": [
+        {
+          "timestamp": "2026-06-25T16:29:01.443Z",
+          "status": "reported",
+          "actor": "Citizen",
+          "message": "Burst water pipe reported via Snap-to-Solve. Triple-lock dedupe check passed.",
+          "tool": "ingestReport",
+          "prevHash": "0000000000000000000000000000000000000000000000000000000000000000",
+          "hash": "1859339e603166a5003a9f04f7eee010d90499a6eb0f3e2e524237e4071f43e4"
+        }
+      ],
+      "timestamp": "2026-06-25T16:29:01.443Z"
+    },
+    {
       "id": "issue_1",
       "category": "pothole",
       "severity": "medium",
@@ -10,11 +48,11 @@
       "location": {
         "lat": 12.973598,
         "lng": 77.59056199999999,
-        "address": "Demo City, Sector 3"
+        "address": "Demo City, Sector 2"
       },
       "citizensAffected": 28,
       "costOfInaction": 450,
-      "slaDeadline": "2026-06-26T18:20:38.765Z",
+      "slaDeadline": "2026-06-27T16:29:01.443Z",
       "reporterReputation": 45,
       "ward": "Ward 4 - Green Park",
       "bids": [],
@@ -23,13 +61,15 @@
       "proofOfFixUrl": null,
       "ledgerTrail": [
         {
-          "timestamp": "2026-06-24T18:20:38.765Z",
+          "timestamp": "2026-06-25T16:29:01.443Z",
           "status": "reported",
           "actor": "Citizen_Vibe",
-          "message": "Reported pothole via Snap-to-Solve"
+          "message": "Reported pothole via Snap-to-Solve",
+          "prevHash": "0000000000000000000000000000000000000000000000000000000000000000",
+          "hash": "3a4e0ae32bde5bdd6f4398262e5239db5addb43cbbbc9b02a5f312446596a8ed"
         }
       ],
-      "timestamp": "2026-06-24T18:20:38.765Z"
+      "timestamp": "2026-06-25T16:29:01.443Z"
     },
     {
       "id": "issue_2",
@@ -41,11 +81,11 @@
       "location": {
         "lat": 12.975598,
         "lng": 77.59656199999999,
-        "address": "Demo City, Sector 2"
+        "address": "Demo City, Sector 7"
       },
       "citizensAffected": 142,
       "costOfInaction": 8500,
-      "slaDeadline": "2026-06-24T22:20:38.765Z",
+      "slaDeadline": "2026-06-25T20:29:01.443Z",
       "reporterReputation": 89,
       "ward": "Ward 12 - Aero City",
       "bids": [],
@@ -54,19 +94,23 @@
       "proofOfFixUrl": null,
       "ledgerTrail": [
         {
-          "timestamp": "2026-06-24T18:20:38.765Z",
+          "timestamp": "2026-06-25T16:29:01.443Z",
           "status": "reported",
           "actor": "Citizen_Anil",
-          "message": "Submitted photo of live wire"
+          "message": "Submitted photo of live wire",
+          "prevHash": "0000000000000000000000000000000000000000000000000000000000000000",
+          "hash": "3812cbf34a77cc05e9b476e687a2f15e6ab1c42ace7ad672333732779b60dbae"
         },
         {
-          "timestamp": "2026-06-24T18:20:38.765Z",
+          "timestamp": "2026-06-25T16:29:01.443Z",
           "status": "triaged",
           "actor": "GeminiAgent",
-          "message": "Classified severity as RedAlert and alerted Emergency Services"
+          "message": "Classified severity as RedAlert and alerted Emergency Services",
+          "prevHash": "3812cbf34a77cc05e9b476e687a2f15e6ab1c42ace7ad672333732779b60dbae",
+          "hash": "3f20415e8f951614b38b91770b95fc11a5d147fb40a2a77ea1dea7873c4e9736"
         }
       ],
-      "timestamp": "2026-06-24T18:20:38.765Z"
+      "timestamp": "2026-06-25T16:29:01.443Z"
     },
     {
       "id": "issue_3",
@@ -78,11 +122,11 @@
       "location": {
         "lat": 12.966598,
         "lng": 77.595562,
-        "address": "Demo City, Sector 2"
+        "address": "Demo City, Sector 12"
       },
       "citizensAffected": 320,
       "costOfInaction": 3200,
-      "slaDeadline": "2026-06-25T06:20:38.765Z",
+      "slaDeadline": "2026-06-26T04:29:01.443Z",
       "reporterReputation": 120,
       "ward": "Ward 4 - Green Park",
       "bids": [
@@ -106,25 +150,31 @@
       "proofOfFixUrl": null,
       "ledgerTrail": [
         {
-          "timestamp": "2026-06-24T15:20:38.765Z",
+          "timestamp": "2026-06-25T13:29:01.443Z",
           "status": "reported",
           "actor": "Citizen_Sita",
-          "message": "Reported water gushing from street"
+          "message": "Reported water gushing from street",
+          "prevHash": "0000000000000000000000000000000000000000000000000000000000000000",
+          "hash": "f305e1c71375d01e179d6d7fe72b84989c2251fb29e2c17d6e4d07e717f68a74"
         },
         {
-          "timestamp": "2026-06-24T15:32:38.765Z",
+          "timestamp": "2026-06-25T13:41:01.443Z",
           "status": "triaged",
           "actor": "GeminiAgent",
-          "message": "Triage complete. Deduplicated 3 identical reports."
+          "message": "Triage complete. Deduplicated 3 identical reports.",
+          "prevHash": "f305e1c71375d01e179d6d7fe72b84989c2251fb29e2c17d6e4d07e717f68a74",
+          "hash": "d69da2f380a4c69e19ab5938817ab930f48117adab88b720e06123a05a7608d6"
         },
         {
-          "timestamp": "2026-06-24T15:50:38.765Z",
+          "timestamp": "2026-06-25T13:59:01.443Z",
           "status": "bidding",
           "actor": "GeminiAgent",
-          "message": "BOM Inferred: PVC pipe, 2 couplers, concrete. Triggered reverse-auction."
+          "message": "BOM Inferred: PVC pipe, 2 couplers, concrete. Triggered reverse-auction.",
+          "prevHash": "d69da2f380a4c69e19ab5938817ab930f48117adab88b720e06123a05a7608d6",
+          "hash": "452e5050669ea514bc9d6d3dccdc04e338655a89d8dc19793ac32fc9300e05e6"
         }
       ],
-      "timestamp": "2026-06-24T15:20:38.765Z"
+      "timestamp": "2026-06-25T13:29:01.443Z"
     },
     {
       "id": "issue_4",
@@ -136,11 +186,11 @@
       "location": {
         "lat": 12.968598,
         "lng": 77.591562,
-        "address": "Demo City, Sector 9"
+        "address": "Demo City, Sector 2"
       },
       "citizensAffected": 15,
       "costOfInaction": 150,
-      "slaDeadline": "2026-06-23T18:20:38.765Z",
+      "slaDeadline": "2026-06-24T16:29:01.443Z",
       "reporterReputation": 30,
       "ward": "Ward 8 - Malleswaram",
       "bids": [
@@ -157,31 +207,315 @@
       "proofOfFixUrl": "https://images.unsplash.com/photo-1530587191325-3db32d826c18?auto=format&fit=crop&w=600&q=80",
       "ledgerTrail": [
         {
-          "timestamp": "2026-06-22T18:20:38.765Z",
+          "timestamp": "2026-06-23T16:29:01.443Z",
           "status": "reported",
           "actor": "Citizen_Dev",
-          "message": "Reported heap of concrete blocks"
+          "message": "Reported heap of concrete blocks",
+          "prevHash": "0000000000000000000000000000000000000000000000000000000000000000",
+          "hash": "9a393c6750c113d383b42a177e3fd37cbd4ed9d178acfbc6cd57522da1269a67"
         },
         {
-          "timestamp": "2026-06-23T02:20:38.765Z",
+          "timestamp": "2026-06-24T00:29:01.443Z",
           "status": "assigned",
           "actor": "GeminiAgent",
-          "message": "Assigned Apex Roadways Ltd. Escrow locked."
+          "message": "Assigned Apex Roadways Ltd. Escrow locked.",
+          "prevHash": "9a393c6750c113d383b42a177e3fd37cbd4ed9d178acfbc6cd57522da1269a67",
+          "hash": "8e7d975db86d8a07a5ab5b89976dbcf871bfef7e428ac1a7720364df4cfb1a6c"
         },
         {
-          "timestamp": "2026-06-23T22:20:38.765Z",
+          "timestamp": "2026-06-24T20:29:01.443Z",
           "status": "fixed",
           "actor": "contractor_1",
-          "message": "Submitted photo proof of clean site"
+          "message": "Submitted photo proof of clean site",
+          "prevHash": "8e7d975db86d8a07a5ab5b89976dbcf871bfef7e428ac1a7720364df4cfb1a6c",
+          "hash": "84828f3fbad94abefd25be33e9f9e800b058752a94d993c62934bede74c61820"
         },
         {
-          "timestamp": "2026-06-23T23:20:38.765Z",
+          "timestamp": "2026-06-24T21:29:01.443Z",
           "status": "verified",
           "actor": "GeminiAgent",
-          "message": "Triple-lock proof passed. AI comparison verified. Released ₹4,200 from escrow."
+          "message": "Triple-lock proof passed. AI comparison verified. Released ₹4,200 from escrow.",
+          "prevHash": "84828f3fbad94abefd25be33e9f9e800b058752a94d993c62934bede74c61820",
+          "hash": "f824c998ec21c1c40e6f447de0102923706a0ba84bd6a480a3401a9449b4e67d"
         }
       ],
-      "timestamp": "2026-06-22T18:20:38.765Z"
+      "timestamp": "2026-06-23T16:29:01.443Z"
+    },
+    {
+      "id": "issue_history_1",
+      "category": "pothole",
+      "severity": "medium",
+      "status": "verified",
+      "description": "Pothole patch repair at Sector 4.",
+      "photoUrl": "https://images.unsplash.com/photo-1515162305285-0293e4767cc2?auto=format&fit=crop&w=600&q=80",
+      "location": {
+        "lat": 12.973598,
+        "lng": 77.59056199999999,
+        "address": "Demo City, Sector 8"
+      },
+      "citizensAffected": 12,
+      "costOfInaction": 450,
+      "slaDeadline": "2026-04-26T16:29:01.443Z",
+      "reporterReputation": 35,
+      "ward": "Ward 4 - Green Park",
+      "bids": [
+        {
+          "contractorId": "contractor_1",
+          "price": 3500,
+          "eta": 45,
+          "rating": 4.8,
+          "status": "accepted"
+        }
+      ],
+      "assignedContractorId": "contractor_1",
+      "inspectorId": "resp_1",
+      "proofOfFixUrl": "https://images.unsplash.com/photo-1530587191325-3db32d826c18?auto=format&fit=crop&w=600&q=80",
+      "ledgerTrail": [
+        {
+          "timestamp": "2026-04-26T16:29:01.443Z",
+          "status": "verified",
+          "actor": "GeminiAgent",
+          "message": "Released ₹3,500",
+          "prevHash": "0000000000000000000000000000000000000000000000000000000000000000",
+          "hash": "b26dbbafce04465e0a681de5ffa8da22d3f4dc6abf4c72149d00a08d508b8600"
+        }
+      ],
+      "timestamp": "2026-04-26T16:29:01.443Z"
+    },
+    {
+      "id": "issue_history_2",
+      "category": "pothole",
+      "severity": "medium",
+      "status": "verified",
+      "description": "Emergency patch filling near sector 4 bend.",
+      "photoUrl": "https://images.unsplash.com/photo-1515162305285-0293e4767cc2?auto=format&fit=crop&w=600&q=80",
+      "location": {
+        "lat": 12.973598,
+        "lng": 77.59056199999999,
+        "address": "Demo City, Sector 5"
+      },
+      "citizensAffected": 18,
+      "costOfInaction": 450,
+      "slaDeadline": "2026-02-25T16:29:01.443Z",
+      "reporterReputation": 40,
+      "ward": "Ward 4 - Green Park",
+      "bids": [
+        {
+          "contractorId": "contractor_4",
+          "price": 3200,
+          "eta": 30,
+          "rating": 4.2,
+          "status": "accepted"
+        }
+      ],
+      "assignedContractorId": "contractor_4",
+      "inspectorId": "resp_2",
+      "proofOfFixUrl": "https://images.unsplash.com/photo-1530587191325-3db32d826c18?auto=format&fit=crop&w=600&q=80",
+      "ledgerTrail": [
+        {
+          "timestamp": "2026-02-25T16:29:01.443Z",
+          "status": "verified",
+          "actor": "GeminiAgent",
+          "message": "Released ₹3,200",
+          "prevHash": "0000000000000000000000000000000000000000000000000000000000000000",
+          "hash": "4512cf08c4b3535696dd5d7c0950bea597b75bb786b5de5d2587f83eb0120ac7"
+        }
+      ],
+      "timestamp": "2026-02-25T16:29:01.443Z"
+    },
+    {
+      "id": "issue_history_3",
+      "category": "pothole",
+      "severity": "low",
+      "status": "verified",
+      "description": "Minor fissure filling near Sector 4 corner.",
+      "photoUrl": "https://images.unsplash.com/photo-1515162305285-0293e4767cc2?auto=format&fit=crop&w=600&q=80",
+      "location": {
+        "lat": 12.973598,
+        "lng": 77.59056199999999,
+        "address": "Demo City, Sector 2"
+      },
+      "citizensAffected": 8,
+      "costOfInaction": 250,
+      "slaDeadline": "2025-12-27T16:29:01.443Z",
+      "reporterReputation": 25,
+      "ward": "Ward 4 - Green Park",
+      "bids": [
+        {
+          "contractorId": "contractor_8",
+          "price": 2900,
+          "eta": 50,
+          "rating": 4.3,
+          "status": "accepted"
+        }
+      ],
+      "assignedContractorId": "contractor_8",
+      "inspectorId": "resp_1",
+      "proofOfFixUrl": "https://images.unsplash.com/photo-1530587191325-3db32d826c18?auto=format&fit=crop&w=600&q=80",
+      "ledgerTrail": [
+        {
+          "timestamp": "2025-12-27T16:29:01.443Z",
+          "status": "verified",
+          "actor": "GeminiAgent",
+          "message": "Released ₹2,900",
+          "prevHash": "0000000000000000000000000000000000000000000000000000000000000000",
+          "hash": "a7bf04f9d0be5d78ac31c227fdc323e514f5b187c66c223e3f0446f343172e80"
+        }
+      ],
+      "timestamp": "2025-12-27T16:29:01.443Z"
+    },
+    {
+      "id": "issue_slabreach",
+      "category": "drainage",
+      "severity": "high",
+      "status": "triaged",
+      "title": "Blocked storm drain overflowing",
+      "description": "Storm drain fully blocked; sewage backing up onto the footpath outside the school gate. Reported repeatedly, still unresolved.",
+      "suggestedDept": "Water & Sewerage Board",
+      "photoUrl": "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?auto=format&fit=crop&w=600&q=80",
+      "location": {
+        "lat": 12.967598,
+        "lng": 77.600562,
+        "address": "Demo City, Sector 8"
+      },
+      "citizensAffected": 88,
+      "costOfInaction": 2600,
+      "slaDeadline": "2026-06-25T16:17:01.443Z",
+      "reporterReputation": 78,
+      "reporterId": "user_anil",
+      "ward": "Ward 8 - Malleswaram",
+      "bids": [],
+      "assignedContractorId": null,
+      "inspectorId": null,
+      "proofOfFixUrl": null,
+      "ledgerTrail": [
+        {
+          "timestamp": "2026-06-25T03:29:01.443Z",
+          "status": "reported",
+          "actor": "Citizen_Anil",
+          "message": "Reported blocked drain overflowing near school",
+          "prevHash": "0000000000000000000000000000000000000000000000000000000000000000",
+          "hash": "451f6918e22729c227f0f70278f9d674cea0619a895ea126555b9e0376876cab"
+        },
+        {
+          "timestamp": "2026-06-25T03:29:01.443Z",
+          "status": "triaged",
+          "actor": "ResolutionOrchestrator",
+          "message": "Classified DRAINAGE · high. SLA clock started (12h).",
+          "tool": "triageIssue",
+          "prevHash": "451f6918e22729c227f0f70278f9d674cea0619a895ea126555b9e0376876cab",
+          "hash": "5a7e0dbdf451b7334c1c6739cf0c209e842169f22fd24e65ad0d8002aaa4a017"
+        }
+      ],
+      "timestamp": "2026-06-25T03:29:01.443Z"
+    },
+    {
+      "id": "cluster_w1",
+      "category": "water_leak",
+      "severity": "medium",
+      "status": "reported",
+      "title": "Discoloured tap water",
+      "description": "Tap water running brown and foul-smelling; two children in the household fell sick with fever and stomach illness.",
+      "suggestedDept": "Water & Sewerage Board",
+      "photoUrl": "https://images.unsplash.com/photo-1538300342682-cf57afb97285?auto=format&fit=crop&w=600&q=80",
+      "location": {
+        "lat": 12.973198,
+        "lng": 77.59786199999999,
+        "address": "Demo City, Sector 5"
+      },
+      "citizensAffected": 22,
+      "costOfInaction": 900,
+      "slaDeadline": "2026-06-26T22:29:01.443Z",
+      "reporterReputation": 64,
+      "reporterId": "user_dev",
+      "ward": "Ward 7 - Indira Nagar",
+      "bids": [],
+      "assignedContractorId": null,
+      "inspectorId": null,
+      "proofOfFixUrl": null,
+      "ledgerTrail": [
+        {
+          "timestamp": "2026-06-25T10:29:01.443Z",
+          "status": "reported",
+          "actor": "Citizen_Dev",
+          "message": "Reported brown contaminated tap water + illness",
+          "prevHash": "0000000000000000000000000000000000000000000000000000000000000000",
+          "hash": "583752d10d8ab9307f7474de103fc20ea9fe15754fbce5168eb11a7f33bf7d79"
+        }
+      ],
+      "timestamp": "2026-06-25T10:29:01.443Z"
+    },
+    {
+      "id": "cluster_w2",
+      "category": "drainage",
+      "severity": "medium",
+      "status": "reported",
+      "title": "Sewage mixing with water line",
+      "description": "Open sewage pooling beside the drinking-water pipeline trench. Neighbours report stomach illness after drinking tap water.",
+      "suggestedDept": "Water & Sewerage Board",
+      "photoUrl": "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?auto=format&fit=crop&w=600&q=80",
+      "location": {
+        "lat": 12.973498,
+        "lng": 77.598162,
+        "address": "Demo City, Sector 15"
+      },
+      "citizensAffected": 31,
+      "costOfInaction": 1100,
+      "slaDeadline": "2026-06-26T16:29:01.443Z",
+      "reporterReputation": 78,
+      "reporterId": "user_anil",
+      "ward": "Ward 7 - Indira Nagar",
+      "bids": [],
+      "assignedContractorId": null,
+      "inspectorId": null,
+      "proofOfFixUrl": null,
+      "ledgerTrail": [
+        {
+          "timestamp": "2026-06-25T11:29:01.443Z",
+          "status": "reported",
+          "actor": "Citizen_Anil",
+          "message": "Reported sewage near water line; residents falling sick",
+          "prevHash": "0000000000000000000000000000000000000000000000000000000000000000",
+          "hash": "d30d1b657196986ceff776f23384862d2ac8c5ee0b51016a798eb1f1aaf35dce"
+        }
+      ],
+      "timestamp": "2026-06-25T11:29:01.443Z"
+    },
+    {
+      "id": "cluster_w3",
+      "category": "water_leak",
+      "severity": "low",
+      "status": "reported",
+      "title": "Low pressure + cloudy water",
+      "description": "Cloudy, low-pressure supply across the block; a few residents complain of fever and contamination concerns.",
+      "suggestedDept": "Water & Sewerage Board",
+      "photoUrl": "https://images.unsplash.com/photo-1542013936693-8848e574047a?auto=format&fit=crop&w=600&q=80",
+      "location": {
+        "lat": 12.972898,
+        "lng": 77.597562,
+        "address": "Demo City, Sector 7"
+      },
+      "citizensAffected": 17,
+      "costOfInaction": 700,
+      "slaDeadline": "2026-06-27T04:29:01.443Z",
+      "reporterReputation": 45,
+      "reporterId": "user_meena",
+      "ward": "Ward 7 - Indira Nagar",
+      "bids": [],
+      "assignedContractorId": null,
+      "inspectorId": null,
+      "proofOfFixUrl": null,
+      "ledgerTrail": [
+        {
+          "timestamp": "2026-06-25T12:29:01.443Z",
+          "status": "reported",
+          "actor": "Citizen_Meena",
+          "message": "Reported cloudy low-pressure water, fever in block",
+          "prevHash": "0000000000000000000000000000000000000000000000000000000000000000",
+          "hash": "e5d62ad5141bf8901648e7b844354e25d9de395613867bbe57127b4ec41e49a5"
+        }
+      ],
+      "timestamp": "2026-06-25T12:29:01.443Z"
     }
   ],
   "contractors": [
@@ -232,7 +566,7 @@
       "location": {
         "lat": 12.965598,
         "lng": 77.598562,
-        "address": "Demo City, Sector 13"
+        "address": "Demo City, Sector 15"
       },
       "materialsStock": [
         {
@@ -267,7 +601,7 @@
       "location": {
         "lat": 12.974598,
         "lng": 77.601562,
-        "address": "Demo City, Sector 12"
+        "address": "Demo City, Sector 4"
       },
       "materialsStock": [
         {
@@ -303,7 +637,7 @@
       "location": {
         "lat": 12.969598,
         "lng": 77.589562,
-        "address": "Demo City, Sector 15"
+        "address": "Demo City, Sector 4"
       },
       "materialsStock": [
         {
@@ -325,6 +659,126 @@
       "activeJobs": 0,
       "reputation": 74,
       "hourlyRate": 600
+    },
+    {
+      "id": "contractor_5",
+      "name": "Siddharth Electricals & Signs",
+      "specialties": [
+        "wiring",
+        "road_sign"
+      ],
+      "rating": 4.5,
+      "completedJobs": 89,
+      "location": {
+        "lat": 12.972598,
+        "lng": 77.600562,
+        "address": "Demo City, Sector 12"
+      },
+      "materialsStock": [
+        {
+          "item": "Standard Copper Conduits",
+          "qty": 120,
+          "unit": "meters"
+        },
+        {
+          "item": "Junction boxes",
+          "qty": 20,
+          "unit": "pcs"
+        }
+      ],
+      "activeJobs": 0,
+      "reputation": 82,
+      "hourlyRate": 900
+    },
+    {
+      "id": "contractor_6",
+      "name": "Bengaluru Waste Solutions",
+      "specialties": [
+        "garbage",
+        "debris"
+      ],
+      "rating": 4.7,
+      "completedJobs": 167,
+      "location": {
+        "lat": 12.964598,
+        "lng": 77.592562,
+        "address": "Demo City, Sector 7"
+      },
+      "materialsStock": [
+        {
+          "item": "Industrial Trash Liners",
+          "qty": 1000,
+          "unit": "bags"
+        },
+        {
+          "item": "Dumper Rental Days",
+          "qty": 5,
+          "unit": "days"
+        }
+      ],
+      "activeJobs": 0,
+      "reputation": 89,
+      "hourlyRate": 700
+    },
+    {
+      "id": "contractor_7",
+      "name": "Kaveri Water Infra",
+      "specialties": [
+        "water_leak",
+        "drainage"
+      ],
+      "rating": 4.4,
+      "completedJobs": 112,
+      "location": {
+        "lat": 12.968598,
+        "lng": 77.60256199999999,
+        "address": "Demo City, Sector 10"
+      },
+      "materialsStock": [
+        {
+          "item": "Rubber Gaskets",
+          "qty": 50,
+          "unit": "pcs"
+        },
+        {
+          "item": "Heavy Water Pump",
+          "qty": 2,
+          "unit": "units"
+        }
+      ],
+      "activeJobs": 0,
+      "reputation": 80,
+      "hourlyRate": 800
+    },
+    {
+      "id": "contractor_8",
+      "name": "Namma Road Construction",
+      "specialties": [
+        "pothole",
+        "debris"
+      ],
+      "rating": 4.3,
+      "completedJobs": 78,
+      "location": {
+        "lat": 12.977598,
+        "lng": 77.589562,
+        "address": "Demo City, Sector 15"
+      },
+      "materialsStock": [
+        {
+          "item": "Cold Asphalt Mix",
+          "qty": 50,
+          "unit": "bags"
+        },
+        {
+          "item": "Vibratory Plate Compactor",
+          "qty": 1,
+          "unit": "unit"
+        }
+      ],
+      "activeJobs": 0,
+      "reputation": 78,
+      "hourlyRate": 650
     }
   ],
   "responders": [
@@ -335,7 +789,7 @@
       "location": {
         "lat": 12.972598,
         "lng": 77.592562,
-        "address": "Demo City, Sector 4"
+        "address": "Demo City, Sector 5"
       },
       "status": "available"
     },
@@ -346,7 +800,7 @@
       "location": {
         "lat": 12.967598,
         "lng": 77.597562,
-        "address": "Demo City, Sector 5"
+        "address": "Demo City, Sector 7"
       },
       "status": "available"
     },
@@ -357,7 +811,7 @@
       "location": {
         "lat": 12.979598,
         "lng": 77.59356199999999,
-        "address": "Demo City, Sector 5"
+        "address": "Demo City, Sector 2"
       },
       "status": "busy"
     },
@@ -368,9 +822,121 @@
       "location": {
         "lat": 12.962598,
         "lng": 77.585562,
+        "address": "Demo City, Sector 15"
+      },
+      "status": "available"
+    },
+    {
+      "id": "resp_5",
+      "name": "Inspector Ravi Shankar",
+      "role": "inspector",
+      "location": {
+        "lat": 12.974598,
+        "lng": 77.591562,
+        "address": "Demo City, Sector 8"
+      },
+      "status": "available"
+    },
+    {
+      "id": "resp_6",
+      "name": "Inspector Meera Nair",
+      "role": "inspector",
+      "location": {
+        "lat": 12.969598,
+        "lng": 77.59956199999999,
         "address": "Demo City, Sector 10"
       },
       "status": "available"
+    },
+    {
+      "id": "resp_7",
+      "name": "Central Ward Crew 2",
+      "role": "crew",
+      "location": {
+        "lat": 12.970598,
+        "lng": 77.588562,
+        "address": "Demo City, Sector 9"
+      },
+      "status": "available"
+    },
+    {
+      "id": "resp_8",
+      "name": "Kamat Material Supplies",
+      "role": "vendor",
+      "location": {
+        "lat": 12.976598000000001,
+        "lng": 77.59956199999999,
+        "address": "Demo City, Sector 9"
+      },
+      "status": "available"
+    }
+  ],
+  "users": [
+    {
+      "id": "user_sita",
+      "name": "Sita Raman",
+      "email": "sita@demo.in",
+      "role": "citizen",
+      "trustScore": 92,
+      "reports": 41,
+      "confirmedFixes": 28,
+      "accountAgeDays": 540,
+      "badge": "Trusted Auditor"
+    },
+    {
+      "id": "user_anil",
+      "name": "Anil Kumar",
+      "email": "anil@demo.in",
+      "role": "citizen",
+      "trustScore": 78,
+      "reports": 19,
+      "confirmedFixes": 12,
+      "accountAgeDays": 300,
+      "badge": "Active Reporter"
+    },
+    {
+      "id": "user_dev",
+      "name": "Dev Prakash",
+      "email": "dev@demo.in",
+      "role": "citizen",
+      "trustScore": 64,
+      "reports": 11,
+      "confirmedFixes": 6,
+      "accountAgeDays": 180,
+      "badge": "Contributor"
+    },
+    {
+      "id": "user_meena",
+      "name": "Meena Joshi",
+      "email": "meena@demo.in",
+      "role": "citizen",
+      "trustScore": 45,
+      "reports": 5,
+      "confirmedFixes": 2,
+      "accountAgeDays": 60,
+      "badge": "New Citizen"
+    },
+    {
+      "id": "user_vibe",
+      "name": "Citizen Vibe",
+      "email": "vibe@demo.in",
+      "role": "citizen",
+      "trustScore": 30,
+      "reports": 3,
+      "confirmedFixes": 1,
+      "accountAgeDays": 25,
+      "badge": "New Citizen"
+    },
+    {
+      "id": "official_1",
+      "name": "Commissioner R.",
+      "email": "commissioner@demo.in",
+      "role": "official",
+      "trustScore": 100,
+      "reports": 0,
+      "confirmedFixes": 0,
+      "accountAgeDays": 1200,
+      "badge": "Ward Official"
     }
   ]
 }

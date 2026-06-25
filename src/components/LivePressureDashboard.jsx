@@ -62,7 +62,7 @@ function Metric({ icon: Icon, value, label, color }) {
   );
 }
 
-export default function LivePressureDashboard({ issues, onSelectIssue, onVoteIssue }) {
+export default function LivePressureDashboard({ issues, onSelectIssue, onVoteIssue, onSlaSweep, onPreparedness, users = [] }) {
   const activeIssues = issues.filter(i => i.status !== 'verified');
   const resolvedIssues = issues.filter(i => i.status === 'verified');
 
@@ -115,14 +115,26 @@ export default function LivePressureDashboard({ issues, onSelectIssue, onVoteIss
   return (
     <div className="animate-fade-in-up" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
 
-      {/* Monsoon preparedness banner */}
-      <div className="glass-panel" style={{ padding: '0.9rem 1.1rem', display: 'flex', alignItems: 'center', gap: '0.75rem', background: 'var(--teal-tint)', border: '1px solid rgba(26,169,160,.3)' }}>
+      {/* Monsoon preparedness banner + SLA sweep */}
+      <div className="glass-panel" style={{ padding: '0.9rem 1.1rem', display: 'flex', alignItems: 'center', gap: '0.75rem', background: 'var(--teal-tint)', border: '1px solid rgba(26,169,160,.3)', flexWrap: 'wrap' }}>
         <CloudRain size={22} color="var(--teal-600)" style={{ animation: 'pulse 2.5s infinite' }} />
-        <div>
+        <div style={{ flex: 1, minWidth: '240px' }}>
           <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--ink-strong)' }}>Monsoon weather preparedness active</div>
           <p style={{ fontSize: '0.78rem', color: 'var(--ink-muted)' }}>
             Heavy rainfall forecast within 12h. Nidaan pre-dispatched <strong style={{ color: 'var(--ink)' }}>1 dewatering pump</strong> and crews to Ward 4 underpass.
           </p>
+        </div>
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          {onPreparedness && (
+            <button onClick={() => onPreparedness('heavy_rain')} className="glow-btn-secondary" style={{ fontSize: '0.74rem', padding: '0.45rem 0.7rem' }}>
+              <CloudRain size={13} color="var(--teal)" /> Pre-stage crew
+            </button>
+          )}
+          {onSlaSweep && (
+            <button onClick={onSlaSweep} className="glow-btn-primary" style={{ fontSize: '0.74rem', padding: '0.45rem 0.7rem' }}>
+              <Clock size={13} /> Run SLA sweep
+            </button>
+          )}
         </div>
       </div>
 

@@ -1,4 +1,5 @@
 import { db } from './db.js';
+import { sealTrail } from './ledger.js';
 
 const DEMO_COORDINATES = {
   center: { lat: 12.971598, lng: 77.594562 }, // Bengaluru center
@@ -195,7 +196,44 @@ const sampleResponders = [
   }
 ];
 
+// Citizens with reputation / trust scores (TruthMesh 2b)
+const sampleUsers = [
+  { id: 'user_sita',  name: 'Sita Raman',     email: 'sita@demo.in',  role: 'citizen', trustScore: 92, reports: 41, confirmedFixes: 28, accountAgeDays: 540, badge: 'Trusted Auditor' },
+  { id: 'user_anil',  name: 'Anil Kumar',     email: 'anil@demo.in',  role: 'citizen', trustScore: 78, reports: 19, confirmedFixes: 12, accountAgeDays: 300, badge: 'Active Reporter' },
+  { id: 'user_dev',   name: 'Dev Prakash',    email: 'dev@demo.in',   role: 'citizen', trustScore: 64, reports: 11, confirmedFixes: 6,  accountAgeDays: 180, badge: 'Contributor' },
+  { id: 'user_meena', name: 'Meena Joshi',    email: 'meena@demo.in', role: 'citizen', trustScore: 45, reports: 5,  confirmedFixes: 2,  accountAgeDays: 60,  badge: 'New Citizen' },
+  { id: 'user_vibe',  name: 'Citizen Vibe',   email: 'vibe@demo.in',  role: 'citizen', trustScore: 30, reports: 3,  confirmedFixes: 1,  accountAgeDays: 25,  badge: 'New Citizen' },
+  { id: 'official_1', name: 'Commissioner R.', email: 'commissioner@demo.in', role: 'official', trustScore: 100, reports: 0, confirmedFixes: 0, accountAgeDays: 1200, badge: 'Ward Official' },
+];
+
 const sampleIssues = [
+  // ---- HERO SCENARIO: burst water pipe, fresh report ready for a full live agent run ----
+  {
+    id: 'issue_burstpipe',
+    category: 'water_leak',
+    severity: 'high',
+    status: 'reported',
+    title: 'Burst water main flooding the road',
+    description: 'Underground water main burst near the Sector 7 junction — high-pressure jet flooding the carriageway and wasting thousands of litres of potable water.',
+    suggestedDept: 'Water & Sewerage Board',
+    emergency: false,
+    photoUrl: 'https://images.unsplash.com/photo-1584824486509-112e4181ff6b?auto=format&fit=crop&w=600&q=80',
+    location: DEMO_COORDINATES.offset(0.0015, 0.0035),
+    citizensAffected: 64,
+    costOfInaction: 4200,
+    slaDeadline: new Date(Date.now() + 10 * 3600 * 1000).toISOString(),
+    reporterReputation: 92,
+    reporterId: 'user_sita',
+    ward: 'Ward 7 - Indira Nagar',
+    bids: [],
+    assignedContractorId: null,
+    inspectorId: null,
+    proofOfFixUrl: null,
+    ledgerTrail: [
+      { status: 'reported', actor: 'Citizen', tool: 'ingestReport', message: 'Burst water pipe reported via Snap-to-Solve. Triple-lock dedupe check passed.' }
+    ],
+    timestamp: new Date().toISOString()
+  },
   {
     id: 'issue_1',
     category: 'pothole',
@@ -354,31 +392,107 @@ const sampleIssues = [
     proofOfFixUrl: 'https://images.unsplash.com/photo-1530587191325-3db32d826c18?auto=format&fit=crop&w=600&q=80',
     ledgerTrail: [{ timestamp: new Date(Date.now() - 180 * 24 * 3600 * 1000).toISOString(), status: 'verified', actor: 'GeminiAgent', message: 'Released ₹2,900' }],
     timestamp: new Date(Date.now() - 180 * 24 * 3600 * 1000).toISOString()
+  },
+
+  // ---- SLA NEAR-BREACH: open issue past its deadline, primed to auto-escalate live (4b) ----
+  {
+    id: 'issue_slabreach',
+    category: 'drainage',
+    severity: 'high',
+    status: 'triaged',
+    title: 'Blocked storm drain overflowing',
+    description: 'Storm drain fully blocked; sewage backing up onto the footpath outside the school gate. Reported repeatedly, still unresolved.',
+    suggestedDept: 'Water & Sewerage Board',
+    photoUrl: 'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?auto=format&fit=crop&w=600&q=80',
+    location: DEMO_COORDINATES.offset(-0.004, 0.006),
+    citizensAffected: 88,
+    costOfInaction: 2600,
+    slaDeadline: new Date(Date.now() - 12 * 60 * 1000).toISOString(), // breached 12 min ago
+    reporterReputation: 78,
+    reporterId: 'user_anil',
+    ward: 'Ward 8 - Malleswaram',
+    bids: [],
+    assignedContractorId: null,
+    inspectorId: null,
+    proofOfFixUrl: null,
+    ledgerTrail: [
+      { status: 'reported', actor: 'Citizen_Anil', message: 'Reported blocked drain overflowing near school' },
+      { status: 'triaged', actor: 'ResolutionOrchestrator', tool: 'triageIssue', message: 'Classified DRAINAGE · high. SLA clock started (12h).' }
+    ],
+    timestamp: new Date(Date.now() - 13 * 3600 * 1000).toISOString()
+  },
+
+  // ---- CROSS-ISSUE CLUSTER: water + drainage + illness signals in one ward = contamination (5c) ----
+  {
+    id: 'cluster_w1', category: 'water_leak', severity: 'medium', status: 'reported',
+    title: 'Discoloured tap water', description: 'Tap water running brown and foul-smelling; two children in the household fell sick with fever and stomach illness.',
+    suggestedDept: 'Water & Sewerage Board',
+    photoUrl: 'https://images.unsplash.com/photo-1538300342682-cf57afb97285?auto=format&fit=crop&w=600&q=80',
+    location: DEMO_COORDINATES.offset(0.0016, 0.0033), citizensAffected: 22, costOfInaction: 900,
+    slaDeadline: new Date(Date.now() + 30 * 3600 * 1000).toISOString(), reporterReputation: 64, reporterId: 'user_dev',
+    ward: 'Ward 7 - Indira Nagar', bids: [], assignedContractorId: null, inspectorId: null, proofOfFixUrl: null,
+    ledgerTrail: [{ status: 'reported', actor: 'Citizen_Dev', message: 'Reported brown contaminated tap water + illness' }],
+    timestamp: new Date(Date.now() - 6 * 3600 * 1000).toISOString()
+  },
+  {
+    id: 'cluster_w2', category: 'drainage', severity: 'medium', status: 'reported',
+    title: 'Sewage mixing with water line', description: 'Open sewage pooling beside the drinking-water pipeline trench. Neighbours report stomach illness after drinking tap water.',
+    suggestedDept: 'Water & Sewerage Board',
+    photoUrl: 'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?auto=format&fit=crop&w=600&q=80',
+    location: DEMO_COORDINATES.offset(0.0019, 0.0036), citizensAffected: 31, costOfInaction: 1100,
+    slaDeadline: new Date(Date.now() + 24 * 3600 * 1000).toISOString(), reporterReputation: 78, reporterId: 'user_anil',
+    ward: 'Ward 7 - Indira Nagar', bids: [], assignedContractorId: null, inspectorId: null, proofOfFixUrl: null,
+    ledgerTrail: [{ status: 'reported', actor: 'Citizen_Anil', message: 'Reported sewage near water line; residents falling sick' }],
+    timestamp: new Date(Date.now() - 5 * 3600 * 1000).toISOString()
+  },
+  {
+    id: 'cluster_w3', category: 'water_leak', severity: 'low', status: 'reported',
+    title: 'Low pressure + cloudy water', description: 'Cloudy, low-pressure supply across the block; a few residents complain of fever and contamination concerns.',
+    suggestedDept: 'Water & Sewerage Board',
+    photoUrl: 'https://images.unsplash.com/photo-1542013936693-8848e574047a?auto=format&fit=crop&w=600&q=80',
+    location: DEMO_COORDINATES.offset(0.0013, 0.0030), citizensAffected: 17, costOfInaction: 700,
+    slaDeadline: new Date(Date.now() + 36 * 3600 * 1000).toISOString(), reporterReputation: 45, reporterId: 'user_meena',
+    ward: 'Ward 7 - Indira Nagar', bids: [], assignedContractorId: null, inspectorId: null, proofOfFixUrl: null,
+    ledgerTrail: [{ status: 'reported', actor: 'Citizen_Meena', message: 'Reported cloudy low-pressure water, fever in block' }],
+    timestamp: new Date(Date.now() - 4 * 3600 * 1000).toISOString()
   }
 ];
 
+// Hash-seal every issue's ledger so the tamper-evident chain validates from seed.
+const sealedIssues = () => sampleIssues.map(issue => ({
+  ...issue,
+  ledgerTrail: sealTrail(
+    (issue.ledgerTrail || []).map(e => ({
+      timestamp: e.timestamp || issue.timestamp || new Date().toISOString(),
+      status: e.status, actor: e.actor, message: e.message,
+      ...(e.tool ? { tool: e.tool } : {}), ...(e.service ? { service: e.service } : {}),
+    }))
+  ),
+}));
+
 export const seedDatabase = async () => {
   console.log('Seeding Database with Demo City (Bengaluru)...');
-  
+  const issues = sealedIssues();
+
   if (db.getDbType() === 'mock') {
     db.resetMockDb({
-      issues: sampleIssues,
+      issues,
       contractors: sampleContractors,
-      responders: sampleResponders
+      responders: sampleResponders,
+      users: sampleUsers,
     });
     console.log('Mock database seeded successfully.');
   } else {
-    // Write individually to Firestore
+    // Firestore: clear existing docs then write fresh so re-seeding is idempotent.
     try {
-      for (const item of sampleContractors) {
-        await db.addDoc('contractors', item);
+      for (const coll of ['contractors', 'responders', 'issues', 'users']) {
+        const existing = await db.getCollection(coll);
+        for (const doc of existing) await db.deleteDoc(coll, doc.id);
       }
-      for (const item of sampleResponders) {
-        await db.addDoc('responders', item);
-      }
-      for (const item of sampleIssues) {
-        await db.addDoc('issues', item);
-      }
+      for (const item of sampleContractors) await db.addDoc('contractors', item);
+      for (const item of sampleResponders) await db.addDoc('responders', item);
+      for (const item of sampleUsers) await db.addDoc('users', item);
+      for (const item of issues) await db.addDoc('issues', item);
       console.log('Firestore Database seeded successfully.');
     } catch (err) {
       console.error('Error seeding Firestore database:', err);

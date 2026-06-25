@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import { ThumbsUp, CheckCircle, Circle, FileText, Download, Star, Users, ShieldCheck, ArrowRight } from 'lucide-react';
+import { ThumbsUp, CheckCircle, Circle, FileText, Download, Star, Users, ShieldCheck, ArrowRight, ChevronDown, ChevronUp } from 'lucide-react';
 import { useAppData } from '../../app/AppDataContext.jsx';
 import { useRole } from '../../app/RoleContext.jsx';
 import SnapToSolve from '../../components/SnapToSolve.jsx';
 import LoopPipeline, { issueProgress, STAGES } from '../../components/LoopPipeline.jsx';
+import AgentActivityPanel from '../../components/AgentActivityPanel.jsx';
+import LedgerTimeline from '../../components/LedgerTimeline.jsx';
 
 const EmptyState = ({ icon: Icon, title, body }) => (
   <div className="glass-panel" style={{ padding: '3rem 1.5rem', textAlign: 'center' }}>
@@ -33,14 +35,15 @@ export function CitizenReport() {
 
 /* 2 — My Reports */
 export function CitizenMyReports() {
-  const { issues, citizen, heroIssue, setSelectedIssue } = useAppData();
-  const { navigate } = useRole();
+  const {
+    issues, citizen, heroIssue, setSelectedIssue,
+    handleTriggerAgent, handleRunAgent, handleReleaseEscrow, agentLoading
+  } = useAppData();
+  const [trackingIssueId, setTrackingIssueId] = useState(null);
 
   const mine = issues.filter(i => i.reporterId === citizen.userId);
   if (heroIssue && !mine.find(i => i.id === heroIssue.id)) mine.unshift(heroIssue);
   const list = mine.length ? mine : issues.filter(i => i.status !== 'verified').slice(0, 4);
-
-  const openInWarRoom = (issue) => { setSelectedIssue(issue); navigate('official', 'agent'); };
 
   if (!list.length) return <EmptyState icon={ListIcon} title="No reports yet" body="Snap a photo on the Report tab and it shows up here." />;
 
@@ -49,6 +52,7 @@ export function CitizenMyReports() {
       {list.map(issue => {
         const stage = STAGES[Math.min(STAGES.length, issueProgress(issue)) - 1];
         const isHero = heroIssue && issue.id === heroIssue.id;
+        const isTracking = trackingIssueId === issue.id;
         return (
           <div
             key={issue.id}
@@ -72,9 +76,36 @@ export function CitizenMyReports() {
               <LoopPipeline issue={issue} />
             </div>
 
+            {isTracking && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', marginTop: '0.5rem', borderTop: '1px dashed var(--cream-300)', paddingTop: '1.25rem' }}>
+                <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
+                  <div style={{ flex: '1 1 360px', minWidth: '0' }}>
+                    <AgentActivityPanel
+                      issue={issue}
+                      onTriggerAgent={handleTriggerAgent}
+                      onRunAgent={handleRunAgent}
+                      onReleaseEscrow={handleReleaseEscrow}
+                      loading={agentLoading}
+                    />
+                  </div>
+                  <div style={{ flex: '1 1 300px', minWidth: '0' }}>
+                    <LedgerTimeline issue={issue} />
+                  </div>
+                </div>
+              </div>
+            )}
+
             <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-              <button onClick={() => openInWarRoom(issue)} className="glow-btn-secondary" style={{ fontSize: '0.78rem', padding: '0.45rem 0.8rem' }}>
-                Watch the agent <ArrowRight size={14} />
+              <button
+                onClick={() => { setSelectedIssue(issue); setTrackingIssueId(isTracking ? null : issue.id); }}
+                className="glow-btn-secondary"
+                style={{ fontSize: '0.78rem', padding: '0.45rem 0.8rem' }}
+              >
+                {isTracking ? (
+                  <>Hide agent activity <ChevronUp size={14} /></>
+                ) : (
+                  <>Watch the agent <ChevronDown size={14} /></>
+                )}
               </button>
             </div>
           </div>

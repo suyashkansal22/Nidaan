@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Camera, Mic, MapPin, Send, AlertTriangle, CheckCircle, Sparkles } from 'lucide-react';
+import { Camera, Mic, MapPin, Send, AlertTriangle, CheckCircle, Sparkles, ScanLine } from 'lucide-react';
 
 const SAMPLE_PHOTO_LINKS = {
   pothole: 'https://images.unsplash.com/photo-1515162305285-0293e4767cc2?auto=format&fit=crop&w=600&q=80',
@@ -18,52 +18,34 @@ export default function SnapToSolve({ onIssueCreated }) {
   const [address, setAddress] = useState('12th Main Road, Indiranagar, Bengaluru');
   const [gps, setGps] = useState({ lat: 12.9716, lng: 77.5946 });
   const [photoUrl, setPhotoUrl] = useState(SAMPLE_PHOTO_LINKS.pothole);
-  
+
   const [recording, setRecording] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
   const [submitResult, setSubmitResult] = useState(null);
 
-  // Trigger browser geolocation
   const handleGetLocation = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          const newGps = {
-            lat: position.coords.latitude,
-            lng: position.coords.longitude
-          };
+          const newGps = { lat: position.coords.latitude, lng: position.coords.longitude };
           setGps(newGps);
           setAddress(`Geo-located: Lat ${newGps.lat.toFixed(4)}, Lng ${newGps.lng.toFixed(4)}`);
         },
-        (error) => {
-          console.warn('Geolocation error, using defaults.', error);
-          alert('Could not retrieve browser GPS. Using preset demo coordinates.');
-        }
+        () => alert('Could not retrieve browser GPS. Using preset demo coordinates.')
       );
     }
   };
 
-  // Simulate speaking and having Gemini transcribe + triage description
   const handleVoiceRecord = () => {
     if (recording) {
       setRecording(false);
       setAnalyzing(true);
-      
-      // Simulate transcription and triage latency
       setTimeout(() => {
         setAnalyzing(false);
-        if (category === 'pothole') {
-          setDescription('There is a large, deep pothole in the center of the lane. Water is logging inside it, creating a major safety hazard for motorbikes passing here.');
-          setSeverity('high');
-        } else if (category === 'water_leak') {
-          setDescription('Heavy water pipeline leakage gushing out near the sidewalk. It is clean drinking water flooding the road and creating a massive pool.');
-          setSeverity('high');
-        } else if (category === 'wiring') {
-          setDescription('Downed electrical wire is hanging low from the post. Sparks visible. Highly dangerous, blocking the walkway!');
-          setSeverity('RedAlert');
-        } else {
-          setDescription('Reported issue with description compiled from multilingual speech intake.');
-        }
+        if (category === 'pothole') { setDescription('Large, deep pothole in the centre of the lane. Water logging inside it — a major hazard for motorbikes.'); setSeverity('high'); }
+        else if (category === 'water_leak') { setDescription('Heavy pipeline leak gushing near the sidewalk. Clean drinking water flooding the road.'); setSeverity('high'); }
+        else if (category === 'wiring') { setDescription('Downed electrical wire hanging low from the post. Sparks visible. Highly dangerous, blocking the walkway.'); setSeverity('RedAlert'); }
+        else { setDescription('Reported issue, description compiled from multilingual speech intake.'); }
       }, 1500);
     } else {
       setRecording(true);
@@ -81,35 +63,25 @@ export default function SnapToSolve({ onIssueCreated }) {
     e.preventDefault();
     setSubmitResult(null);
     setAnalyzing(true);
-
     try {
       const response = await fetch('/api/issues', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          category,
-          severity,
-          description,
+          category, severity, description,
           location: {
-            lat: gps.lat + (Math.random() - 0.5) * 0.001, // add minor jitter
+            lat: gps.lat + (Math.random() - 0.5) * 0.001,
             lng: gps.lng + (Math.random() - 0.5) * 0.001,
             address,
             ward: gps.lat > 12.971 ? 'Ward 12 - Aero City' : 'Ward 4 - Green Park'
           },
-          photoUrl,
-          reporterReputation: 85
+          photoUrl, reporterReputation: 85
         })
       });
-
       const data = await response.json();
       setAnalyzing(false);
-
-      if (response.ok) {
-        setSubmitResult(data);
-        onIssueCreated(data.issue);
-      } else {
-        alert('Failed to report issue: ' + data.error);
-      }
+      if (response.ok) { setSubmitResult(data); onIssueCreated(data.issue); }
+      else alert('Failed to report issue: ' + data.error);
     } catch (error) {
       setAnalyzing(false);
       console.error(error);
@@ -117,301 +89,161 @@ export default function SnapToSolve({ onIssueCreated }) {
     }
   };
 
+  const labelStyle = { fontSize: '0.8rem', fontWeight: 600, color: 'var(--ink)' };
+
   return (
-    <div className="animate-fade-in-up" style={{ maxWidth: '800px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-      
+    <div className="animate-fade-in-up" style={{ maxWidth: '480px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+
       <div style={{ textAlign: 'center' }}>
-        <h2 style={{ fontSize: '1.5rem', fontWeight: 800 }}>Snap-to-Solve Grid Intake</h2>
-        <p style={{ fontSize: '0.9rem' }}>Capture, describe, and lodge complaints. Gemini handles categorization and triage.</p>
+        <h2 style={{ fontSize: '1.6rem', fontWeight: 800 }}>Snap to report</h2>
+        <p style={{ fontSize: '0.9rem', color: 'var(--ink-muted)' }}>One photo. The AI does the rest — no category dropdowns needed.</p>
       </div>
 
-      <div className="glass-panel" style={{ padding: '2rem', display: 'grid', gridTemplateColumns: '1fr', gap: '2rem' }}>
-        
-        {/* Upload Visual Mock-Up */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-          <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'hsl(var(--text-secondary))' }}>
-            Visual Capture (Photo / Video Triage)
-          </label>
+      {/* Big primary capture CTA */}
+      <div className="glass-panel" style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
           <div style={{
-            height: '240px',
-            background: `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url(${photoUrl}) center/cover`,
-            borderRadius: 'var(--radius-lg)',
-            border: '2px dashed rgba(255,255,255,0.1)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            position: 'relative',
-            overflow: 'hidden'
+            height: '230px',
+            background: `linear-gradient(rgba(14,42,69,0.25), rgba(14,42,69,0.45)), url(${photoUrl}) center/cover`,
+            borderRadius: 'var(--radius-card)',
+            border: '2px dashed var(--cream-400)',
+            position: 'relative', overflow: 'hidden',
+            display: 'flex', alignItems: 'center', justifyContent: 'center'
           }}>
-            {/* Nano Banana AI Bounding Box simulator */}
+            {/* AI bounding box */}
             <div style={{
-              position: 'absolute',
-              border: '2px solid hsl(var(--secondary))',
-              borderRadius: '4px',
-              padding: '0.25rem 0.5rem',
-              background: 'rgba(0, 180, 216, 0.25)',
-              color: '#fff',
-              fontSize: '0.7rem',
-              fontWeight: 700,
-              fontFamily: 'var(--font-mono)',
-              top: '30%',
-              left: '25%',
-              animation: 'pulseGlow 2s infinite'
+              position: 'absolute', top: '26%', left: '22%',
+              border: '2px solid var(--teal)', borderRadius: '6px',
+              padding: '0.2rem 0.5rem', background: 'rgba(26,169,160,.28)',
+              color: '#fff', fontSize: '0.66rem', fontWeight: 700, fontFamily: 'var(--font-mono)',
+              animation: 'pulseGlow 2.4s infinite', display: 'flex', alignItems: 'center', gap: '0.3rem'
             }}>
-              [GEMINI NANO: {category.toUpperCase()} SEVERITY={severity.toUpperCase()}]
+              <ScanLine size={12} /> {category.toUpperCase()} · {severity.toUpperCase()}
             </div>
-
-            <div style={{ display: 'flex', gap: '1rem', zIndex: 10 }}>
-              <button
-                type="button"
-                style={{
-                  background: 'rgba(10, 11, 16, 0.85)',
-                  border: '1px solid rgba(255,255,255,0.15)',
-                  color: '#fff',
-                  borderRadius: 'var(--radius-md)',
-                  padding: '0.75rem 1.25rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.5rem',
-                  cursor: 'pointer'
-                }}
-                onClick={() => alert('Camera frame permission requested. AI Studio Camera Frame will capture on mobile.')}
-              >
-                <Camera size={16} />
-                Lodge Snap
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={() => alert('Camera frame permission requested. On mobile this opens the live capture.')}
+              style={{
+                background: 'var(--ink-strong)', border: 'none', color: '#fff',
+                borderRadius: 'var(--radius-ctl)', padding: '0.85rem 1.5rem',
+                display: 'flex', alignItems: 'center', gap: '0.6rem', cursor: 'pointer',
+                fontWeight: 700, fontSize: '1rem', boxShadow: 'var(--shadow-lift)', zIndex: 2
+              }}
+            >
+              <Camera size={20} /> SNAP to report
+            </button>
           </div>
+          <span style={{ textAlign: 'center', fontSize: '0.72rem', color: 'var(--ink-muted)' }}>Gemini classifies category & severity from the photo automatically.</span>
         </div>
 
-        {/* Input Details */}
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-          
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-            {/* Category Select */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-              <label style={{ fontSize: '0.85rem', fontWeight: 600 }}>Category</label>
-              <select
-                value={category}
-                onChange={handleCategoryChange}
-                style={{
-                  background: 'rgba(255,255,255,0.04)',
-                  border: '1px solid rgba(255,255,255,0.08)',
-                  color: '#fff',
-                  padding: '0.75rem',
-                  borderRadius: 'var(--radius-md)',
-                  outline: 'none'
-                }}
-              >
-                <option value="pothole">Pothole / Road Crack</option>
-                <option value="water_leak">Water Main Leak</option>
-                <option value="wiring">Downed Utility Wire</option>
-                <option value="garbage">Garbage / Litter Dump</option>
-                <option value="drainage">Blocked Sewer/Drainage</option>
-                <option value="debris">Construction Debris</option>
-                <option value="road_sign">Broken Streetlight / Sign</option>
-              </select>
-            </div>
-
-            {/* Severity Select */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-              <label style={{ fontSize: '0.85rem', fontWeight: 600 }}>Reported Severity</label>
-              <select
-                value={severity}
-                onChange={(e) => setSeverity(e.target.value)}
-                style={{
-                  background: 'rgba(255,255,255,0.04)',
-                  border: '1px solid rgba(255,255,255,0.08)',
-                  color: '#fff',
-                  padding: '0.75rem',
-                  borderRadius: 'var(--radius-md)',
-                  outline: 'none'
-                }}
-              >
-                <option value="low">Low (Routine maintenance)</option>
-                <option value="medium">Medium (Requires attention)</option>
-                <option value="high">High (Action within 12 hours)</option>
-                <option value="RedAlert">RedAlert (Immediate emergency)</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Voice Triage and Description */}
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          {/* Voice */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <label style={{ fontSize: '0.85rem', fontWeight: 600 }}>Report Description</label>
-              
-              {/* Voice Button */}
+              <label style={labelStyle}>Or speak it (Hindi / English)</label>
               <button
-                type="button"
-                onClick={handleVoiceRecord}
+                type="button" onClick={handleVoiceRecord}
                 style={{
-                  background: recording ? 'rgba(239, 68, 68, 0.15)' : 'rgba(255,255,255,0.04)',
-                  border: `1px solid ${recording ? 'rgba(239, 68, 68, 0.3)' : 'rgba(255,255,255,0.08)'}`,
-                  color: recording ? 'hsl(var(--status-danger))' : 'hsl(var(--secondary))',
-                  borderRadius: 'var(--radius-sm)',
-                  padding: '0.25rem 0.6rem',
-                  fontSize: '0.75rem',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.35rem'
+                  background: recording ? 'var(--critical-tint)' : 'var(--cream-100)',
+                  border: `1px solid ${recording ? 'rgba(215,64,47,.4)' : 'var(--cream-300)'}`,
+                  color: recording ? 'var(--critical)' : 'var(--teal-600)',
+                  borderRadius: '99px', padding: '0.3rem 0.7rem', fontSize: '0.72rem',
+                  cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.35rem', fontWeight: 600
                 }}
               >
                 <Mic size={12} style={{ animation: recording ? 'pulse 1s infinite' : 'none' }} />
-                {recording ? 'Recording Speak... (Click Stop)' : 'Multilingual Voice Report'}
+                {recording ? 'Recording… tap to stop' : 'Voice report'}
               </button>
             </div>
 
             {recording && (
-              <div style={{
-                height: '60px',
-                background: 'rgba(10, 11, 16, 0.6)',
-                borderRadius: 'var(--radius-md)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '5px',
-                border: '1px solid rgba(255, 255, 255, 0.05)',
-                padding: '0 1rem',
-                boxShadow: 'inset 0 0 20px rgba(0,0,0,0.8)'
-              }}>
-                {Array.from({ length: 24 }).map((_, idx) => {
-                  const animDelay = `${(idx % 6) * 0.12}s`;
-                  return (
-                    <div key={idx} style={{
-                      width: '4px',
-                      height: '6px',
-                      backgroundColor: 'hsl(var(--status-danger))',
-                      boxShadow: '0 0 8px hsla(var(--status-danger), 0.6)',
-                      borderRadius: '4px',
-                      animation: 'soundwave 1.2s ease-in-out infinite',
-                      animationDelay: animDelay
-                    }}></div>
-                  );
-                })}
+              <div className="sunken" style={{ height: '54px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', padding: '0 1rem' }}>
+                {Array.from({ length: 26 }).map((_, idx) => (
+                  <div key={idx} style={{ width: '4px', height: '6px', backgroundColor: 'var(--teal)', borderRadius: '4px', animation: 'soundwave 1.2s ease-in-out infinite', animationDelay: `${(idx % 6) * 0.12}s` }} />
+                ))}
               </div>
             )}
 
             <textarea
+              className="field"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Describe the issue. (Or use the Multilingual Voice Report button above to transcribe spoken inputs via Gemini Live API)"
-              style={{
-                background: 'rgba(255,255,255,0.04)',
-                border: '1px solid rgba(255,255,255,0.08)',
-                color: '#fff',
-                padding: '0.75rem',
-                borderRadius: 'var(--radius-md)',
-                height: '100px',
-                resize: 'none',
-                outline: 'none',
-                fontFamily: 'var(--font-sans)',
-                fontSize: '0.9rem'
-              }}
+              placeholder="The AI fills this from your photo or voice. You can edit if needed."
+              style={{ height: '92px', resize: 'none', fontSize: '0.88rem' }}
             />
           </div>
 
-          {/* Location details */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '1rem', alignItems: 'flex-end' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-              <label style={{ fontSize: '0.85rem', fontWeight: 600 }}>Location Address</label>
-              <input
-                type="text"
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-                style={{
-                  background: 'rgba(255,255,255,0.04)',
-                  border: '1px solid rgba(255,255,255,0.08)',
-                  color: '#fff',
-                  padding: '0.75rem',
-                  borderRadius: 'var(--radius-md)',
-                  outline: 'none'
-                }}
-              />
+          {/* AI-filled fields (kept minimal & editable) */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+              <label style={labelStyle}>Category <span style={{ color: 'var(--teal-600)', fontWeight: 700 }}>· AI</span></label>
+              <select className="field" value={category} onChange={handleCategoryChange}>
+                <option value="pothole">Pothole / Road crack</option>
+                <option value="water_leak">Water main leak</option>
+                <option value="wiring">Downed utility wire</option>
+                <option value="garbage">Garbage / Litter</option>
+                <option value="drainage">Blocked drainage</option>
+                <option value="debris">Construction debris</option>
+                <option value="road_sign">Streetlight / Sign</option>
+              </select>
             </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+              <label style={labelStyle}>Severity <span style={{ color: 'var(--teal-600)', fontWeight: 700 }}>· AI</span></label>
+              <select className="field" value={severity} onChange={(e) => setSeverity(e.target.value)}>
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+                <option value="RedAlert">RedAlert (emergency)</option>
+              </select>
+            </div>
+          </div>
 
-            <button
-              type="button"
-              onClick={handleGetLocation}
-              style={{
-                background: 'rgba(255,255,255,0.04)',
-                border: '1px solid rgba(255,255,255,0.08)',
-                color: 'hsl(var(--text-primary))',
-                borderRadius: 'var(--radius-md)',
-                padding: '0.75rem',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                height: '46px'
-              }}
-            >
-              <MapPin size={16} color="hsl(var(--secondary))" />
-              Auto GPS
+          {/* Location */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '0.75rem', alignItems: 'flex-end' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+              <label style={labelStyle}>Location</label>
+              <input className="field" type="text" value={address} onChange={(e) => setAddress(e.target.value)} />
+            </div>
+            <button type="button" onClick={handleGetLocation} className="glow-btn-secondary" style={{ height: '42px' }}>
+              <MapPin size={16} color="var(--teal)" /> GPS
             </button>
           </div>
 
-          {/* Submit */}
-          <button
-            type="submit"
-            className="glow-btn-primary"
-            disabled={analyzing}
-            style={{ width: '100%', justifyContent: 'center', height: '48px', opacity: analyzing ? 0.7 : 1 }}
-          >
-            {analyzing ? (
-              <>
-                <Sparkles size={16} style={{ animation: 'spin 2s linear infinite' }} />
-                AI Triaging & Lodging...
-              </>
-            ) : (
-              <>
-                <Send size={16} />
-                Lodge Grievance to Nidaan
-              </>
-            )}
+          <button type="submit" className="glow-btn-primary" disabled={analyzing} style={{ width: '100%', justifyContent: 'center', height: '48px', fontSize: '0.95rem' }}>
+            {analyzing ? (<><Sparkles size={16} style={{ animation: 'spin 2s linear infinite' }} /> AI triaging & lodging…</>) : (<><Send size={16} /> Lodge grievance to Nidaan</>)}
           </button>
-
         </form>
       </div>
 
-      {/* Success / Deduplication result alerts */}
       {submitResult && (
         <div className="glass-panel animate-fade-in-up" style={{
-          padding: '1.25rem',
-          background: submitResult.deduplicated 
-            ? 'linear-gradient(90deg, rgba(245,158,11,0.08) 0%, rgba(15,18,28,0.45) 100%)'
-            : 'linear-gradient(90deg, rgba(16,185,129,0.08) 0%, rgba(15,18,28,0.45) 100%)',
-          border: `1px solid ${submitResult.deduplicated ? 'rgba(245,158,11,0.25)' : 'rgba(16,185,129,0.25)'}`,
-          display: 'flex',
-          gap: '1rem',
-          alignItems: 'center'
+          padding: '1.1rem', display: 'flex', gap: '0.85rem', alignItems: 'center',
+          borderTop: `3px solid ${submitResult.deduplicated ? 'var(--alert)' : 'var(--grass)'}`,
+          background: submitResult.deduplicated ? 'var(--alert-tint)' : 'var(--grass-tint)'
         }}>
           {submitResult.deduplicated ? (
             <>
-              <AlertTriangle size={24} color="hsl(var(--status-warning))" />
+              <AlertTriangle size={24} color="var(--alert)" />
               <div>
-                <h3 style={{ fontSize: '0.95rem', color: 'hsl(var(--status-warning))' }}>Smart Deduplication Triggered</h3>
-                <p style={{ fontSize: '0.85rem' }}>
-                  An active ticket already exists near your location for {submitResult.issue.category.toUpperCase()}. 
-                  Your report has been merged, and the community pressure rating is increased to <strong>{submitResult.issue.citizensAffected} support votes</strong>.
+                <h3 style={{ fontSize: '0.95rem', color: 'var(--ink-strong)' }}>Smart deduplication triggered</h3>
+                <p style={{ fontSize: '0.82rem', color: 'var(--ink-muted)' }}>
+                  An active ticket already exists nearby for {submitResult.issue.category.replace('_', ' ')}. Your report merged — community pressure rose to <strong style={{ color: 'var(--ink)' }}>{submitResult.issue.citizensAffected} reports</strong>.
                 </p>
               </div>
             </>
           ) : (
             <>
-              <CheckCircle size={24} color="hsl(var(--status-success))" />
+              <CheckCircle size={24} color="var(--grass)" />
               <div>
-                <h3 style={{ fontSize: '0.95rem', color: 'hsl(var(--status-success))' }}>Ticket Created Successfully</h3>
-                <p style={{ fontSize: '0.85rem' }}>
-                  Grievance logged under ID <strong>{submitResult.issue.id}</strong>. The Resolution Orchestrator is triaging the incident in the background.
+                <h3 style={{ fontSize: '0.95rem', color: 'var(--ink-strong)' }}>Ticket created</h3>
+                <p style={{ fontSize: '0.82rem', color: 'var(--ink-muted)' }}>
+                  Logged as <strong style={{ color: 'var(--ink)' }}>{submitResult.issue.id}</strong>. The Resolution Orchestrator is triaging it now.
                 </p>
               </div>
             </>
           )}
         </div>
       )}
-
     </div>
   );
 }

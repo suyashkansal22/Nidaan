@@ -42,8 +42,14 @@ export default function App() {
         if (updated) setSelectedIssue(updated);
       }
 
-      // Check DB type by fetching a sample configuration/status
-      setDbType(dataIssues.length > 0 && dataIssues[0].dbType === 'firestore' ? 'firestore' : 'mock');
+      // Detect active DB backend (firestore vs. local mock) from the server status endpoint
+      try {
+        const resStatus = await fetch('/api/status');
+        const status = await resStatus.json();
+        setDbType(status.dbType || 'mock');
+      } catch {
+        setDbType('mock');
+      }
     } catch (error) {
       console.error('Error fetching data from backend APIs:', error);
     } finally {
@@ -212,11 +218,11 @@ export default function App() {
   };
 
   return (
-    <Layout activeTab={activeTab} setActiveTab={setActiveTab} onResetDb={handleResetDb} dbType={dbType}>
+    <Layout activeTab={activeTab} setActiveTab={setActiveTab} onResetDb={handleResetDb} dbType={dbType} issues={issues}>
       {loading ? (
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '300px', gap: '1rem' }}>
           <div className="pulsing-indicator" style={{ width: '20px', height: '20px' }}></div>
-          <p style={{ fontSize: '0.9rem', color: 'hsl(var(--text-muted))' }}>Establishing Nidaan connection...</p>
+          <p style={{ fontSize: '0.9rem', color: 'var(--ink-muted)' }}>Establishing Nidaan connection...</p>
         </div>
       ) : (
         <div style={{

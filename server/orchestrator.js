@@ -296,7 +296,11 @@ const runSimulatedAgent = async (issueId, triggerState) => {
 
     // Run next step: gather BOM and invite bids
     setTimeout(async () => {
-      await runSimulatedAgent(issueId, 'triaged');
+      try {
+        await runSimulatedAgent(issueId, 'triaged');
+      } catch (err) {
+        console.error('Error in simulated agent triaged step:', err);
+      }
     }, 1000);
 
   } else if (triggerState === 'triaged') {
@@ -334,7 +338,11 @@ const runSimulatedAgent = async (issueId, triggerState) => {
 
       // Run selection shortly after
       setTimeout(async () => {
-        await runSimulatedAgent(issueId, 'bidding');
+        try {
+          await runSimulatedAgent(issueId, 'bidding');
+        } catch (err) {
+          console.error('Error in simulated agent bidding step:', err);
+        }
       }, 1000);
     } else {
       logStep(`[Reverse-Auction] No private contractors found. Assigning to municipal crew.`);
@@ -352,12 +360,16 @@ const runSimulatedAgent = async (issueId, triggerState) => {
 
     // 5. Schedule Inspector
     setTimeout(async () => {
-      const inspectors = (await db.getCollection('responders')).filter(r => r.role === 'inspector' && r.status === 'available');
-      if (inspectors.length > 0) {
-        const inspector = inspectors[0];
-        const time = new Date(Date.now() + 1.5 * 3600 * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        logStep(`[Scheduler] Booking verification inspector on Google Calendar: ${inspector.name} at ${time}.`);
-        await agentTools.schedule_inspector({ issueId, inspectorId: inspector.id, appointmentTime: time });
+      try {
+        const inspectors = (await db.getCollection('responders')).filter(r => r.role === 'inspector' && r.status === 'available');
+        if (inspectors.length > 0) {
+          const inspector = inspectors[0];
+          const time = new Date(Date.now() + 1.5 * 3600 * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+          logStep(`[Scheduler] Booking verification inspector on Google Calendar: ${inspector.name} at ${time}.`);
+          await agentTools.schedule_inspector({ issueId, inspectorId: inspector.id, appointmentTime: time });
+        }
+      } catch (err) {
+        console.error('Error in simulated agent scheduling step:', err);
       }
     }, 500);
 

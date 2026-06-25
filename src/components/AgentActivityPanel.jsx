@@ -1,169 +1,192 @@
-import React, { useRef, useEffect } from 'react';
-import { Terminal, Play, Cpu, ShieldAlert, FileText, Calendar, DollarSign, Mail } from 'lucide-react';
+import React, { useRef, useEffect, useState } from 'react';
+import { Activity, Play, ChevronRight, Check, ShieldAlert, Cpu } from 'lucide-react';
 
-export default function AgentActivityPanel({ issue, onTriggerAgent, loading }) {
-  const terminalEndRef = useRef(null);
+// Map a ledger message to a tool name, service badge and tone.
+function describeStep(trail) {
+  const text = (trail.message || '').toLowerCase();
+  const status = trail.status;
 
-  useEffect(() => {
-    if (terminalEndRef.current) {
-      terminalEndRef.current.scrollIntoView({ behavior: 'smooth' });
-    }
-  }, [issue?.ledgerTrail]);
+  let service = null;
+  if (text.includes('stripe') || text.includes('escrow') || text.includes('payout') || text.includes('payment')) service = 'Stripe';
+  else if (text.includes('calendar') || text.includes('schedule') || text.includes('inspector')) service = 'Calendar';
+  else if (text.includes('street view') || text.includes('maps') || text.includes('gps') || text.includes('radar') || text.includes('nearby')) service = 'Maps';
+  else if (text.includes('gemini') || text.includes('vision') || text.includes('triage') || text.includes('classif') || text.includes('bom') || text.includes('dedup') || text.includes('image')) service = 'Gemini';
 
-  // Determine tool icon color based on keywords
-  const getLogIcon = (msg) => {
-    const text = msg.toLowerCase();
-    if (text.includes('stripe') || text.includes('escrow') || text.includes('payment')) {
-      return { Icon: DollarSign, color: 'hsl(var(--status-success))' };
-    }
-    if (text.includes('calendar') || text.includes('schedule') || text.includes('inspector')) {
-      return { Icon: Calendar, color: 'hsl(var(--primary))' };
-    }
-    if (text.includes('mail') || text.includes('notify') || text.includes('ping')) {
-      return { Icon: Mail, color: 'hsl(var(--status-info))' };
-    }
-    if (text.includes('rti') || text.includes('complaint') || text.includes('escalat')) {
-      return { Icon: ShieldAlert, color: 'hsl(var(--status-danger))' };
-    }
-    if (text.includes('triage') || text.includes('bom') || text.includes('dedupe')) {
-      return { Icon: Cpu, color: 'hsl(var(--secondary))' };
-    }
-    return { Icon: Terminal, color: 'hsl(var(--text-secondary))' };
+  const toolByStatus = {
+    reported:   'ingestReport',
+    triaged:    'triageIssue',
+    bidding:    'runReverseAuction',
+    assigned:   'assignContractor',
+    in_progress:'dispatchCrew',
+    fixed:      'submitProofOfFix',
+    verified:   'releaseEscrow',
+    escalated:  'draftGrievance',
   };
+  const tool = toolByStatus[status] || 'orchestrate';
 
-  const getStatusStyle = (status) => {
-    switch (status) {
-      case 'reported': return 'rgba(255,255,255,0.06)';
-      case 'triaged': return 'rgba(59, 130, 246, 0.08)';
-      case 'bidding': return 'rgba(245, 158, 11, 0.08)';
-      case 'assigned':
-      case 'in_progress': return 'rgba(110, 68, 255, 0.08)';
-      case 'fixed': return 'rgba(16, 185, 129, 0.06)';
-      case 'verified': return 'rgba(16, 185, 129, 0.12)';
-      case 'escalated': return 'rgba(239, 68, 68, 0.1)';
-      default: return 'rgba(255,255,255,0.04)';
-    }
-  };
+  let tone = 'info';
+  if (status === 'verified' || status === 'fixed') tone = 'success';
+  else if (status === 'bidding' || status === 'assigned' || status === 'in_progress') tone = 'warn';
+  else if (status === 'escalated') tone = 'danger';
+
+  return { tool, service, tone };
+}
+
+const TONE = {
+  info:    { bar: 'var(--teal)',     dot: 'var(--teal-600)' },
+  success: { bar: 'var(--grass)',    dot: 'var(--grass-600)' },
+  warn:    { bar: 'var(--alert)',    dot: '#B26A12' },
+  danger:  { bar: 'var(--critical)', dot: 'var(--critical)' },
+};
+
+function StepCard({ trail, index, isLast }) {
+  const { tool, service, tone } = describeStep(trail);
+  const [open, setOpen] = useState(false);
+  const t = TONE[tone];
 
   return (
-    <div className="glass-panel" style={{
-      padding: '1.25rem',
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '1rem',
-      background: 'rgba(10, 11, 16, 0.65)',
-      height: '100%',
-      minHeight: '400px'
-    }}>
-      
-      {/* Header bar */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '0.75rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <Terminal size={18} color="hsl(var(--secondary))" />
-          <h2 style={{ fontSize: '1rem', fontWeight: 700 }}>Resolution Orchestrator Activity</h2>
+    <div style={{ position: 'relative', paddingLeft: '0.25rem' }}>
+      <div
+        style={{
+          background: 'var(--cream-50)',
+          border: '1px solid var(--cream-300)',
+          borderLeft: `3px solid ${t.bar}`,
+          borderRadius: '0 var(--radius-ctl) var(--radius-ctl) 0',
+          padding: '0.6rem 0.75rem',
+          display: 'flex', flexDirection: 'column', gap: '0.3rem',
+          animation: 'slideInUp 0.3s ease-out both',
+          boxShadow: 'var(--shadow-soft)',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem' }}>
+          <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 700, fontSize: '0.82rem', color: 'var(--ink-strong)' }}>
+            {tool}
+          </span>
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.66rem', color: 'var(--ink-muted)' }}>
+            {new Date(trail.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+          </span>
         </div>
-        
+
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.4rem' }}>
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.66rem', color: 'var(--ink-muted)', marginTop: '1px' }}>out:</span>
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: 'var(--ink)', lineHeight: 1.45, flex: 1 }}>
+            {trail.message}
+          </span>
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+            {service && <span className="svc-badge">{service}</span>}
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.62rem', color: 'var(--ink-muted)' }}>[{trail.actor}]</span>
+          </div>
+          <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '16px', height: '16px', borderRadius: '50%', background: 'var(--grass-tint)', color: 'var(--grass-600)' }}>
+            <Check size={11} strokeWidth={3} />
+          </span>
+        </div>
+
+        {/* view reasoning expander */}
+        <button
+          onClick={() => setOpen(o => !o)}
+          className="glow-btn-ghost"
+          style={{ fontSize: '0.64rem', padding: 0, marginTop: '0.1rem', alignSelf: 'flex-start' }}
+        >
+          <ChevronRight size={11} style={{ transform: open ? 'rotate(90deg)' : 'none', transition: 'transform var(--transition-fast)' }} />
+          view reasoning
+        </button>
+        {open && (
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.66rem', color: 'var(--ink-muted)', background: 'var(--cream-100)', border: '1px dashed var(--cream-400)', borderRadius: '8px', padding: '0.5rem', lineHeight: 1.5 }}>
+            Stage <strong style={{ color: 'var(--ink)' }}>{trail.status}</strong> · actor <strong style={{ color: 'var(--ink)' }}>{trail.actor}</strong>. The orchestrator selected <strong style={{ color: 'var(--teal-600)' }}>{tool}</strong>{service ? <> using <strong style={{ color: 'var(--teal-600)' }}>{service}</strong></> : null} and recorded this to the tamper-evident ledger.
+          </div>
+        )}
+      </div>
+
+      {/* vertical connector — echoes the loop */}
+      {!isLast && <div style={{ width: '2px', height: '12px', marginLeft: '1rem', background: 'var(--cream-300)' }} />}
+    </div>
+  );
+}
+
+export default function AgentActivityPanel({ issue, onTriggerAgent, loading }) {
+  const endRef = useRef(null);
+  useEffect(() => {
+    if (endRef.current) endRef.current.scrollIntoView({ behavior: 'smooth' });
+  }, [issue?.ledgerTrail, loading]);
+
+  const trail = issue?.ledgerTrail || [];
+  const showApprove = issue && (issue.status === 'bidding' || issue.status === 'triaged');
+
+  return (
+    <div className="sunken" style={{ display: 'flex', flexDirection: 'column', minHeight: '420px', overflow: 'hidden' }}>
+      {/* Header */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.9rem 1rem', borderBottom: '1px solid var(--cream-300)', background: 'var(--cream-50)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <Activity size={17} color="var(--teal)" />
+          <div style={{ lineHeight: 1.1 }}>
+            <div style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--ink-strong)', fontFamily: 'var(--font-display)' }}>Resolution Orchestrator</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+              <span className="pulsing-indicator" style={{ width: '7px', height: '7px' }} />
+              <span style={{ fontSize: '0.68rem', color: 'var(--teal-600)', fontWeight: 600, fontFamily: 'var(--font-mono)' }}>running</span>
+            </div>
+          </div>
+        </div>
+
         {issue && (
           <button
             onClick={() => onTriggerAgent(issue.id)}
             disabled={loading || issue.status === 'verified'}
             className="glow-btn-primary"
-            style={{
-              padding: '0.4rem 0.8rem',
-              fontSize: '0.8rem',
-              borderRadius: 'var(--radius-sm)',
-              boxShadow: issue.status === 'verified' ? 'none' : '0 4px 15px hsla(var(--primary), 0.25)',
-              opacity: (loading || issue.status === 'verified') ? 0.5 : 1,
-              cursor: (loading || issue.status === 'verified') ? 'not-allowed' : 'pointer'
-            }}
+            style={{ padding: '0.4rem 0.75rem', fontSize: '0.78rem' }}
           >
             <Play size={12} fill="currentColor" />
-            {loading ? 'Running...' : 'Trigger Agent Step'}
+            {loading ? 'Running…' : 'Trigger step'}
           </button>
         )}
       </div>
 
-      {/* Selected issue details */}
+      {/* Selected case strip */}
       {issue ? (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(255,255,255,0.02)', padding: '0.6rem 0.8rem', borderRadius: 'var(--radius-sm)', border: '1px solid rgba(255,255,255,0.04)', fontSize: '0.8rem' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.1rem', flex: 1 }}>
-            <span style={{ fontWeight: 600, color: 'hsl(var(--text-primary))' }}>
-              Tracking Case: #{issue.id} ({issue.category.toUpperCase()})
-            </span>
-            <span style={{ color: 'hsl(var(--text-muted))', fontSize: '0.75rem' }}>
-              Current State: <strong style={{ color: 'hsl(var(--primary))' }}>{issue.status.toUpperCase()}</strong>
-            </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.6rem 1rem', borderBottom: '1px solid var(--cream-300)', fontSize: '0.78rem', background: 'var(--cream-50)' }}>
+          <div style={{ flex: 1, lineHeight: 1.2 }}>
+            <span style={{ fontWeight: 700, color: 'var(--ink-strong)', fontFamily: 'var(--font-mono)' }}>#{issue.id}</span>
+            <span style={{ color: 'var(--ink-muted)' }}> · {issue.category.replace('_', ' ')}</span>
           </div>
-          <div style={{ height: '8px', width: '8px', borderRadius: '50%', background: issue.status === 'verified' ? 'hsl(var(--status-success))' : 'hsl(var(--status-warning))', animation: issue.status !== 'verified' ? 'pulseGlow 1.5s infinite' : 'none' }}></div>
+          <span className={`badge ${issue.status === 'verified' ? 'badge-success' : 'badge-info'}`} style={{ textTransform: 'uppercase' }}>
+            {issue.status.replace('_', ' ')}
+          </span>
         </div>
       ) : (
-        <div style={{ padding: '1rem', background: 'rgba(255,255,255,0.02)', border: '1px dashed rgba(255,255,255,0.08)', borderRadius: 'var(--radius-sm)', textAlign: 'center', fontSize: '0.85rem', color: 'hsl(var(--text-muted))' }}>
-          Select an active ticket from the GlassLedger dashboard to trace and control its orchestration.
+        <div style={{ padding: '0.75rem 1rem', borderBottom: '1px solid var(--cream-300)', textAlign: 'center', fontSize: '0.8rem', color: 'var(--ink-muted)', background: 'var(--cream-50)' }}>
+          Select a case from the War Room to trace its orchestration.
         </div>
       )}
 
-      {/* Terminal log window */}
-      <div style={{
-        flex: 1,
-        background: '#040508',
-        border: '1px solid rgba(255, 255, 255, 0.05)',
-        borderRadius: 'var(--radius-sm)',
-        padding: '1rem',
-        overflowY: 'auto',
-        fontFamily: 'var(--font-mono)',
-        fontSize: '0.8rem',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '0.75rem',
-        maxHeight: '400px'
-      }}>
-        {issue && issue.ledgerTrail && issue.ledgerTrail.length > 0 ? (
-          issue.ledgerTrail.map((trail, index) => {
-            const { Icon, color } = getLogIcon(trail.message);
-            return (
-              <div
-                key={index}
-                style={{
-                  padding: '0.6rem 0.8rem',
-                  background: getStatusStyle(trail.status),
-                  borderLeft: `3px solid ${color || 'rgba(255,255,255,0.1)'}`,
-                  borderRadius: '0 4px 4px 0',
-                  display: 'flex',
-                  gap: '0.75rem',
-                  alignItems: 'flex-start',
-                  animation: 'slideInUp 0.2s ease-out forwards'
-                }}
-              >
-                <div style={{ marginTop: '0.15rem' }}>
-                  <Icon size={14} color={color} />
-                </div>
-                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.7rem', color: 'hsl(var(--text-muted))' }}>
-                    <span>[{trail.actor}]</span>
-                    <span>{new Date(trail.timestamp).toLocaleTimeString()}</span>
-                  </div>
-                  <span style={{ color: 'hsl(var(--text-primary))', lineHeight: '1.4' }}>
-                    {trail.message}
-                  </span>
-                </div>
-              </div>
-            );
-          })
+      {/* Streaming feed */}
+      <div style={{ flex: 1, overflowY: 'auto', padding: '0.85rem', display: 'flex', flexDirection: 'column', gap: 0 }}>
+        {trail.length > 0 ? (
+          trail.map((t, i) => <StepCard key={i} trail={t} index={i} isLast={i === trail.length - 1 && !loading && !showApprove} />)
         ) : (
-          <div style={{ color: 'hsl(var(--text-muted))', padding: '1rem', textAlign: 'center' }}>
-            [System Ready] Awaiting issue selection...
-            <span className="terminal-cursor"></span>
+          <div style={{ color: 'var(--ink-muted)', padding: '1.5rem 0.5rem', textAlign: 'center', fontFamily: 'var(--font-mono)', fontSize: '0.78rem' }}>
+            Awaiting orchestration<span className="terminal-cursor" />
+          </div>
+        )}
+
+        {/* Approve / Override inline control at the assign step */}
+        {showApprove && !loading && (
+          <div style={{ marginLeft: '0.25rem', marginTop: '0.25rem', background: 'var(--teal-tint)', border: '1px solid rgba(26,169,160,.3)', borderRadius: 'var(--radius-ctl)', padding: '0.6rem 0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <span style={{ flex: 1, fontSize: '0.72rem', color: 'var(--ink)', fontWeight: 600 }}>Agent recommends the next action. Approve to proceed.</span>
+            <button onClick={() => onTriggerAgent(issue.id)} className="glow-btn-primary" style={{ padding: '0.3rem 0.7rem', fontSize: '0.72rem' }}>Approve</button>
+            <button onClick={() => alert('Override: you can reassign the winning bid or inspector from the FixForce console.')} className="glow-btn-secondary" style={{ padding: '0.3rem 0.7rem', fontSize: '0.72rem' }}>Override</button>
           </div>
         )}
 
         {loading && (
-          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', color: 'hsl(var(--secondary))', padding: '0.5rem' }}>
+          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', color: 'var(--teal-600)', padding: '0.6rem 0.25rem', fontFamily: 'var(--font-mono)', fontSize: '0.74rem' }}>
             <Cpu size={14} style={{ animation: 'spin 2s linear infinite' }} />
-            <span>Agent reasoning and resolving...</span>
-            <span className="terminal-cursor"></span>
+            <span>orchestrator reasoning…</span>
+            <span className="terminal-cursor" />
           </div>
         )}
-        <div ref={terminalEndRef}></div>
+        <div ref={endRef} />
       </div>
     </div>
   );

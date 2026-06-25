@@ -329,6 +329,15 @@ app.post('/api/issues/:id/donate', async (req, res) => {
   }
 });
 
+// 8.4. System status — reports which database backend is live (firestore vs. local mock)
+app.get('/api/status', (req, res) => {
+  res.json({
+    dbType: db.getDbType(),
+    agentMode: process.env.GEMINI_API_KEY ? 'gemini' : 'simulated',
+    time: new Date().toISOString()
+  });
+});
+
 // 9. Reset/Seed database endpoint
 app.post('/api/seed', async (req, res) => {
   try {
@@ -339,6 +348,18 @@ app.post('/api/seed', async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`Nidaan Backend API running on http://localhost:${PORT}`);
+});
+
+// Fail gracefully with an actionable message instead of an unhandled crash
+server.on('error', (err) => {
+  if (err.code === 'EADDRINUSE') {
+    console.error(`\n[Nidaan] Port ${PORT} is already in use — a server instance is probably still running.`);
+    console.error(`         Stop the other instance, or run this one on a different port:`);
+    console.error(`           PowerShell:  $env:PORT=5001; npm run server`);
+    console.error(`           bash:        PORT=5001 npm run server\n`);
+    process.exit(1);
+  }
+  throw err;
 });

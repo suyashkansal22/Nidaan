@@ -1,60 +1,32 @@
 import React, { useState } from 'react';
-import { 
-  DollarSign, 
-  ShieldCheck, 
-  Clock, 
-  Award, 
-  Hammer, 
-  Image, 
-  CheckCircle, 
-  RefreshCcw, 
-  UserPlus, 
-  HardHat, 
-  FileText, 
-  Send, 
-  AlertTriangle, 
-  ArrowRight, 
-  Activity, 
-  MapPin 
+import {
+  IndianRupee, ShieldCheck, Lock, Unlock, Image as ImageIcon, CheckCircle, Circle,
+  UserPlus, HardHat, FileText, Send, Hammer, Activity, Award, ArrowRight
 } from 'lucide-react';
 
-export default function FixForceMarketplace({ 
-  issue, 
-  contractors, 
-  onTriggerFix, 
-  loading, 
-  onRegisterContractor, 
-  onReportFailure, 
-  onDonate 
+export default function FixForceMarketplace({
+  issue, contractors, onTriggerFix, loading, onRegisterContractor, onReportFailure, onDonate
 }) {
-  const [activeSubTab, setActiveSubTab] = useState('dispatch'); // 'dispatch' | 'register'
+  const [activeSubTab, setActiveSubTab] = useState('dispatch');
   const [proofUrl, setProofUrl] = useState('https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=600&q=80');
-  
-  // Registration Form State
+
   const [regName, setRegName] = useState('');
   const [regSpecialty, setRegSpecialty] = useState('pothole');
   const [regRate, setRegRate] = useState('700');
   const [regLatOffset, setRegLatOffset] = useState('0.003');
   const [regLngOffset, setRegLngOffset] = useState('-0.004');
   const [registrationSuccess, setRegistrationSuccess] = useState(false);
-
-  // Inspector Override State
   const [overrideInspector, setOverrideInspector] = useState('resp_1');
 
   const handleRegisterSubmit = async (e) => {
     e.preventDefault();
     if (!regName) return alert('Please enter contractor name');
-    
     const lat = 12.971598 + Number(regLatOffset);
     const lng = 77.594562 + Number(regLngOffset);
-    
     const contractorData = {
-      name: regName,
-      specialties: [regSpecialty],
-      hourlyRate: Number(regRate),
+      name: regName, specialties: [regSpecialty], hourlyRate: Number(regRate),
       location: { lat, lng, address: `Indiranagar Sector ${Math.floor(Math.random() * 10 + 1)}` }
     };
-    
     if (onRegisterContractor) {
       await onRegisterContractor(contractorData);
       setRegistrationSuccess(true);
@@ -65,166 +37,104 @@ export default function FixForceMarketplace({
 
   const getBOM = (category) => {
     switch (category) {
-      case 'pothole':
-        return {
-          items: [
-            { name: 'Bituminous Cold Mix', qty: '5 bags', cost: 1750 },
-            { name: 'Asphalt Sealant Emulsion', qty: '10 liters', cost: 1200 },
-            { name: 'Road Warning cones & markers', qty: '2 units', cost: 550 }
-          ],
-          total: 3500
-        };
-      case 'water_leak':
-        return {
-          items: [
-            { name: 'PVC Mainline Pipe 3"', qty: '1 length (6m)', cost: 4200 },
-            { name: 'Iron Flanged Couplers', qty: '2 units', cost: 2800 },
-            { name: 'Quick-Dry Concrete Mix', qty: '3 bags', cost: 2500 }
-          ],
-          total: 9500
-        };
-      case 'wiring':
-        return {
-          items: [
-            { name: 'Standard Copper Wiring 10mm', qty: '50 meters', cost: 3800 },
-            { name: 'Weatherproof Junction Boxes', qty: '1 unit', cost: 1500 },
-            { name: 'Pole Insulator Caps', qty: '4 units', cost: 1200 }
-          ],
-          total: 6500
-        };
-      default:
-        return {
-          items: [
-            { name: 'Commercial Grade Debris Sacks', qty: '15 sacks', cost: 1000 },
-            { name: 'Municipal Crew Dispatch Gear', qty: '1 set', cost: 900 },
-            { name: 'Heavy sweep broom & shovel set', qty: '2 units', cost: 600 }
-          ],
-          total: 2500
-        };
+      case 'pothole': return { items: [
+        { name: 'Bituminous Cold Mix', qty: '5 bags', cost: 1750 },
+        { name: 'Asphalt Sealant Emulsion', qty: '10 L', cost: 1200 },
+        { name: 'Warning cones & markers', qty: '2 units', cost: 550 }], total: 3500 };
+      case 'water_leak': return { items: [
+        { name: 'PVC Mainline Pipe 3"', qty: '6 m', cost: 4200 },
+        { name: 'Iron Flanged Couplers', qty: '2 units', cost: 2800 },
+        { name: 'Quick-Dry Concrete', qty: '3 bags', cost: 2500 }], total: 9500 };
+      case 'wiring': return { items: [
+        { name: 'Copper Wiring 10mm', qty: '50 m', cost: 3800 },
+        { name: 'Weatherproof Junction Box', qty: '1 unit', cost: 1500 },
+        { name: 'Pole Insulator Caps', qty: '4 units', cost: 1200 }], total: 6500 };
+      default: return { items: [
+        { name: 'Debris Sacks', qty: '15 sacks', cost: 1000 },
+        { name: 'Crew Dispatch Gear', qty: '1 set', cost: 900 },
+        { name: 'Sweep broom & shovel', qty: '2 units', cost: 600 }], total: 2500 };
     }
   };
 
-  const handleInspectorOverride = () => {
-    alert(`Auto-dispatch overrode inspector configuration! Swapped to assigned duty for Inspector ID: ${overrideInspector} on Google Calendar.`);
+  // Reverse-auction scoring (same weighting as orchestrator)
+  const scoreBids = (bids) => {
+    if (!bids || bids.length === 0) return [];
+    const minPrice = Math.min(...bids.map(b => b.price));
+    const minETA = Math.min(...bids.map(b => b.eta));
+    const scored = bids.map(b => {
+      const score = (minPrice / b.price) * 0.4 + (b.rating / 5) * 0.3 + (minETA / b.eta) * 0.2 + ((b.reputation || 70) / 100) * 0.1;
+      return { ...b, score };
+    });
+    const best = Math.max(...scored.map(s => s.score));
+    return scored.map(s => ({ ...s, recommended: s.score === best })).sort((a, b) => b.score - a.score);
   };
+
+  const handleInspectorOverride = () => {
+    alert(`Inspector override recorded on Google Calendar for ${overrideInspector}.`);
+  };
+
+  const cardHead = (issue) => (
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--cream-300)', paddingBottom: '0.75rem' }}>
+      <div>
+        <span style={{ fontSize: '0.7rem', color: 'var(--ink-muted)', fontFamily: 'var(--font-mono)' }}>TICKET #{issue.id}</span>
+        <h2 style={{ fontSize: '1.1rem', fontWeight: 800, textTransform: 'capitalize' }}>{issue.category.replace('_', ' ')} dispatch</h2>
+      </div>
+      <span className="badge badge-info" style={{ textTransform: 'capitalize' }}>{issue.status.replace('_', ' ')}</span>
+    </div>
+  );
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-      
-      {/* Sub-tab Navigation */}
-      <div className="glass-panel" style={{ padding: '0.5rem', display: 'flex', gap: '0.5rem' }}>
-        <button
-          onClick={() => setActiveSubTab('dispatch')}
-          style={{
-            flex: 1,
-            padding: '0.6rem',
-            background: activeSubTab === 'dispatch' ? 'rgba(255,255,255,0.06)' : 'transparent',
-            border: activeSubTab === 'dispatch' ? '1px solid rgba(110, 68, 255, 0.2)' : '1px solid transparent',
-            color: activeSubTab === 'dispatch' ? 'hsl(var(--primary))' : 'hsl(var(--text-secondary))',
-            fontWeight: 600,
-            borderRadius: 'var(--radius-md)',
-            cursor: 'pointer',
-            fontSize: '0.85rem',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '0.5rem',
-            transition: 'all var(--transition-fast)'
-          }}
-        >
-          <Hammer size={16} />
-          Active Dispatch Control
-        </button>
-        <button
-          onClick={() => setActiveSubTab('register')}
-          style={{
-            flex: 1,
-            padding: '0.6rem',
-            background: activeSubTab === 'register' ? 'rgba(255,255,255,0.06)' : 'transparent',
-            border: activeSubTab === 'register' ? '1px solid rgba(110, 68, 255, 0.2)' : '1px solid transparent',
-            color: activeSubTab === 'register' ? 'hsl(var(--primary))' : 'hsl(var(--text-secondary))',
-            fontWeight: 600,
-            borderRadius: 'var(--radius-md)',
-            cursor: 'pointer',
-            fontSize: '0.85rem',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '0.5rem',
-            transition: 'all var(--transition-fast)'
-          }}
-        >
-          <UserPlus size={16} />
-          Register Contractor
-        </button>
+
+      {/* Sub-tabs */}
+      <div className="glass-panel" style={{ padding: '0.4rem', display: 'flex', gap: '0.4rem' }}>
+        {[
+          { id: 'dispatch', label: 'Active Dispatch', icon: Hammer },
+          { id: 'register', label: 'Register Contractor', icon: UserPlus },
+        ].map(t => {
+          const Icon = t.icon; const active = activeSubTab === t.id;
+          return (
+            <button key={t.id} onClick={() => setActiveSubTab(t.id)} style={{
+              flex: 1, padding: '0.6rem',
+              background: active ? 'var(--teal-tint)' : 'transparent',
+              border: active ? '1px solid rgba(26,169,160,.3)' : '1px solid transparent',
+              color: active ? 'var(--teal-600)' : 'var(--ink-muted)',
+              fontWeight: 600, borderRadius: 'var(--radius-ctl)', cursor: 'pointer', fontSize: '0.85rem',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', transition: 'all var(--transition-fast)'
+            }}>
+              <Icon size={16} /> {t.label}
+            </button>
+          );
+        })}
       </div>
 
-      {/* RENDER REGISTRATION TAB */}
+      {/* REGISTER */}
       {activeSubTab === 'register' && (
         <div className="glass-panel" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
           <div>
             <h2 style={{ fontSize: '1.1rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <HardHat size={20} color="hsl(var(--secondary))" />
-              Contractor Registration Portal
+              <HardHat size={20} color="var(--teal)" /> Contractor Registration
             </h2>
-            <p style={{ fontSize: '0.8rem', color: 'hsl(var(--text-muted))', marginTop: '0.25rem' }}>
-              Self-register private contracting firms. Once validated, they participate in reverse-auction dispatches.
+            <p style={{ fontSize: '0.8rem', color: 'var(--ink-muted)', marginTop: '0.25rem' }}>
+              Self-register firms. Once validated they join reverse-auction dispatches.
             </p>
           </div>
 
           {registrationSuccess && (
-            <div style={{
-              background: 'rgba(16, 185, 129, 0.08)',
-              border: '1px solid rgba(16, 185, 129, 0.2)',
-              borderRadius: 'var(--radius-sm)',
-              padding: '0.75rem',
-              color: 'hsl(var(--status-success))',
-              fontSize: '0.85rem',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem'
-            }}>
-              <CheckCircle size={16} />
-              Contractor profile initialized successfully! Pin mapped on Responder Radar.
+            <div className="badge badge-success" style={{ padding: '0.6rem 0.8rem', fontSize: '0.82rem' }}>
+              <CheckCircle size={16} /> Contractor profile initialised — pinned on the Responder Radar.
             </div>
           )}
 
           <form onSubmit={handleRegisterSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-              <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Firm / Contractor Name</label>
-              <input
-                type="text"
-                value={regName}
-                onChange={(e) => setRegName(e.target.value)}
-                placeholder="e.g. Kaveri Drainage Systems Ltd"
-                style={{
-                  background: 'rgba(255,255,255,0.04)',
-                  border: '1px solid rgba(255,255,255,0.08)',
-                  color: '#fff',
-                  padding: '0.6rem 0.8rem',
-                  borderRadius: 'var(--radius-sm)',
-                  outline: 'none',
-                  fontSize: '0.85rem'
-                }}
-              />
+              <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Firm / Contractor name</label>
+              <input className="field" type="text" value={regName} onChange={(e) => setRegName(e.target.value)} placeholder="e.g. Kaveri Drainage Systems Ltd" />
             </div>
-
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-                <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Specialty Domain</label>
-                <select
-                  value={regSpecialty}
-                  onChange={(e) => setRegSpecialty(e.target.value)}
-                  style={{
-                    background: 'rgba(255,255,255,0.04)',
-                    border: '1px solid rgba(255,255,255,0.08)',
-                    color: '#fff',
-                    padding: '0.6rem',
-                    borderRadius: 'var(--radius-sm)',
-                    outline: 'none',
-                    fontSize: '0.85rem'
-                  }}
-                >
+                <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Specialty</label>
+                <select className="field" value={regSpecialty} onChange={(e) => setRegSpecialty(e.target.value)}>
                   <option value="pothole">Potholes / Roadways</option>
                   <option value="water_leak">Water Pipelines</option>
                   <option value="wiring">Electrical Utility</option>
@@ -234,627 +144,304 @@ export default function FixForceMarketplace({
                   <option value="road_sign">Streetlights / Signage</option>
                 </select>
               </div>
-
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-                <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Hourly Labor Rate (₹)</label>
-                <input
-                  type="number"
-                  value={regRate}
-                  onChange={(e) => setRegRate(e.target.value)}
-                  style={{
-                    background: 'rgba(255,255,255,0.04)',
-                    border: '1px solid rgba(255,255,255,0.08)',
-                    color: '#fff',
-                    padding: '0.6rem',
-                    borderRadius: 'var(--radius-sm)',
-                    outline: 'none',
-                    fontSize: '0.85rem'
-                  }}
-                />
+                <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Hourly rate (₹)</label>
+                <input className="field" type="number" value={regRate} onChange={(e) => setRegRate(e.target.value)} />
               </div>
             </div>
-
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-                <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Latitude Offset (from Center)</label>
-                <input
-                  type="text"
-                  value={regLatOffset}
-                  onChange={(e) => setRegLatOffset(e.target.value)}
-                  placeholder="e.g. 0.003"
-                  style={{
-                    background: 'rgba(255,255,255,0.04)',
-                    border: '1px solid rgba(255,255,255,0.08)',
-                    color: '#fff',
-                    padding: '0.6rem',
-                    borderRadius: 'var(--radius-sm)',
-                    outline: 'none',
-                    fontSize: '0.85rem'
-                  }}
-                />
+                <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Latitude offset</label>
+                <input className="field" type="text" value={regLatOffset} onChange={(e) => setRegLatOffset(e.target.value)} placeholder="0.003" />
               </div>
-
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-                <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Longitude Offset (from Center)</label>
-                <input
-                  type="text"
-                  value={regLngOffset}
-                  onChange={(e) => setRegLngOffset(e.target.value)}
-                  placeholder="e.g. -0.004"
-                  style={{
-                    background: 'rgba(255,255,255,0.04)',
-                    border: '1px solid rgba(255,255,255,0.08)',
-                    color: '#fff',
-                    padding: '0.6rem',
-                    borderRadius: 'var(--radius-sm)',
-                    outline: 'none',
-                    fontSize: '0.85rem'
-                  }}
-                />
+                <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Longitude offset</label>
+                <input className="field" type="text" value={regLngOffset} onChange={(e) => setRegLngOffset(e.target.value)} placeholder="-0.004" />
               </div>
             </div>
-
-            <button
-              type="submit"
-              className="glow-btn-primary"
-              style={{ width: '100%', justifyContent: 'center', height: '40px', marginTop: '0.5rem' }}
-            >
-              <Send size={14} />
-              Register Contractor
+            <button type="submit" className="glow-btn-primary" style={{ width: '100%', justifyContent: 'center' }}>
+              <Send size={14} /> Register contractor
             </button>
           </form>
         </div>
       )}
 
-      {/* RENDER DISPATCH TAB */}
+      {/* DISPATCH */}
       {activeSubTab === 'dispatch' && (
-        <>
-          {!issue ? (
-            <div className="glass-panel animate-fade-in-up" style={{ padding: '3rem', textAlign: 'center', color: 'hsl(var(--text-muted))' }}>
-              <Hammer size={48} style={{ color: 'hsl(var(--primary))', margin: '0 auto 1rem' }} />
-              <h3>FixForce Dispatch Console</h3>
-              <p style={{ fontSize: '0.85rem', marginTop: '0.5rem' }}>Select an active ticket from the GlassLedger dashboard to manage bidding, contractors, and escrow payouts.</p>
-            </div>
-          ) : (
-            <div className="glass-panel animate-fade-in-up" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-              
-              {/* Header */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '0.75rem' }}>
-                <div>
-                  <span style={{ fontSize: '0.7rem', color: 'hsl(var(--text-muted))', fontFamily: 'var(--font-mono)' }}>TICKET #{issue.id}</span>
-                  <h2 style={{ fontSize: '1.1rem', fontWeight: 800 }}>{issue.category.toUpperCase().replace('_', ' ')} DISPATCH DETAILS</h2>
-                </div>
-                <span className="badge badge-info" style={{ textTransform: 'uppercase' }}>
-                  Status: {issue.status.replace('_', ' ')}
-                </span>
-              </div>
+        !issue ? (
+          <div className="glass-panel animate-fade-in-up" style={{ padding: '3rem', textAlign: 'center' }}>
+            <Hammer size={44} style={{ color: 'var(--teal)', margin: '0 auto 0.75rem' }} />
+            <h3>FixForce dispatch console</h3>
+            <p style={{ fontSize: '0.85rem', marginTop: '0.5rem', color: 'var(--ink-muted)' }}>Select a ticket from the War Room to manage bidding, crews and escrow.</p>
+          </div>
+        ) : (
+          <div className="glass-panel animate-fade-in-up" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            {cardHead(issue)}
 
-              {/* 1. BIDDING STATE (Reverse Auction & Smart BOM) */}
-              {issue.status === 'bidding' && (
+            {/* BIDDING — reverse auction + smart BOM */}
+            {issue.status === 'bidding' && (() => {
+              const bom = getBOM(issue.category);
+              const ranked = scoreBids(issue.bids);
+              const maxPrice = ranked.length ? Math.max(...ranked.map(b => b.price)) : 0;
+              const recommended = ranked.find(b => b.recommended);
+              const saved = recommended ? maxPrice - recommended.price : 0;
+              return (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                  
-                  {/* Smart Bill of Materials (BOM) */}
-                  <div style={{
-                    background: 'rgba(110, 68, 255, 0.04)',
-                    border: '1px solid rgba(110, 68, 255, 0.15)',
-                    borderRadius: 'var(--radius-md)',
-                    padding: '1rem',
-                  }}>
+                  {/* Smart BOM */}
+                  <div style={{ background: 'var(--teal-tint)', border: '1px solid rgba(26,169,160,.25)', borderRadius: 'var(--radius-ctl)', padding: '1rem' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                      <FileText size={16} color="hsl(var(--primary))" />
-                      <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'hsl(var(--text-primary))' }}>
-                        Agent-Inferred Bill-of-Materials (Smart BOM)
-                      </span>
+                      <FileText size={16} color="var(--teal-600)" />
+                      <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--ink-strong)' }}>Agent-inferred Bill of Materials</span>
                     </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-                      {getBOM(issue.category).items.map((item, idx) => (
-                        <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: 'hsl(var(--text-secondary))' }}>
-                          <span>[✓] {item.qty} × {item.name}</span>
-                          <span style={{ fontFamily: 'var(--font-mono)' }}>₹{item.cost}</span>
-                        </div>
-                      ))}
-                      <div style={{ borderTop: '1px dashed rgba(255,255,255,0.1)', marginTop: '0.5rem', paddingTop: '0.4rem', display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', fontWeight: 700, color: 'hsl(var(--secondary))' }}>
-                        <span>Estimated Material Cost:</span>
-                        <span>₹{getBOM(issue.category).total.toLocaleString('en-IN')}</span>
+                    {bom.items.map((item, i) => (
+                      <div key={i} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem', color: 'var(--ink-muted)', padding: '0.1rem 0' }}>
+                        <span>✓ {item.qty} × {item.name}</span>
+                        <span style={{ fontFamily: 'var(--font-mono)' }}>₹{item.cost}</span>
                       </div>
+                    ))}
+                    <div style={{ borderTop: '1px dashed var(--cream-400)', marginTop: '0.5rem', paddingTop: '0.4rem', display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem', fontWeight: 700, color: 'var(--teal-600)' }}>
+                      <span>Estimated material cost</span><span style={{ fontFamily: 'var(--font-mono)' }}>₹{bom.total.toLocaleString('en-IN')}</span>
                     </div>
                   </div>
 
-                  <div style={{ background: 'rgba(245, 158, 11, 0.05)', border: '1px solid rgba(245, 158, 11, 0.15)', borderRadius: 'var(--radius-md)', padding: '0.75rem 1rem', fontSize: '0.85rem' }}>
-                    <strong>Reverse-Auction Active:</strong> Resolution Orchestrator invited bids from nearest matching contractors. Ranks dynamically on Price, Proximity, Rating, and Reputation.
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                    <h3 style={{ fontSize: '0.95rem' }}>Reverse-Auction Comparison</h3>
+                    {saved > 0 && <span className="badge badge-success">saved ₹{saved.toLocaleString('en-IN')} vs highest quote</span>}
                   </div>
 
-                  <h3 style={{ fontSize: '0.9rem', color: 'hsl(var(--text-secondary))' }}>Bids Submitted</h3>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                    {issue.bids && issue.bids.length > 0 ? (
-                      issue.bids.map((bid, idx) => {
+                  {ranked.length > 0 ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+                      {/* table header */}
+                      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr 0.8fr', gap: '0.5rem', fontSize: '0.64rem', textTransform: 'uppercase', letterSpacing: '0.04em', color: 'var(--ink-muted)', fontWeight: 700, padding: '0 0.85rem' }}>
+                        <span>Vendor</span><span>Rating</span><span>ETA</span><span>Quote</span><span title="Price 40% · Rating 30% · ETA 20% · Reputation 10%">Score</span>
+                      </div>
+                      {ranked.map((bid, i) => {
                         const contractor = contractors.find(c => c.id === bid.contractorId);
                         return (
-                          <div key={idx} style={{
-                            padding: '1rem',
-                            background: 'rgba(255, 255, 255, 0.02)',
-                            border: '1px solid rgba(255, 255, 255, 0.05)',
-                            borderRadius: 'var(--radius-md)',
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center'
+                          <div key={i} style={{
+                            display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr 0.8fr', gap: '0.5rem', alignItems: 'center',
+                            padding: '0.7rem 0.85rem', borderRadius: 'var(--radius-ctl)',
+                            background: bid.recommended ? 'var(--teal-tint)' : 'var(--cream-50)',
+                            border: bid.recommended ? '1px solid var(--teal)' : '1px solid var(--cream-300)'
                           }}>
-                            <div>
-                              <div style={{ fontWeight: 600, color: '#fff' }}>{contractor ? contractor.name : 'Unknown Contractor'}</div>
-                              <span style={{ fontSize: '0.75rem', color: 'hsl(var(--text-muted))' }}>
-                                Rating: ⭐{bid.rating} · Reputation: {bid.reputation}%
-                              </span>
+                            <div style={{ minWidth: 0 }}>
+                              <div style={{ fontWeight: 600, color: 'var(--ink-strong)', fontSize: '0.82rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{contractor ? contractor.name : 'Contractor'}</div>
+                              {bid.recommended && <span className="badge badge-info" style={{ fontSize: '0.58rem', padding: '0.05rem 0.4rem', marginTop: '2px' }}><Award size={10} /> Recommended</span>}
                             </div>
-                            <div style={{ textAlign: 'right', display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
-                              <div>
-                                <div style={{ fontSize: '0.75rem', color: 'hsl(var(--text-muted))' }}>ETA</div>
-                                <div style={{ fontWeight: 700, fontSize: '0.9rem' }}>{bid.eta} mins</div>
-                              </div>
-                              <div>
-                                <div style={{ fontSize: '0.75rem', color: 'hsl(var(--text-muted))' }}>Quote</div>
-                                <div style={{ fontWeight: 800, color: 'hsl(var(--secondary))', fontSize: '1rem' }}>₹{bid.price.toLocaleString('en-IN')}</div>
-                              </div>
-                            </div>
+                            <span style={{ fontSize: '0.8rem' }}>⭐ {bid.rating}</span>
+                            <span style={{ fontSize: '0.8rem', fontFamily: 'var(--font-mono)' }}>{bid.eta}m</span>
+                            <span style={{ fontWeight: 700, fontFamily: 'var(--font-mono)', color: 'var(--ink-strong)', fontSize: '0.85rem' }}>₹{bid.price.toLocaleString('en-IN')}</span>
+                            <span style={{ fontWeight: 800, fontFamily: 'var(--font-mono)', color: bid.recommended ? 'var(--teal-600)' : 'var(--ink-muted)', fontSize: '0.85rem' }}>{(bid.score * 100).toFixed(0)}</span>
                           </div>
                         );
-                      })
-                    ) : (
-                      <div style={{ textAlign: 'center', padding: '1rem', color: 'hsl(var(--text-muted))', fontSize: '0.85rem' }}>
-                        Waiting for bids to be registered by the orchestrator...
-                      </div>
-                    )}
-                  </div>
+                      })}
+                      <p style={{ fontSize: '0.7rem', color: 'var(--ink-muted)', textAlign: 'center' }}>
+                        Approve the recommended bid from the Agent Activity panel to lock escrow and assign the crew.
+                      </p>
+                    </div>
+                  ) : (
+                    <div style={{ textAlign: 'center', padding: '1rem', color: 'var(--ink-muted)', fontSize: '0.85rem' }}>Waiting for the orchestrator to register bids…</div>
+                  )}
                 </div>
-              )}
+              );
+            })()}
 
-              {/* 2. ASSIGNED / IN PROGRESS (Stripe Escrow + Auto Crew Assembly + Override) */}
-              {(issue.status === 'assigned' || issue.status === 'in_progress') && (
+            {/* ASSIGNED / IN PROGRESS — escrow held + crew + proof upload */}
+            {(issue.status === 'assigned' || issue.status === 'in_progress') && (() => {
+              const accepted = issue.bids?.find(b => b.status === 'accepted');
+              return (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                  
-                  {/* Escrow Banner */}
-                  {issue.bids?.find(b => b.status === 'accepted') && (
-                    <div style={{
-                      background: 'linear-gradient(90deg, rgba(16, 185, 129, 0.06) 0%, rgba(15, 18, 28, 0.45) 100%)',
-                      border: '1px solid rgba(16, 185, 129, 0.2)',
-                      borderRadius: 'var(--radius-md)',
-                      padding: '1rem',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.75rem'
-                    }}>
-                      <DollarSign size={20} color="hsl(var(--status-success))" style={{ background: 'rgba(16,185,129,0.1)', padding: '4px', borderRadius: '50%', width: '28px', height: '28px' }} />
-                      <div>
-                        <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'hsl(var(--status-success))' }}>Stripe Escrow Account Active</div>
-                        <p style={{ fontSize: '0.75rem', color: 'hsl(var(--text-secondary))' }}>
-                          ₹{issue.bids.find(b => b.status === 'accepted').price.toLocaleString('en-IN')} locked. Funds release upon verification.
-                        </p>
+                  {/* Escrow held pill */}
+                  {accepted && (
+                    <div style={{ background: 'var(--alert-tint)', border: '1px solid rgba(224,138,30,.35)', borderRadius: 'var(--radius-ctl)', padding: '1rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                      <span style={{ width: '36px', height: '36px', borderRadius: '50%', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(224,138,30,.4)' }}>
+                        <Lock size={18} color="var(--alert)" />
+                      </span>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--ink-strong)' }}>Stripe escrow · <span style={{ color: 'var(--alert)' }}>Held</span></div>
+                        <p style={{ fontSize: '0.76rem', color: 'var(--ink-muted)' }}>₹{accepted.price.toLocaleString('en-IN')} locked. Funds release only on triple-lock proof.</p>
                       </div>
+                      <span className="svc-badge">Stripe test</span>
                     </div>
                   )}
 
-                  {/* Auto Crew Assembly Timeline */}
-                  <div style={{
-                    background: 'rgba(255,255,255,0.02)',
-                    border: '1px solid rgba(255,255,255,0.06)',
-                    borderRadius: 'var(--radius-md)',
-                    padding: '1rem',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '1rem'
-                  }}>
-                    <span style={{ fontSize: '0.8rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'hsl(var(--primary))' }}>
-                      Auto-Assembled Crew & Resources
-                    </span>
-                    
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', position: 'relative' }}>
-                      {/* Step 1: Inspector */}
-                      <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-                        <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: 'rgba(110,68,255,0.15)', border: '1px solid hsl(var(--primary))', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: 700, color: 'hsl(var(--primary))' }}>1</div>
+                  {/* Crew assembly */}
+                  <div className="sunken" style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.85rem', borderRadius: 'var(--radius-ctl)' }}>
+                    <span style={{ fontSize: '0.74rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--teal-600)' }}>Auto-assembled crew</span>
+                    {[
+                      { n: 1, t: 'Duty inspector booking', s: issue.inspectorId ? `Inspector ${issue.inspectorId === 'resp_1' ? 'Suresh Kumar' : 'Ananya Rao'} · Calendar` : 'Unassigned', tag: 'SCHEDULED' },
+                      { n: 2, t: 'Repairs contractor', s: contractors.find(c => c.id === issue.assignedContractorId)?.name || 'Ward Municipal Crew', tag: 'LOCKED' },
+                      { n: 3, t: 'Material logistics', s: 'BuildMart Supply Depot · released', tag: 'DISPATCHED' },
+                    ].map(step => (
+                      <div key={step.n} style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+                        <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: 'var(--teal-tint)', border: '1px solid var(--teal)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: 700, color: 'var(--teal-600)' }}>{step.n}</div>
                         <div style={{ flex: 1 }}>
-                          <div style={{ fontSize: '0.8rem', fontWeight: 600 }}>Duty Inspector Booking</div>
-                          <span style={{ fontSize: '0.7rem', color: 'hsl(var(--text-muted))' }}>
-                            {issue.inspectorId ? `Inspector ${issue.inspectorId === 'resp_1' ? 'Suresh Kumar' : 'Ravi Shankar'}` : 'Unassigned'} · Google Calendar Active
-                          </span>
+                          <div style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--ink)' }}>{step.t}</div>
+                          <span style={{ fontSize: '0.7rem', color: 'var(--ink-muted)' }}>{step.s}</span>
                         </div>
-                        <span style={{ fontSize: '0.7rem', color: 'hsl(var(--status-success))', fontWeight: 600 }}>SCHEDULED</span>
+                        <span style={{ fontSize: '0.66rem', color: 'var(--grass-600)', fontWeight: 700 }}>{step.tag}</span>
                       </div>
-
-                      {/* Step 2: Contractor */}
-                      <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-                        <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: 'rgba(110,68,255,0.15)', border: '1px solid hsl(var(--primary))', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: 700, color: 'hsl(var(--primary))' }}>2</div>
-                        <div style={{ flex: 1 }}>
-                          <div style={{ fontSize: '0.8rem', fontWeight: 600 }}>Physical Repairs Contractor</div>
-                          <span style={{ fontSize: '0.7rem', color: 'hsl(var(--text-muted))' }}>
-                            {contractors.find(c => c.id === issue.assignedContractorId)?.name || 'Ward Municipal Crew'}
-                          </span>
-                        </div>
-                        <span style={{ fontSize: '0.7rem', color: 'hsl(var(--status-success))', fontWeight: 600 }}>LOCKED</span>
-                      </div>
-
-                      {/* Step 3: Material Vendor */}
-                      <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-                        <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: 'rgba(110,68,255,0.15)', border: '1px solid hsl(var(--primary))', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: 700, color: 'hsl(var(--primary))' }}>3</div>
-                        <div style={{ flex: 1 }}>
-                          <div style={{ fontSize: '0.8rem', fontWeight: 600 }}>Material Logistics Sourcing</div>
-                          <span style={{ fontSize: '0.7rem', color: 'hsl(var(--text-muted))' }}>BuildMart Supply Depot · Materials Released</span>
-                        </div>
-                        <span style={{ fontSize: '0.7rem', color: 'hsl(var(--status-success))', fontWeight: 600 }}>DISPATCHED</span>
-                      </div>
-                    </div>
-
-                    {/* Official Override Panel */}
-                    <div style={{ borderTop: '1px dashed rgba(255,255,255,0.06)', paddingTop: '0.75rem', display: 'flex', gap: '0.5rem', alignItems: 'flex-end' }}>
+                    ))}
+                    <div style={{ borderTop: '1px dashed var(--cream-400)', paddingTop: '0.75rem', display: 'flex', gap: '0.5rem', alignItems: 'flex-end' }}>
                       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-                        <label style={{ fontSize: '0.7rem', color: 'hsl(var(--text-muted))', fontWeight: 600 }}>Override Assigned Inspector</label>
-                        <select
-                          value={overrideInspector}
-                          onChange={(e) => setOverrideInspector(e.target.value)}
-                          style={{
-                            background: 'rgba(10, 11, 16, 0.8)',
-                            border: '1px solid rgba(255,255,255,0.08)',
-                            color: '#fff',
-                            padding: '0.4rem',
-                            borderRadius: 'var(--radius-sm)',
-                            fontSize: '0.75rem',
-                            outline: 'none'
-                          }}
-                        >
+                        <label style={{ fontSize: '0.7rem', color: 'var(--ink-muted)', fontWeight: 600 }}>Override inspector</label>
+                        <select className="field" style={{ padding: '0.4rem', fontSize: '0.75rem' }} value={overrideInspector} onChange={(e) => setOverrideInspector(e.target.value)}>
                           <option value="resp_1">Inspector Suresh Kumar</option>
-                          <option value="resp_5">Inspector Ravi Shankar</option>
-                          <option value="resp_6">Inspector Meera Nair</option>
+                          <option value="resp_2">Inspector Ananya Rao</option>
                         </select>
                       </div>
-                      <button
-                        type="button"
-                        onClick={handleInspectorOverride}
-                        style={{
-                          background: 'rgba(255,255,255,0.04)',
-                          border: '1px solid rgba(255,255,255,0.08)',
-                          color: '#fff',
-                          padding: '0.4rem 0.8rem',
-                          borderRadius: 'var(--radius-sm)',
-                          fontSize: '0.75rem',
-                          cursor: 'pointer',
-                          fontWeight: 600
-                        }}
-                      >
-                        Override Crew
-                      </button>
+                      <button type="button" onClick={handleInspectorOverride} className="glow-btn-secondary" style={{ padding: '0.4rem 0.8rem', fontSize: '0.75rem' }}>Override</button>
                     </div>
-
                   </div>
 
-                  {/* Upload Proof */}
-                  <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '1rem' }}>
-                    <h3 style={{ fontSize: '0.9rem', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                      <Image size={14} color="hsl(var(--secondary))" />
-                      Contractor Proof-of-Fix Submission
+                  {/* Proof upload */}
+                  <div style={{ borderTop: '1px solid var(--cream-300)', paddingTop: '1rem' }}>
+                    <h3 style={{ fontSize: '0.9rem', marginBottom: '0.4rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                      <ImageIcon size={14} color="var(--teal)" /> Contractor proof-of-fix
                     </h3>
-                    <p style={{ fontSize: '0.75rem', color: 'hsl(var(--text-muted))', marginBottom: '1rem' }}>
-                      Simulate contractor uploading visual proof of completion.
-                    </p>
-
-                    <div style={{ display: 'flex', gap: '0.75rem' }}>
-                      <input
-                        type="text"
-                        value={proofUrl}
-                        onChange={(e) => setProofUrl(e.target.value)}
-                        style={{
-                          flex: 1,
-                          background: 'rgba(255,255,255,0.04)',
-                          border: '1px solid rgba(255,255,255,0.08)',
-                          color: '#fff',
-                          padding: '0.5rem 0.75rem',
-                          borderRadius: 'var(--radius-sm)',
-                          outline: 'none',
-                          fontSize: '0.8rem'
-                        }}
-                      />
-                      <button
-                        onClick={() => onTriggerFix(issue.id, proofUrl)}
-                        disabled={loading}
-                        className="glow-btn-primary"
-                        style={{ padding: '0.5rem 1rem', fontSize: '0.8rem', height: '36px' }}
-                      >
-                        Submit Proof
-                      </button>
+                    <p style={{ fontSize: '0.74rem', color: 'var(--ink-muted)', marginBottom: '0.75rem' }}>Simulate the contractor uploading a completion photo.</p>
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                      <input className="field" type="text" value={proofUrl} onChange={(e) => setProofUrl(e.target.value)} style={{ flex: 1, fontSize: '0.78rem' }} />
+                      <button onClick={() => onTriggerFix(issue.id, proofUrl)} disabled={loading} className="glow-btn-primary" style={{ fontSize: '0.8rem' }}>Submit proof</button>
                     </div>
                   </div>
-
                 </div>
-              )}
+              );
+            })()}
 
-              {/* 3. FIXED STATE (Comparing before/after + Triple-Lock details) */}
-              {issue.status === 'fixed' && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                  
-                  <div style={{ background: 'rgba(245, 158, 11, 0.05)', border: '1px solid rgba(245, 158, 11, 0.15)', borderRadius: 'var(--radius-md)', padding: '0.75rem 1rem', fontSize: '0.85rem' }}>
-                    <strong>Pending Verification:</strong> Proof-of-Fix uploaded. Running multimodal AI comparison and SMS verification audits. Click <strong>"Trigger Agent Step"</strong> on the right panel to release escrow funds.
-                  </div>
-
-                  <h3 style={{ fontSize: '0.9rem', color: 'hsl(var(--text-secondary))' }}>Triple-Lock Verification Visuals</h3>
-
-                  {/* Side-by-side comparison */}
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-                      <span style={{ fontSize: '0.75rem', color: 'hsl(var(--status-danger))', fontWeight: 600 }}>BEFORE REPORT</span>
-                      <img
-                        src={issue.photoUrl}
-                        alt="Before"
-                        style={{ width: '100%', height: '120px', objectFit: 'cover', borderRadius: 'var(--radius-md)', border: '1px solid rgba(255,255,255,0.06)' }}
-                      />
-                    </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-                      <span style={{ fontSize: '0.75rem', color: 'hsl(var(--status-success))', fontWeight: 600 }}>AFTER PROOF</span>
-                      <img
-                        src={issue.proofOfFixUrl || proofUrl}
-                        alt="After"
-                        style={{ width: '100%', height: '120px', objectFit: 'cover', borderRadius: 'var(--radius-md)', border: '1px solid rgba(255,255,255,0.06)' }}
-                      />
-                    </div>
-                  </div>
-
-                  {/* High Contrast Locks */}
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '1rem' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem', background: 'rgba(16, 185, 129, 0.05)', padding: '0.5rem', borderRadius: 'var(--radius-sm)', border: '1px solid rgba(16, 185, 129, 0.15)' }}>
-                      <ShieldCheck size={16} color="hsl(var(--status-success))" />
-                      <span><strong>Lock 1: AI Vision Scan</strong> — Gemini compared images. 94% similarity match. Pothole filled.</span>
-                    </div>
-
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem', background: 'rgba(16, 185, 129, 0.05)', padding: '0.5rem', borderRadius: 'var(--radius-sm)', border: '1px solid rgba(16, 185, 129, 0.15)' }}>
-                      <ShieldCheck size={16} color="hsl(var(--status-success))" />
-                      <span><strong>Lock 2: Citizen Confirmation</strong> — SMS ping confirmation returned from nearby resident Anil (Rep: 89).</span>
-                    </div>
-
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem', background: 'rgba(16, 185, 129, 0.05)', padding: '0.5rem', borderRadius: 'var(--radius-sm)', border: '1px solid rgba(16, 185, 129, 0.15)' }}>
-                      <ShieldCheck size={16} color="hsl(var(--status-success))" />
-                      <span><strong>Lock 3: Street View GPS Reference</strong> — Metadata coordinates match reported repair location.</span>
-                    </div>
-                  </div>
-
-                  {/* Street View Mock Graphic */}
-                  <div style={{
-                    height: '80px',
-                    background: 'linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url(https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=600&q=80) center/center',
-                    backgroundSize: 'cover',
-                    borderRadius: 'var(--radius-md)',
-                    border: '1px solid rgba(255,255,255,0.08)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '0.75rem',
-                    color: 'hsl(var(--secondary))',
-                    fontWeight: 700
-                  }}>
-                    [GOOGLE MAPS STREET VIEW GPS ALIGNED]
-                  </div>
-
+            {/* FIXED — before/after diff + triple-lock + escrow about to release */}
+            {issue.status === 'fixed' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                <div style={{ background: 'var(--alert-tint)', border: '1px solid rgba(224,138,30,.3)', borderRadius: 'var(--radius-ctl)', padding: '0.75rem 1rem', fontSize: '0.82rem', color: 'var(--ink)' }}>
+                  <strong>Pending verification.</strong> Proof uploaded. Trigger the agent step on the right to run the triple-lock and release escrow.
                 </div>
-              )}
 
-              {/* 4. VERIFIED STATE (Escrow Released + Warranty Active + Reopen Trigger) */}
-              {issue.status === 'verified' && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                  
-                  {/* Success released */}
-                  <div style={{
-                    background: 'linear-gradient(90deg, rgba(16, 185, 129, 0.08) 0%, rgba(15, 18, 28, 0.45) 100%)',
-                    border: '1px solid rgba(16, 185, 129, 0.25)',
-                    borderRadius: 'var(--radius-md)',
-                    padding: '1.25rem',
-                    textAlign: 'center',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    gap: '0.5rem'
-                  }}>
-                    <ShieldCheck size={36} color="hsl(var(--status-success))" />
-                    <h3 style={{ fontSize: '1.05rem', color: '#fff', fontWeight: 700 }}>Escrow Payout Released</h3>
-                    <p style={{ fontSize: '0.85rem', color: 'hsl(var(--text-secondary))' }}>
-                      Stripe transferred payment to {contractors.find(c => c.id === issue.assignedContractorId)?.name || 'assigned contractor'}.
-                    </p>
+                {/* Before / After with AI verdict ribbon */}
+                <div style={{ position: 'relative', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                    <span className="badge badge-danger" style={{ alignSelf: 'flex-start' }}>Before</span>
+                    <img src={issue.photoUrl} alt="Before" style={{ width: '100%', height: '140px', objectFit: 'cover', borderRadius: 'var(--radius-ctl)', border: '1px solid var(--cream-300)' }} />
                   </div>
-
-                  {/* FixWarranty Active Card */}
-                  <div style={{
-                    background: 'linear-gradient(135deg, rgba(0, 180, 216, 0.06) 0%, rgba(15, 18, 28, 0.45) 100%)',
-                    border: '1px solid rgba(0, 180, 216, 0.25)',
-                    borderRadius: 'var(--radius-md)',
-                    padding: '1rem',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '0.5rem'
-                  }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'hsl(var(--secondary))', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                        Nidaan FixWarranty Shield Active
-                      </span>
-                      <span className="badge badge-success" style={{ background: 'rgba(0, 180, 216, 0.15)', color: 'hsl(var(--secondary))', border: '1px solid rgba(0, 180, 216, 0.25)' }}>
-                        365 Days Active
-                      </span>
-                    </div>
-                    <p style={{ fontSize: '0.75rem', color: 'hsl(var(--text-secondary))' }}>
-                      If this repair fails or decays within the quality assurance window, citizens can report failure. The contractor rating will be penalized, and the ticket will auto-reopen.
-                    </p>
-
-                    <button
-                      onClick={() => {
-                        if (window.confirm('Report physical repair failure? This will reopen the issue and penalize contractor rating.')) {
-                          onReportFailure(issue.id);
-                        }
-                      }}
-                      style={{
-                        background: 'rgba(239, 68, 68, 0.06)',
-                        border: '1px solid rgba(239, 68, 68, 0.25)',
-                        color: 'hsl(var(--status-danger))',
-                        padding: '0.5rem',
-                        borderRadius: 'var(--radius-sm)',
-                        fontSize: '0.75rem',
-                        cursor: 'pointer',
-                        fontWeight: 600,
-                        transition: 'all var(--transition-fast)',
-                        marginTop: '0.25rem'
-                      }}
-                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.15)'}
-                      onMouseLeave={e => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.06)'}
-                    >
-                      Report Warranty Failure (Trigger Triage Re-open)
-                    </button>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                    <span className="badge badge-success" style={{ alignSelf: 'flex-start' }}>After</span>
+                    <img src={issue.proofOfFixUrl || proofUrl} alt="After" style={{ width: '100%', height: '140px', objectFit: 'cover', borderRadius: 'var(--radius-ctl)', border: '1px solid var(--cream-300)' }} />
                   </div>
-
-                  {/* Performance impacts */}
-                  <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '1rem' }}>
-                    <h4 style={{ fontSize: '0.85rem', color: 'hsl(var(--text-secondary))', marginBottom: '0.75rem' }}>Contractor Performance Scorecard Impact</h4>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem' }}>
-                      <div style={{ padding: '0.5rem', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: 'var(--radius-sm)', textAlign: 'center' }}>
-                        <span style={{ fontSize: '0.7rem', color: 'hsl(var(--text-muted))' }}>Completed Jobs</span>
-                        <div style={{ fontSize: '1rem', fontWeight: 700, color: 'hsl(var(--status-success))' }}>+1</div>
-                      </div>
-                      <div style={{ padding: '0.5rem', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: 'var(--radius-sm)', textAlign: 'center' }}>
-                        <span style={{ fontSize: '0.7rem', color: 'hsl(var(--text-muted))' }}>Reputation Rank</span>
-                        <div style={{ fontSize: '1rem', fontWeight: 700, color: 'hsl(var(--status-success))' }}>+2%</div>
-                      </div>
-                      <div style={{ padding: '0.5rem', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: 'var(--radius-sm)', textAlign: 'center' }}>
-                        <span style={{ fontSize: '0.7rem', color: 'hsl(var(--text-muted))' }}>Warranty Status</span>
-                        <div style={{ fontSize: '1rem', fontWeight: 700, color: 'hsl(var(--secondary))' }}>1 Yr Active</div>
-                      </div>
-                    </div>
+                  {/* verdict ribbon */}
+                  <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, 60%)', background: 'var(--ink-strong)', color: '#fff', padding: '0.3rem 0.7rem', borderRadius: '99px', fontSize: '0.7rem', fontWeight: 700, fontFamily: 'var(--font-mono)', boxShadow: 'var(--shadow-lift)', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                    <ShieldCheck size={13} color="var(--grass)" /> PASS · 0.94
                   </div>
-
                 </div>
-              )}
 
-              {/* 5. ESCALATED STATE (RTI Instrument + Crowdfund Donations) */}
-              {issue.status === 'escalated' && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                  
-                  <div style={{
-                    background: 'linear-gradient(90deg, rgba(239, 68, 68, 0.08) 0%, rgba(15, 18, 28, 0.45) 100%)',
-                    border: '1px solid rgba(239, 68, 68, 0.25)',
-                    borderRadius: 'var(--radius-md)',
-                    padding: '1rem',
-                    fontSize: '0.85rem'
-                  }}>
-                    <strong style={{ color: 'hsl(var(--status-danger))' }}>SLA BREACHED / SYSTEM ESCALATED:</strong> 
-                    {' '}Official resolution timeline exceeded. The orchestrator generated a formal legal grievance.
+                {/* Triple-lock checklist */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  {[
+                    ['AI Vision diff', 'Gemini compared images — 94% match, surface repaired.'],
+                    ['Citizen confirm', 'SMS ping confirmed by nearby resident (Rep 89).'],
+                    ['Street View GPS', 'Metadata coordinates match the repair location.'],
+                  ].map(([t, d], i) => (
+                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.78rem', background: 'var(--grass-tint)', padding: '0.5rem 0.7rem', borderRadius: 'var(--radius-ctl)', border: '1px solid rgba(91,170,71,.25)' }}>
+                      <CheckCircle size={16} color="var(--grass-600)" />
+                      <span><strong style={{ color: 'var(--ink-strong)' }}>{t}</strong> — <span style={{ color: 'var(--ink-muted)' }}>{d}</span></span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* VERIFIED — escrow released (unlock) + warranty + scorecard */}
+            {issue.status === 'verified' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                {/* Unlock flourish */}
+                <div style={{ background: 'var(--grass-tint)', border: '1px solid rgba(91,170,71,.35)', borderRadius: 'var(--radius-ctl)', padding: '1.25rem', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
+                  <span style={{ width: '52px', height: '52px', borderRadius: '50%', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: 'var(--shadow-soft)' }}>
+                    <Unlock size={26} color="var(--grass-600)" />
+                  </span>
+                  <h3 style={{ fontSize: '1.05rem' }}>Escrow released · <span style={{ color: 'var(--grass-600)' }}>Paid</span></h3>
+                  <p style={{ fontSize: '0.84rem', color: 'var(--ink-muted)' }}>
+                    Stripe transferred payment to {contractors.find(c => c.id === issue.assignedContractorId)?.name || 'the assigned contractor'}.
+                  </p>
+                  <span className="svc-badge">Stripe test</span>
+                </div>
+
+                {/* Warranty */}
+                <div style={{ background: 'var(--teal-tint)', border: '1px solid rgba(26,169,160,.3)', borderRadius: 'var(--radius-ctl)', padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--teal-600)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>FixWarranty active</span>
+                    <span className="badge badge-info">365 days</span>
                   </div>
+                  <p style={{ fontSize: '0.74rem', color: 'var(--ink-muted)' }}>
+                    If this repair fails within the window, citizens can report it — the contractor's rating is penalised and the ticket auto-reopens.
+                  </p>
+                  <button
+                    onClick={() => { if (window.confirm('Report repair failure? This reopens the issue and penalises the contractor rating.')) onReportFailure(issue.id); }}
+                    style={{ background: 'var(--critical-tint)', border: '1px solid rgba(215,64,47,.3)', color: 'var(--critical)', padding: '0.5rem', borderRadius: 'var(--radius-ctl)', fontSize: '0.75rem', cursor: 'pointer', fontWeight: 600, marginTop: '0.25rem' }}
+                  >
+                    Report warranty failure (reopen)
+                  </button>
+                </div>
 
-                  {/* Multi-path mitigation and donations */}
-                  <div style={{
-                    background: 'linear-gradient(135deg, rgba(110, 68, 255, 0.05) 0%, rgba(15, 18, 28, 0.45) 100%)',
-                    border: '1px solid rgba(110, 68, 255, 0.2)',
-                    borderRadius: 'var(--radius-md)',
-                    padding: '1rem',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '0.75rem'
-                  }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      <Activity size={16} color="hsl(var(--primary))" />
-                      <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'hsl(var(--text-primary))' }}>
-                        Collective Pressure Multi-Path Mitigation
-                      </span>
-                    </div>
-                    <p style={{ fontSize: '0.75rem', color: 'hsl(var(--text-secondary))' }}>
-                      When government departments stall, Nidaan activates citizen crowdfunding, NGO coordination, and CSR sponsorship avenues to resolve the issue directly.
-                    </p>
-
-                    {/* Crowdfund status */}
-                    <div style={{ background: 'rgba(0,0,0,0.3)', padding: '0.75rem', borderRadius: 'var(--radius-sm)', border: '1px solid rgba(255,255,255,0.04)' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', marginBottom: '0.35rem' }}>
-                        <span>Micro-Crowdfund Raised</span>
-                        <strong style={{ color: 'hsl(var(--secondary))' }}>
-                          ₹{issue.crowdfundRaised || 0} / ₹5,000 Target
-                        </strong>
+                {/* Scorecard impact */}
+                <div style={{ borderTop: '1px solid var(--cream-300)', paddingTop: '1rem' }}>
+                  <h4 style={{ fontSize: '0.85rem', color: 'var(--ink)', marginBottom: '0.75rem' }}>Contractor scorecard impact</h4>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem' }}>
+                    {[['Completed jobs', '+1', 'var(--grass-600)'], ['Reputation', '+2%', 'var(--grass-600)'], ['Warranty', '1 Yr', 'var(--teal-600)']].map(([l, v, c], i) => (
+                      <div key={i} className="sunken" style={{ padding: '0.6rem', textAlign: 'center', borderRadius: 'var(--radius-ctl)' }}>
+                        <span style={{ fontSize: '0.66rem', color: 'var(--ink-muted)' }}>{l}</span>
+                        <div style={{ fontSize: '1rem', fontWeight: 700, color: c, fontFamily: 'var(--font-mono)' }}>{v}</div>
                       </div>
-                      
-                      {/* Donation progress bar */}
-                      <div style={{ height: '6px', background: 'rgba(255,255,255,0.06)', borderRadius: '99px', overflow: 'hidden', marginBottom: '0.5rem' }}>
-                        <div style={{
-                          height: '100%',
-                          width: `${Math.min(100, ((issue.crowdfundRaised || 0) / 5000) * 100)}%`,
-                          background: 'var(--gradient-secondary)',
-                          borderRadius: '99px',
-                          transition: 'width 0.4s ease'
-                        }}></div>
-                      </div>
-
-                      <button
-                        onClick={() => onDonate(issue.id, 500)}
-                        className="glow-btn-primary"
-                        style={{ width: '100%', justifyContent: 'center', padding: '0.4rem', fontSize: '0.75rem', height: '32px' }}
-                      >
-                        + Contribute ₹500
-                      </button>
-                    </div>
-
-                    {/* Alternative delegation links */}
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
-                      <button
-                        onClick={() => alert('Delegated complaint packet to East Bengaluru Citizens Forum NGO.')}
-                        style={{
-                          background: 'rgba(255,255,255,0.02)',
-                          border: '1px solid rgba(255,255,255,0.08)',
-                          color: '#fff',
-                          padding: '0.4rem',
-                          borderRadius: 'var(--radius-sm)',
-                          fontSize: '0.7rem',
-                          cursor: 'pointer',
-                          fontWeight: 600
-                        }}
-                      >
-                        Delegate to NGO
-                      </button>
-                      <button
-                        onClick={() => alert('Auto-requested HDFC CSR community budget grant sponsorship.')}
-                        style={{
-                          background: 'rgba(255,255,255,0.02)',
-                          border: '1px solid rgba(255,255,255,0.08)',
-                          color: '#fff',
-                          padding: '0.4rem',
-                          borderRadius: 'var(--radius-sm)',
-                          fontSize: '0.7rem',
-                          cursor: 'pointer',
-                          fontWeight: 600
-                        }}
-                      >
-                        Trigger Corporate CSR
-                      </button>
-                    </div>
-
+                    ))}
                   </div>
+                </div>
+              </div>
+            )}
 
-                  <h3 style={{ fontSize: '0.9rem', color: 'hsl(var(--text-secondary))' }}>Drafted Legal RTI Instrument</h3>
-                  <div style={{
-                    background: '#040508',
-                    border: '1px solid rgba(255,255,255,0.05)',
-                    borderRadius: 'var(--radius-sm)',
-                    padding: '1rem',
-                    fontFamily: 'var(--font-mono)',
-                    fontSize: '0.75rem',
-                    color: 'hsl(var(--text-secondary))',
-                    whiteSpace: 'pre-wrap',
-                    lineHeight: '1.4'
-                  }}>
+            {/* ESCALATED — crowdfund + RTI */}
+            {issue.status === 'escalated' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                <div style={{ background: 'var(--critical-tint)', border: '1px solid rgba(215,64,47,.3)', borderRadius: 'var(--radius-ctl)', padding: '1rem', fontSize: '0.82rem', color: 'var(--ink)' }}>
+                  <strong style={{ color: 'var(--critical)' }}>SLA breached · escalated.</strong> Resolution timeline exceeded — the orchestrator drafted a formal grievance.
+                </div>
+
+                <div style={{ background: 'var(--teal-tint)', border: '1px solid rgba(26,169,160,.25)', borderRadius: 'var(--radius-ctl)', padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <Activity size={16} color="var(--teal-600)" />
+                    <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--ink-strong)' }}>Collective pressure mitigation</span>
+                  </div>
+                  <p style={{ fontSize: '0.74rem', color: 'var(--ink-muted)' }}>When departments stall, Nidaan activates citizen crowdfunding, NGO coordination and CSR sponsorship.</p>
+                  <div className="sunken" style={{ padding: '0.75rem', borderRadius: 'var(--radius-ctl)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', marginBottom: '0.35rem' }}>
+                      <span style={{ color: 'var(--ink)' }}>Micro-crowdfund raised</span>
+                      <strong style={{ color: 'var(--teal-600)', fontFamily: 'var(--font-mono)' }}>₹{issue.crowdfundRaised || 0} / ₹5,000</strong>
+                    </div>
+                    <div style={{ height: '7px', background: 'var(--cream-300)', borderRadius: '99px', overflow: 'hidden', marginBottom: '0.6rem' }}>
+                      <div style={{ height: '100%', width: `${Math.min(100, ((issue.crowdfundRaised || 0) / 5000) * 100)}%`, background: 'var(--gradient-secondary)', borderRadius: '99px', transition: 'width var(--transition-slow)' }} />
+                    </div>
+                    <button onClick={() => onDonate(issue.id, 500)} className="glow-btn-primary" style={{ width: '100%', justifyContent: 'center', padding: '0.4rem', fontSize: '0.78rem' }}>+ Contribute ₹500</button>
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
+                    <button onClick={() => alert('Delegated complaint packet to East Bengaluru Citizens Forum NGO.')} className="glow-btn-secondary" style={{ padding: '0.4rem', fontSize: '0.72rem', justifyContent: 'center' }}>Delegate to NGO</button>
+                    <button onClick={() => alert('Auto-requested HDFC CSR community grant.')} className="glow-btn-secondary" style={{ padding: '0.4rem', fontSize: '0.72rem', justifyContent: 'center' }}>Trigger CSR</button>
+                  </div>
+                </div>
+
+                <h3 style={{ fontSize: '0.9rem' }}>Drafted RTI grievance</h3>
+                <pre className="sunken" style={{ padding: '1rem', fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: 'var(--ink-muted)', whiteSpace: 'pre-wrap', lineHeight: 1.5, borderRadius: 'var(--radius-ctl)', margin: 0 }}>
 {`MEMORANDUM OF GRIEVANCE
 TO: Public Works Department / Municipal Grievance Cell
-SUBJECT: Unresolved Public Hazard - SLA Breach (Ticket #${issue.id})
+SUBJECT: Unresolved Public Hazard — SLA Breach (Ticket #${issue.id})
 WARD: ${issue.ward}
 
-This constitutes a formal notification under Section 6 of the RTI Act regarding the unresolved civic issue: ${issue.category.toUpperCase().replace('_', ' ')} reported on ${new Date(issue.timestamp).toLocaleDateString()}.
+Formal notification under Section 6 of the RTI Act regarding the unresolved civic issue: ${issue.category.replace('_', ' ').toUpperCase()} reported on ${new Date(issue.timestamp).toLocaleDateString()}.
 
-Despite accumulating a community pressure rating of ${issue.citizensAffected} affected citizens, the department has failed to resolve the issue within the allotted timeline of ${issue.severity === 'RedAlert' ? '4 hours' : '48 hours'}.
+Despite a community pressure rating of ${issue.citizensAffected} affected citizens, the department failed to resolve within ${issue.severity === 'RedAlert' ? '4 hours' : '48 hours'}.
 
-Daily economic cost of inaction from this case is estimated at ₹${issue.costOfInaction}. Please register this as a formal complaint in the public audit ledger.`}
-                  </div>
-                </div>
-              )}
-
-            </div>
-          )}
-        </>
+Daily economic cost of inaction: ₹${issue.costOfInaction}. Please register this in the public audit ledger.`}
+                </pre>
+              </div>
+            )}
+          </div>
+        )
       )}
-
     </div>
   );
 }

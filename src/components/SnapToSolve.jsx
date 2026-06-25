@@ -37,22 +37,25 @@ export default function SnapToSolve({ onIssueCreated, user }) {
   const [analyzing, setAnalyzing] = useState(false);
   const [triaging, setTriaging] = useState(false);
   const [submitResult, setSubmitResult] = useState(null);
+  const [voiceError, setVoiceError] = useState(null);
   const fileRef = useRef(null);
   const recogRef = useRef(null);
+  const transcriptRef = useRef('');
 
-  const runTriage = async (hintOverride) => {
+  const runTriage = async (hintOverride, photoUrlOverride) => {
     setTriaging(true);
     setConfidence(null);
+    const targetPhotoUrl = photoUrlOverride !== undefined ? photoUrlOverride : photoUrl;
     try {
       const res = await fetch('/api/triage', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ photoUrl: photoBase64 ? undefined : photoUrl, photoBase64, mimeType, hint: hintOverride ?? description }),
+        body: JSON.stringify({ photoUrl: photoBase64 ? undefined : targetPhotoUrl, photoBase64, mimeType, hint: hintOverride ?? description }),
       });
       const t = await res.json();
       setCategory(t.category); setSeverity(t.severity);
       setTitle(t.title); setDescription(t.description); setSuggestedDept(t.suggestedDept);
       setConfidence(t.confidence); setTriageSource(t.source);
-      if (!photoBase64) setPhotoUrl(SAMPLE_PHOTO_LINKS[t.category] || photoUrl);
+      if (!photoBase64) setPhotoUrl(SAMPLE_PHOTO_LINKS[t.category] || targetPhotoUrl);
     } catch {
       alert('Triage failed — check the backend is running.');
     } finally { setTriaging(false); }
@@ -73,7 +76,7 @@ export default function SnapToSolve({ onIssueCreated, user }) {
   const applyPreset = (p) => {
     setPhotoBase64(null); setMimeType(null);
     setPhotoUrl(p.photo); setCategory(p.key); setDescription(p.hint);
-    runTriage(p.hint);
+    runTriage(p.hint, p.photo);
   };
 
   const handleGetLocation = () => {
@@ -95,28 +98,70 @@ export default function SnapToSolve({ onIssueCreated, user }) {
     }
     if (SR) {
       const recog = new SR();
-      recog.lang = lang; recog.interimResults = true; recog.continuous = false;
+      recog.lang = lang; recog.interimResults = true; recog.continuous = true;
       recog.onresult = (e) => {
         const transcript = Array.from(e.results).map(r => r[0].transcript).join(' ');
         setDescription(transcript);
+        transcriptRef.current = transcript;
       };
-      recog.onend = () => { setRecording(false); if (description) runTriage(description); };
-      recog.onerror = () => { setRecording(false); simulateVoice(); };
+      recog.onend = () => {
+        setRecording(false);
+        const finalTxt = transcriptRef.current.trim();
+        if (finalTxt) runTriage(finalTxt);
+      };
+      recog.onerror = (event) => {
+        console.error('Speech recognition error:', event.error);
+        if (event.error === 'no-speech' || event.error === 'aborted') {
+          return;
+        }
+        setRecording(false);
+        if (event.error === 'not-allowed') {
+          setVoiceError('Microphone access denied. Please enable microphone permissions in your browser.');
+        } else if (event.error === 'network') {
+          setVoiceError('Speech recognition network error. (Web Speech API requires an active internet connection in this browser).');
+        } else {
+          setVoiceError(`Speech recognition error: ${event.error}.`);
+        }
+      };
       recogRef.current = recog;
       setRecording(true); setDescription('');
-      try { recog.start(); } catch { setRecording(false); simulateVoice(); }
+      transcriptRef.current = '';
+      setVoiceError(null);
+      try { recog.start(); } catch (err) {
+        console.error('Failed to start speech recognition:', err);
+        setRecording(false);
+        setVoiceError('Failed to start speech recognition.');
+      }
     } else {
       setRecording(true); setDescription('');
+      transcriptRef.current = '';
+      setVoiceError(null);
       setTimeout(() => { setRecording(false); simulateVoice(); }, 1500);
     }
   };
 
   const simulateVoice = () => {
-    const txt = lang === 'hi-IN'
-      ? 'सड़क पर पानी की पाइप फट गई है, पानी बह रहा है, बहुत खतरनाक है।'
-      : 'A water pipe has burst on the road, water is gushing out, very dangerous for traffic.';
+    let txt = '';
+    const photo = SAMPLE_PHOTO_LINKS[category] || photoUrl;
+    if (lang === 'hi-IN') {
+      if (category === 'pothole') {
+        txt = 'सड़क के बीचों-बीच एक बड़ा और गहरा गड्ढा है, जिसमें पानी भरा है और दुपहिया वाहनों के लिए बहुत खतरनाक है।';
+      } else if (category === 'wiring') {
+        txt = 'फुटपाथ पर बिजली का चालू तार गिर गया है और चिंगारी निकल रही है, पैदल यात्रियों के लिए बहुत खतरनाक है।';
+      } else {
+        txt = 'सड़क पर पानी की पाइप फट गई है, पानी बह रहा है, बहुत खतरनाक है।';
+      }
+    } else {
+      if (category === 'pothole') {
+        txt = 'There is a large deep pothole in the middle of the road, it is water-logged and a severe hazard for two-wheelers.';
+      } else if (category === 'wiring') {
+        txt = 'A live electrical wire has fallen down on the footpath and is sparking, very dangerous for pedestrians.';
+      } else {
+        txt = 'A water pipe has burst on the road, water is gushing out, very dangerous for traffic.';
+      }
+    }
     setDescription(txt);
-    runTriage(txt);
+    runTriage(txt, photo);
   };
 
   const handleSubmit = async (e) => {
@@ -208,6 +253,18 @@ export default function SnapToSolve({ onIssueCreated, user }) {
                 </button>
               </div>
             </div>
+
+            {voiceError && (
+              <div style={{ color: 'var(--critical)', fontSize: '0.8rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', background: 'var(--critical-tint)', padding: '0.6rem 0.8rem', borderRadius: 'var(--radius-ctl)', border: '1px solid rgba(215,64,47,.2)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                  <AlertTriangle size={14} style={{ flexShrink: 0 }} />
+                  <span>{voiceError}</span>
+                </div>
+                <button type="button" onClick={() => { simulateVoice(); setVoiceError(null); }} className="glow-btn-secondary" style={{ alignSelf: 'flex-start', fontSize: '0.72rem', padding: '0.25rem 0.6rem', height: 'auto', background: 'rgba(215,64,47,.1)', border: '1px solid rgba(215,64,47,.2)', color: 'var(--critical)', cursor: 'pointer', fontWeight: 600 }}>
+                  Run Demo Simulation
+                </button>
+              </div>
+            )}
 
             {recording && (
               <div className="sunken" style={{ height: '54px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', padding: '0 1rem' }}>

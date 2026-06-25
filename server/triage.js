@@ -39,13 +39,14 @@ async function fetchImageAsInline(url) {
 function heuristicTriage(hint = '') {
   const t = hint.toLowerCase();
   let category = 'pothole';
-  if (/water|pipe|leak|burst|flood/.test(t)) category = 'water_leak';
+  if (/pothole|crack/.test(t)) category = 'pothole';
+  else if (/water|pipe|leak|burst|flood/.test(t)) category = 'water_leak';
   else if (/wire|electric|spark|cable|pole|transformer/.test(t)) category = 'wiring';
   else if (/garbage|trash|litter|waste/.test(t)) category = 'garbage';
   else if (/drain|sewage|sewer|overflow/.test(t)) category = 'drainage';
   else if (/debris|rubble|construction|sand/.test(t)) category = 'debris';
   else if (/light|lamp|sign|signal/.test(t)) category = 'road_sign';
-  else if (/pothole|crack|road|asphalt/.test(t)) category = 'pothole';
+  else if (/road|asphalt/.test(t)) category = 'pothole';
 
   let severity = 'medium';
   if (/spark|live wire|gas|downed|fire|flood/.test(t)) severity = 'RedAlert';
@@ -83,7 +84,7 @@ export async function triagePhoto({ photoUrl, photoBase64, mimeType, hint } = {}
 
   try {
     const model = ai.getGenerativeModel({
-      model: 'gemini-1.5-flash',
+      model: 'gemini-2.5-flash',
       generationConfig: { responseMimeType: 'application/json' },
     });
 

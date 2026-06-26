@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ThumbsUp, CheckCircle, Circle, FileText, Download, Star, Users, ShieldCheck, ArrowRight, ChevronDown, ChevronUp, XCircle, AlertTriangle } from 'lucide-react';
 import { useAppData } from '../../app/AppDataContext.jsx';
 import { useRole } from '../../app/RoleContext.jsx';
@@ -6,6 +6,7 @@ import SnapToSolve from '../../components/SnapToSolve.jsx';
 import LoopPipeline, { issueProgress, STAGES } from '../../components/LoopPipeline.jsx';
 import AgentActivityPanel from '../../components/AgentActivityPanel.jsx';
 import LedgerTimeline from '../../components/LedgerTimeline.jsx';
+import LivePressureDashboard from '../../components/LivePressureDashboard.jsx';
 
 const EmptyState = ({ icon: Icon, title, body }) => (
   <div className="glass-panel" style={{ padding: '3rem 1.5rem', textAlign: 'center' }}>
@@ -36,10 +37,16 @@ export function CitizenReport() {
 /* 2 — My Reports */
 export function CitizenMyReports() {
   const {
-    issues, citizen, heroIssue, setSelectedIssue,
+    issues, citizen, heroIssue, selectedIssue, setSelectedIssue,
     handleTriggerAgent, handleRunAgent, handleReleaseEscrow, agentLoading
   } = useAppData();
-  const [trackingIssueId, setTrackingIssueId] = useState(null);
+  const [trackingIssueId, setTrackingIssueId] = useState(selectedIssue?.id || null);
+
+  useEffect(() => {
+    if (selectedIssue) {
+      setTrackingIssueId(selectedIssue.id);
+    }
+  }, [selectedIssue]);
 
   const mine = issues.filter(i => i.reporterId === citizen.userId);
   if (heroIssue && !mine.find(i => i.id === heroIssue.id)) mine.unshift(heroIssue);
@@ -279,7 +286,6 @@ Daily economic cost of inaction: ₹${issue.costOfInaction}. Please register thi
           </div>
         </div>
       </div>
-
       {/* Group petition */}
       <div className="glass-panel" style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
         <h3 style={{ fontSize: '1.0rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}><Users size={17} color="var(--teal)" /> Collective petition</h3>
@@ -315,6 +321,34 @@ Daily economic cost of inaction: ₹${issue.costOfInaction}. Please register thi
           <p style={{ fontSize: '0.8rem', color: 'var(--ink-muted)' }}>Nothing stalled right now — the loop is clean.</p>
         )}
       </div>
+    </div>
+  );
+}
+
+/* 2.5 — Nearby Active Reports */
+export function CitizenNearbyReports() {
+  const { issues, handleVoteIssue, setSelectedIssue } = useAppData();
+  const { navigate } = useRole();
+
+  const handleTrack = (issue) => {
+    setSelectedIssue(issue);
+    navigate('citizen', 'my-reports');
+  };
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+      <div>
+        <h2 style={{ fontSize: '1.25rem', fontWeight: 800 }}>Nearby active reports</h2>
+        <p style={{ fontSize: '0.85rem', color: 'var(--ink-muted)', marginTop: '0.25rem' }}>
+          Upvote issues in your neighborhood to apply collective pressure and accelerate resolution.
+        </p>
+      </div>
+      <LivePressureDashboard
+        issues={issues}
+        view="pressure"
+        onSelectIssue={handleTrack}
+        onVoteIssue={handleVoteIssue}
+      />
     </div>
   );
 }

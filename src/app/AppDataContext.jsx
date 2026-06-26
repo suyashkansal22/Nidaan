@@ -94,9 +94,13 @@ export function AppDataProvider({ children }) {
     }
   }, [reseed, showToast]);
 
-  const handleVoteIssue = useCallback(async (issueId) => {
+  const handleVoteIssue = useCallback(async (issueId, userRole, userId, action) => {
     try {
-      const res = await fetch(`/api/issues/${issueId}/vote`, { method: 'POST' });
+      const res = await fetch(`/api/issues/${issueId}/vote`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ role: userRole, userId, action })
+      });
       const data = await res.json();
       if (res.ok) {
         setIssues(prev => prev.map(i => i.id === issueId ? data.issue : i));
@@ -104,6 +108,8 @@ export function AppDataProvider({ children }) {
         if (data.escalated) showToast('Collective pressure threshold breached — auto-escalation triggered.', 'danger');
         else if (data.petitioned) showToast('Group petition auto-assembled from collective pressure.', 'success');
         return data.issue;
+      } else {
+        showToast(data.error || 'Failed to vote', 'danger');
       }
     } catch (error) { console.error(error); }
   }, [showToast]);

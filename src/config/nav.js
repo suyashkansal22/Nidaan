@@ -7,7 +7,7 @@ import {
   User, HardHat, Building2,
   Camera, ListChecks, CheckCircle2, Megaphone,
   Briefcase, ClipboardList, ImageUp, Wallet,
-  LayoutDashboard, Activity, Send, AlertTriangle, Brain, Scale, UserPlus,
+  LayoutDashboard, Activity, Send, AlertTriangle, Brain, Scale, UserPlus, Users
 } from 'lucide-react';
 
 export const ROLES = [
@@ -48,6 +48,11 @@ export const SECTIONS = {
       id: 'my-reports', label: 'My Reports', icon: ListChecks,
       hint: 'Track each issue through the 7-stage resolution loop.',
       info: "Follow each issue through Nidaan's 7-stage resolution loop in real time.",
+    },
+    {
+      id: 'nearby', label: 'Nearby Reports', icon: Users,
+      hint: 'See what other citizens are reporting nearby and upvote them.',
+      info: 'Upvote nearby reports to apply collective pressure and accelerate resolution.',
     },
     {
       id: 'confirm', label: 'Confirm a Fix', icon: CheckCircle2,

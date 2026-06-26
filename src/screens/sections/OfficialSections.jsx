@@ -365,6 +365,7 @@ export function OfficialDispatch() {
           onDonate={handleDonate}
           onReleaseEscrow={handleReleaseEscrow}
           onWorkspace={handleWorkspace}
+          hideRegistrationTab={true}
         />
       </div>
     </div>
@@ -374,12 +375,19 @@ export function OfficialDispatch() {
 /* 4 — Pressure & Escalation (ranked by ₹/day, SLA timers, auto-escalation) */
 export function OfficialPressure() {
   const { issues, users, setSelectedIssue, handleVoteIssue, handleSlaSweep, handlePreparedness } = useAppData();
+  const { navigate } = useRole();
+
+  const handleTrack = (issue) => {
+    setSelectedIssue(issue);
+    navigate('official', 'agent');
+  };
+
   return (
     <LivePressureDashboard
       issues={issues}
       users={users}
       view="pressure"
-      onSelectIssue={setSelectedIssue}
+      onSelectIssue={handleTrack}
       onVoteIssue={handleVoteIssue}
       onSlaSweep={handleSlaSweep}
       onPreparedness={handlePreparedness}
@@ -390,6 +398,13 @@ export function OfficialPressure() {
 /* 5 — Prevention (Fix-It-Right: repeat-offender + root-cause intelligence) */
 export function OfficialPrevention() {
   const { issues, users, setSelectedIssue, handleVoteIssue, handleSlaSweep, handlePreparedness } = useAppData();
+  const { navigate } = useRole();
+
+  const handleTrack = (issue) => {
+    setSelectedIssue(issue);
+    navigate('official', 'agent');
+  };
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.75rem' }}>
       <div data-tour-id="tour-repeat-offender">
@@ -397,13 +412,13 @@ export function OfficialPrevention() {
           issues={issues}
           users={users}
           view="repeat"
-          onSelectIssue={setSelectedIssue}
+          onSelectIssue={handleTrack}
           onVoteIssue={handleVoteIssue}
           onSlaSweep={handleSlaSweep}
           onPreparedness={handlePreparedness}
         />
       </div>
-      <IntelligencePanel issues={issues} onSelectIssue={setSelectedIssue} onPreparedness={handlePreparedness} />
+      <IntelligencePanel issues={issues} onSelectIssue={handleTrack} onPreparedness={handlePreparedness} />
     </div>
   );
 }

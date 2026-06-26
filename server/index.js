@@ -214,45 +214,75 @@ app.post('/api/issues/:id/fix', async (req, res) => {
   }
 });
 
-// 8. Increase pressure/upvote issue (representing community collective pressure)
 app.post('/api/issues/:id/vote', async (req, res) => {
   try {
+    const { role, userId, action } = req.body;
+    if (role !== 'citizen') {
+      return res.status(403).json({ error: 'Voting is reserved for citizens.' });
+    }
+
     const issue = await db.getDoc('issues', req.params.id);
     if (!issue) return res.status(404).json({ error: 'Issue not found' });
     
-    const newCount = (issue.citizensAffected || 1) + 1;
-    let updateFields = { citizensAffected: newCount };
+    const voters = issue.voters || [];
+    const hasVoted = userId && voters.includes(userId);
 
-    // Generate a single group-petition object once enough citizens are affected (PressurePath 4c)
-    const PETITION_THRESHOLD = 25;
-    let petitioned = false;
-    if (newCount >= PETITION_THRESHOLD && !issue.petition) {
-      petitioned = true;
-      updateFields.petition = buildPetition(issue, newCount);
-    }
+    if (action === 'unvote') {
+      if (!hasVoted) {
+        return res.status(400).json({ error: 'You have not upvoted this issue.' });
+      }
+      const newVoters = voters.filter(v => v !== userId);
+      const newCount = Math.max(1, (issue.citizensAffected || 1) - 1);
+      let updateFields = { citizensAffected: newCount, voters: newVoters };
 
-    // Automatically trigger escalation if collective pressure crosses 50 votes and still not assigned
-    let escalated = false;
-    if (newCount >= 50 && ['reported', 'triaged', 'bidding'].includes(issue.status)) {
-      escalated = true;
-      updateFields.status = 'escalated';
-      updateFields.ledgerTrail = appendLedger(issue.ledgerTrail, {
-        status: 'escalated',
-        actor: 'PressurePath-Agent',
-        message: `Collective pressure threshold breached (${newCount} citizens). Auto-generated legal RTI grievance drafted and routed.`
-      });
-    } else {
       updateFields.ledgerTrail = appendLedger(issue.ledgerTrail, {
         status: issue.status,
         actor: 'Citizen-Voter',
-        message: petitioned
-          ? `Citizen support reached ${newCount}. Group petition auto-assembled and ready to file.`
-          : `Citizen upvoted report. Active support increased to ${newCount} members.`
+        message: `Citizen removed upvote. Active support decreased to ${newCount} members.`
       });
-    }
 
-    const updated = await db.updateDoc('issues', req.params.id, updateFields);
-    res.json({ escalated, petitioned, issue: updated });
+      const updated = await db.updateDoc('issues', req.params.id, updateFields);
+      return res.json({ issue: updated });
+    } else {
+      if (hasVoted) {
+        return res.status(400).json({ error: 'You have already upvoted this issue.' });
+      }
+
+      const newVoters = userId ? [...voters, userId] : voters;
+      const newCount = (issue.citizensAffected || 1) + 1;
+      let updateFields = { citizensAffected: newCount, voters: newVoters };
+
+      // Generate a single group-petition object once enough citizens are affected (PressurePath 4c)
+      const PETITION_THRESHOLD = 25;
+      let petitioned = false;
+      if (newCount >= PETITION_THRESHOLD && !issue.petition) {
+        petitioned = true;
+        updateFields.petition = buildPetition(issue, newCount);
+      }
+
+      // Automatically trigger escalation if collective pressure crosses 50 votes and still not assigned
+      let escalated = false;
+      if (newCount >= 50 && ['reported', 'triaged', 'bidding'].includes(issue.status)) {
+        escalated = true;
+        updateFields.status = 'escalated';
+        updateFields.ledgerTrail = appendLedger(issue.ledgerTrail, {
+          status: 'escalated',
+          actor: 'PressurePath-Agent',
+          message: `Collective pressure threshold breached (${newCount} citizens). Auto-generated legal RTI grievance drafted and routed.`
+        });
+      } else {
+        updateFields.ledgerTrail = appendLedger(issue.ledgerTrail, {
+          status: issue.status,
+          actor: 'Citizen-Voter',
+          message: petitioned
+            ? `Citizen support reached ${newCount}. Group petition auto-assembled and ready to file.`
+            : `Citizen upvoted report. Active support increased to ${newCount} members.`
+        });
+      }
+
+      const updated = await db.updateDoc('issues', req.params.id, updateFields);
+      return res.json({ escalated, petitioned, issue: updated });
+    }
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

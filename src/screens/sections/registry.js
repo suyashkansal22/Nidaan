@@ -1,4 +1,4 @@
-import { CitizenReport, CitizenMyReports, CitizenConfirmFix, CitizenMyVoice } from './CitizenSections.jsx';
+import { CitizenReport, CitizenMyReports, CitizenNearbyReports, CitizenConfirmFix, CitizenMyVoice } from './CitizenSections.jsx';
 import { ContractorRegister, ContractorJobs, ContractorAssignments, ContractorProof, ContractorEarnings } from './ContractorSections.jsx';
 import {
   OfficialOverview, OfficialAgent, OfficialDispatch, OfficialPressure, OfficialPrevention, OfficialLedger,
@@ -9,6 +9,7 @@ export const SECTION_COMPONENTS = {
   citizen: {
     'report': CitizenReport,
     'my-reports': CitizenMyReports,
+    'nearby': CitizenNearbyReports,
     'confirm': CitizenConfirmFix,
     'voice': CitizenMyVoice,
   },

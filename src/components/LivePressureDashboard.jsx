@@ -4,6 +4,7 @@ import {
   CheckCircle2, CloudRain, TrendingUp, Repeat, ArrowRight, Home
 } from 'lucide-react';
 import { issueProgress, STAGES } from './LoopPipeline.jsx';
+import { useRole } from '../app/RoleContext.jsx';
 
 function useCountUp(target, duration = 800) {
   const [val, setVal] = useState(0);
@@ -63,6 +64,30 @@ function Metric({ icon: Icon, value, label, color }) {
 }
 
 export default function LivePressureDashboard({ issues, onSelectIssue, onVoteIssue, onSlaSweep, onPreparedness, users = [], view = 'full' }) {
+  const { role } = useRole();
+  const [upvotedIssues, setUpvotedIssues] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem('nidaan_upvoted_issues') || '[]');
+    } catch {
+      return [];
+    }
+  });
+
+  const handleUpvote = (issueId) => {
+    if (role !== 'citizen') return;
+    const hasVoted = upvotedIssues.includes(issueId);
+    if (hasVoted) {
+      const next = upvotedIssues.filter(id => id !== issueId);
+      setUpvotedIssues(next);
+      localStorage.setItem('nidaan_upvoted_issues', JSON.stringify(next));
+      if (onVoteIssue) onVoteIssue(issueId, role, 'user_sita', 'unvote');
+    } else {
+      const next = [...upvotedIssues, issueId];
+      setUpvotedIssues(next);
+      localStorage.setItem('nidaan_upvoted_issues', JSON.stringify(next));
+      if (onVoteIssue) onVoteIssue(issueId, role, 'user_sita', 'vote');
+    }
+  };
   const activeIssues = issues.filter(i => i.status !== 'verified');
   const resolvedIssues = issues.filter(i => i.status === 'verified');
 
@@ -226,9 +251,41 @@ export default function LivePressureDashboard({ issues, onSelectIssue, onVoteIss
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '0.25rem', gap: '0.5rem', flexWrap: 'wrap' }}>
                   <MiniLoop issue={issue} />
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <button onClick={(e) => { e.stopPropagation(); onVoteIssue(issue.id); }} className="glow-btn-secondary" style={{ padding: '0.3rem 0.6rem', fontSize: '0.72rem' }}>
-                      <ThumbsUp size={12} /> {issue.citizensAffected || 1}
-                    </button>
+                    {role === 'citizen' ? (
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); handleUpvote(issue.id); }} 
+                        className={upvotedIssues.includes(issue.id) ? "glow-btn-primary" : "glow-btn-secondary"} 
+                        style={{ 
+                          padding: '0.3rem 0.6rem', 
+                          fontSize: '0.72rem',
+                          background: upvotedIssues.includes(issue.id) ? 'var(--grass)' : undefined,
+                          borderColor: upvotedIssues.includes(issue.id) ? 'var(--grass-600)' : undefined,
+                          color: upvotedIssues.includes(issue.id) ? '#fff' : undefined,
+                        }}
+                        title={upvotedIssues.includes(issue.id) ? "Click to remove your upvote" : "Click to upvote"}
+                      >
+                        <ThumbsUp size={12} fill={upvotedIssues.includes(issue.id) ? "currentColor" : "none"} /> {issue.citizensAffected || 1}
+                      </button>
+                    ) : (
+                      <div 
+                        className="badge badge-neutral" 
+                        style={{ 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          gap: '0.25rem', 
+                          padding: '0.35rem 0.6rem', 
+                          fontSize: '0.72rem', 
+                          fontWeight: 600,
+                          color: 'var(--ink-muted)',
+                          background: 'var(--cream-200)',
+                          border: '1px solid var(--cream-300)',
+                          cursor: 'not-allowed'
+                        }}
+                        title="Upvoting is reserved for citizens"
+                      >
+                        <ThumbsUp size={12} /> {issue.citizensAffected || 1}
+                      </div>
+                    )}
                     <button onClick={(e) => { e.stopPropagation(); onSelectIssue(issue); }} className="glow-btn-primary" style={{ padding: '0.3rem 0.7rem', fontSize: '0.72rem' }}>
                       <Eye size={12} /> Track
                     </button>

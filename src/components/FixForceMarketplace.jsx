@@ -18,6 +18,7 @@ export default function FixForceMarketplace({
   const [regLngOffset, setRegLngOffset] = useState('-0.004');
   const [registrationSuccess, setRegistrationSuccess] = useState(false);
   const [overrideInspector, setOverrideInspector] = useState('resp_1');
+  const [showConfirmFailure, setShowConfirmFailure] = useState(false);
 
   const handleRegisterSubmit = async (e) => {
     e.preventDefault();
@@ -410,12 +411,35 @@ Daily economic cost of inaction: ₹${issue.costOfInaction}. Please register thi
                   <p style={{ fontSize: '0.74rem', color: 'var(--ink-muted)' }}>
                     If this repair fails within the window, citizens can report it — the contractor's rating is penalised and the ticket auto-reopens.
                   </p>
-                  <button
-                    onClick={() => { if (window.confirm('Report repair failure? This reopens the issue and penalises the contractor rating.')) onReportFailure(issue.id); }}
-                    style={{ background: 'var(--critical-tint)', border: '1px solid rgba(215,64,47,.3)', color: 'var(--critical)', padding: '0.5rem', borderRadius: 'var(--radius-ctl)', fontSize: '0.75rem', cursor: 'pointer', fontWeight: 600, marginTop: '0.25rem' }}
-                  >
-                    Report warranty failure (reopen)
-                  </button>
+                  {showConfirmFailure ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', background: 'var(--critical-tint)', border: '1px solid rgba(215,64,47,.25)', padding: '0.75rem', borderRadius: 'var(--radius-ctl)', marginTop: '0.25rem' }}>
+                      <span style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--critical)' }}>Are you sure? This reopens the issue and penalises the contractor rating.</span>
+                      <div style={{ display: 'flex', gap: '0.5rem' }}>
+                        <button
+                          type="button"
+                          onClick={() => { onReportFailure(issue.id); setShowConfirmFailure(false); }}
+                          style={{ flex: 1, background: 'var(--critical)', color: '#fff', border: 'none', padding: '0.4rem', borderRadius: 'var(--radius-ctl)', fontSize: '0.72rem', cursor: 'pointer', fontWeight: 600 }}
+                        >
+                          Confirm
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setShowConfirmFailure(false)}
+                          style={{ flex: 1, background: 'var(--cream-300)', color: 'var(--ink)', border: 'none', padding: '0.4rem', borderRadius: 'var(--radius-ctl)', fontSize: '0.72rem', cursor: 'pointer', fontWeight: 600 }}
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmFailure(true)}
+                      style={{ background: 'var(--critical-tint)', border: '1px solid rgba(215,64,47,.3)', color: 'var(--critical)', padding: '0.5rem', borderRadius: 'var(--radius-ctl)', fontSize: '0.75rem', cursor: 'pointer', fontWeight: 600, marginTop: '0.25rem' }}
+                    >
+                      Report warranty failure (reopen)
+                    </button>
+                  )}
                 </div>
 
                 {/* Scorecard impact */}

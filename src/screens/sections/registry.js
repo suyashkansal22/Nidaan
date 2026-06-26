@@ -1,5 +1,5 @@
 import { CitizenReport, CitizenMyReports, CitizenConfirmFix, CitizenMyVoice } from './CitizenSections.jsx';
-import { ContractorJobs, ContractorAssignments, ContractorProof, ContractorEarnings } from './ContractorSections.jsx';
+import { ContractorRegister, ContractorJobs, ContractorAssignments, ContractorProof, ContractorEarnings } from './ContractorSections.jsx';
 import {
   OfficialOverview, OfficialAgent, OfficialDispatch, OfficialPressure, OfficialPrevention, OfficialLedger,
 } from './OfficialSections.jsx';
@@ -13,6 +13,7 @@ export const SECTION_COMPONENTS = {
     'voice': CitizenMyVoice,
   },
   contractor: {
+    'register': ContractorRegister,
     'jobs': ContractorJobs,
     'assignments': ContractorAssignments,
     'proof': ContractorProof,

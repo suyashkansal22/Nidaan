@@ -5,7 +5,8 @@ import {
 } from 'lucide-react';
 
 export default function FixForceMarketplace({
-  issue, contractors, onTriggerFix, loading, onRegisterContractor, onReportFailure, onDonate, onReleaseEscrow, onWorkspace
+  issue, contractors, onTriggerFix, loading, onRegisterContractor, onReportFailure, onDonate, onReleaseEscrow, onWorkspace,
+  hideRegistrationTab = false
 }) {
   const [activeSubTab, setActiveSubTab] = useState('dispatch');
   const [proofUrl, setProofUrl] = useState('https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=600&q=80');
@@ -108,26 +109,28 @@ Daily economic cost of inaction: ₹${issue.costOfInaction}. Please register thi
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
 
       {/* Sub-tabs */}
-      <div className="glass-panel" style={{ padding: '0.4rem', display: 'flex', gap: '0.4rem' }}>
-        {[
-          { id: 'dispatch', label: 'Active Dispatch', icon: Hammer },
-          { id: 'register', label: 'Register Contractor', icon: UserPlus },
-        ].map(t => {
-          const Icon = t.icon; const active = activeSubTab === t.id;
-          return (
-            <button key={t.id} onClick={() => setActiveSubTab(t.id)} style={{
-              flex: 1, padding: '0.6rem',
-              background: active ? 'var(--teal-tint)' : 'transparent',
-              border: active ? '1px solid rgba(26,169,160,.3)' : '1px solid transparent',
-              color: active ? 'var(--teal-600)' : 'var(--ink-muted)',
-              fontWeight: 600, borderRadius: 'var(--radius-ctl)', cursor: 'pointer', fontSize: '0.85rem',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', transition: 'all var(--transition-fast)'
-            }}>
-              <Icon size={16} /> {t.label}
-            </button>
-          );
-        })}
-      </div>
+      {!hideRegistrationTab && (
+        <div className="glass-panel" style={{ padding: '0.4rem', display: 'flex', gap: '0.4rem' }}>
+          {[
+            { id: 'dispatch', label: 'Active Dispatch', icon: Hammer },
+            { id: 'register', label: 'Register Contractor', icon: UserPlus },
+          ].map(t => {
+            const Icon = t.icon; const active = activeSubTab === t.id;
+            return (
+              <button key={t.id} onClick={() => setActiveSubTab(t.id)} style={{
+                flex: 1, padding: '0.6rem',
+                background: active ? 'var(--teal-tint)' : 'transparent',
+                border: active ? '1px solid rgba(26,169,160,.3)' : '1px solid transparent',
+                color: active ? 'var(--teal-600)' : 'var(--ink-muted)',
+                fontWeight: 600, borderRadius: 'var(--radius-ctl)', cursor: 'pointer', fontSize: '0.85rem',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', transition: 'all var(--transition-fast)'
+              }}>
+                <Icon size={16} /> {t.label}
+              </button>
+            );
+          })}
+        </div>
+      )}
 
       {/* REGISTER */}
       {activeSubTab === 'register' && (

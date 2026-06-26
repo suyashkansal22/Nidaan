@@ -7,7 +7,7 @@ import {
   User, HardHat, Building2,
   Camera, ListChecks, CheckCircle2, Megaphone,
   Briefcase, ClipboardList, ImageUp, Wallet,
-  LayoutDashboard, Activity, Send, AlertTriangle, Brain, Scale,
+  LayoutDashboard, Activity, Send, AlertTriangle, Brain, Scale, UserPlus,
 } from 'lucide-react';
 
 export const ROLES = [
@@ -62,6 +62,11 @@ export const SECTIONS = {
   ],
   contractor: [
     {
+      id: 'register', label: 'Register Yourself', icon: UserPlus,
+      hint: 'Register your firm to join dispatches.',
+      info: 'Register your contractor firm with specialty and rates to participate in dispatches.',
+    },
+    {
       id: 'jobs', label: 'Available Jobs', icon: Briefcase,
       hint: 'Bid on open issues matched to you.',
       info: "Nidaan's agent invites the nearest vendors to bid; the best cost · rating · proximity wins — no favoritism.",
@@ -89,6 +94,11 @@ export const SECTIONS = {
       info: 'A live, top-level view of every issue moving through the loop.',
     },
     {
+      id: 'ledger', label: 'GlassLedger', icon: Scale,
+      hint: 'Public accountability scorecard.',
+      info: 'Public accountability and live resolution leaderboards of municipal departments and wards.',
+    },
+    {
       id: 'agent', label: 'Agent Activity', icon: Activity,
       hint: 'Watch the agent reason — approve its key decisions.',
       info: 'Watch one AI agent run the entire resolution loop and approve its key decisions.',
@@ -109,11 +119,6 @@ export const SECTIONS = {
       hint: 'Stop waste before it recurs — the heart of Nidaan.',
       info: "Root-cause intelligence that stops waste before it recurs — the heart of 'Nidaan'.",
       tag: 'Innovation',
-    },
-    {
-      id: 'ledger', label: 'GlassLedger', icon: Scale,
-      hint: 'Public accountability + tamper-evident audit trail.',
-      info: 'Public accountability and an immutable, tamper-evident audit trail of every action.',
     },
   ],
 };

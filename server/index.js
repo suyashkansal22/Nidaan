@@ -194,19 +194,9 @@ app.post('/api/issues/:id/fix', async (req, res) => {
     const issue = await db.getDoc('issues', req.params.id);
     if (!issue) return res.status(404).json({ error: 'Issue not found' });
     
-    let finalProofUrl = proofOfFixUrl;
-    if (!finalProofUrl) {
-      if (issue.category === 'pothole') finalProofUrl = 'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=600&q=80';
-      else if (issue.category === 'water_leak') finalProofUrl = 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=600&q=80';
-      else if (issue.category === 'wiring') finalProofUrl = 'https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?auto=format&fit=crop&w=600&q=80';
-      else if (issue.category === 'garbage') finalProofUrl = 'https://images.unsplash.com/photo-1506974210756-8e1b8985d348?auto=format&fit=crop&w=600&q=80';
-      else if (issue.category === 'drainage') finalProofUrl = 'https://images.unsplash.com/photo-1520638029027-68e7d22419ec?auto=format&fit=crop&w=600&q=80';
-      else finalProofUrl = 'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=600&q=80';
-    }
-
     await db.updateDoc('issues', req.params.id, {
       status: 'fixed',
-      proofOfFixUrl: finalProofUrl,
+      proofOfFixUrl: proofOfFixUrl || 'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=600&q=80',
       ledgerTrail: appendLedger(issue.ledgerTrail, {
         status: 'fixed',
         actor: 'Contractor',

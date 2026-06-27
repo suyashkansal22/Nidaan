@@ -6,7 +6,9 @@ import {
 
 export default function FixForceMarketplace({
   issue, contractors, onTriggerFix, loading, onRegisterContractor, onReportFailure, onDonate, onReleaseEscrow, onWorkspace,
-  hideRegistrationTab = false
+  hideRegistrationTab = false,
+  isOfficial = false,
+  issues = []
 }) {
   const [activeSubTab, setActiveSubTab] = useState('dispatch');
   const [proofUrl, setProofUrl] = useState('https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=600&q=80');
@@ -19,6 +21,14 @@ export default function FixForceMarketplace({
   const [registrationSuccess, setRegistrationSuccess] = useState(false);
   const [overrideInspector, setOverrideInspector] = useState('resp_1');
   const [showConfirmFailure, setShowConfirmFailure] = useState(false);
+
+  const repeatCount = (lat, lng) => {
+    if (!issues || !lat || !lng) return 0;
+    const th = 0.0001;
+    return issues.filter(i => Math.abs(i.location.lat - lat) < th && Math.abs(i.location.lng - lng) < th).length;
+  };
+
+  const isRepeatOffender = issue && repeatCount(issue.location?.lat, issue.location?.lng) >= 2;
 
   const handleRegisterSubmit = async (e) => {
     e.preventDefault();
@@ -402,45 +412,6 @@ Daily economic cost of inaction: ₹${issue.costOfInaction}. Please register thi
                   <span className="svc-badge">Stripe test</span>
                 </div>
 
-                {/* Warranty */}
-                <div style={{ background: 'var(--teal-tint)', border: '1px solid rgba(26,169,160,.3)', borderRadius: 'var(--radius-ctl)', padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--teal-600)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>FixWarranty active</span>
-                    <span className="badge badge-info">365 days</span>
-                  </div>
-                  <p style={{ fontSize: '0.74rem', color: 'var(--ink-muted)' }}>
-                    If this repair fails within the window, citizens can report it — the contractor's rating is penalised and the ticket auto-reopens.
-                  </p>
-                  {showConfirmFailure ? (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', background: 'var(--critical-tint)', border: '1px solid rgba(215,64,47,.25)', padding: '0.75rem', borderRadius: 'var(--radius-ctl)', marginTop: '0.25rem' }}>
-                      <span style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--critical)' }}>Are you sure? This reopens the issue and penalises the contractor rating.</span>
-                      <div style={{ display: 'flex', gap: '0.5rem' }}>
-                        <button
-                          type="button"
-                          onClick={() => { onReportFailure(issue.id); setShowConfirmFailure(false); }}
-                          style={{ flex: 1, background: 'var(--critical)', color: '#fff', border: 'none', padding: '0.4rem', borderRadius: 'var(--radius-ctl)', fontSize: '0.72rem', cursor: 'pointer', fontWeight: 600 }}
-                        >
-                          Confirm
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setShowConfirmFailure(false)}
-                          style={{ flex: 1, background: 'var(--cream-300)', color: 'var(--ink)', border: 'none', padding: '0.4rem', borderRadius: 'var(--radius-ctl)', fontSize: '0.72rem', cursor: 'pointer', fontWeight: 600 }}
-                        >
-                          Cancel
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() => setShowConfirmFailure(true)}
-                      style={{ background: 'var(--critical-tint)', border: '1px solid rgba(215,64,47,.3)', color: 'var(--critical)', padding: '0.5rem', borderRadius: 'var(--radius-ctl)', fontSize: '0.75rem', cursor: 'pointer', fontWeight: 600, marginTop: '0.25rem' }}
-                    >
-                      Report warranty failure (reopen)
-                    </button>
-                  )}
-                </div>
 
                 {/* Scorecard impact */}
                 <div style={{ borderTop: '1px solid var(--cream-300)', paddingTop: '1rem' }}>
@@ -505,6 +476,47 @@ Daily economic cost of inaction: ₹${issue.costOfInaction}. Please register thi
                     </div>
                     <p style={{ fontSize: '0.72rem', color: 'var(--ink-muted)', whiteSpace: 'pre-wrap', lineHeight: 1.5 }}>{issue.petition.body}</p>
                   </div>
+                )}
+              </div>
+            )}
+
+            {isOfficial && isRepeatOffender && (
+              <div style={{ background: 'var(--teal-tint)', border: '1px solid rgba(26,169,160,.3)', borderRadius: 'var(--radius-ctl)', padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: '0.5rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--teal-600)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>FixWarranty active</span>
+                  <span className="badge badge-info">365 days</span>
+                </div>
+                <p style={{ fontSize: '0.74rem', color: 'var(--ink-muted)' }}>
+                  If this repair fails within the window, Nidaan can flag it — the contractor's rating is penalised and the ticket auto-reopens.
+                </p>
+                {showConfirmFailure ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', background: 'var(--critical-tint)', border: '1px solid rgba(215,64,47,.25)', padding: '0.75rem', borderRadius: 'var(--radius-ctl)', marginTop: '0.25rem' }}>
+                    <span style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--critical)' }}>Are you sure? This reopens the issue and penalises the contractor rating.</span>
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                      <button
+                        type="button"
+                        onClick={() => { onReportFailure(issue.id); setShowConfirmFailure(false); }}
+                        style={{ flex: 1, background: 'var(--critical)', color: '#fff', border: 'none', padding: '0.4rem', borderRadius: 'var(--radius-ctl)', fontSize: '0.72rem', cursor: 'pointer', fontWeight: 600 }}
+                      >
+                        Confirm
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirmFailure(false)}
+                        style={{ flex: 1, background: 'var(--cream-300)', color: 'var(--ink)', border: 'none', padding: '0.4rem', borderRadius: 'var(--radius-ctl)', fontSize: '0.72rem', cursor: 'pointer', fontWeight: 600 }}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmFailure(true)}
+                    style={{ background: 'var(--critical-tint)', border: '1px solid rgba(215,64,47,.3)', color: 'var(--critical)', padding: '0.5rem', borderRadius: 'var(--radius-ctl)', fontSize: '0.75rem', cursor: 'pointer', fontWeight: 600, marginTop: '0.25rem' }}
+                  >
+                    Report warranty failure (reopen)
+                  </button>
                 )}
               </div>
             )}

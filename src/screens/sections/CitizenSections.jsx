@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ThumbsUp, CheckCircle, Circle, FileText, Download, Star, Users, ShieldCheck, ArrowRight, ChevronDown, ChevronUp, XCircle, AlertTriangle } from 'lucide-react';
+import { ThumbsUp, CheckCircle, Circle, FileText, Download, Star, Users, ShieldCheck, ArrowRight, ChevronDown, ChevronUp, XCircle, AlertTriangle, Link2 } from 'lucide-react';
 import { useAppData } from '../../app/AppDataContext.jsx';
 import { useRole } from '../../app/RoleContext.jsx';
 import SnapToSolve from '../../components/SnapToSolve.jsx';
@@ -38,7 +38,8 @@ export function CitizenReport() {
 export function CitizenMyReports() {
   const {
     issues, citizen, heroIssue, selectedIssue, setSelectedIssue,
-    handleTriggerAgent, handleRunAgent, handleReleaseEscrow, agentLoading
+    handleTriggerAgent, handleRunAgent, handleReleaseEscrow, agentLoading,
+    users
   } = useAppData();
   const [trackingIssueId, setTrackingIssueId] = useState(selectedIssue?.id || null);
 
@@ -52,72 +53,105 @@ export function CitizenMyReports() {
   if (heroIssue && !mine.find(i => i.id === heroIssue.id)) mine.unshift(heroIssue);
   const list = mine.length ? mine : issues.filter(i => i.status !== 'verified').slice(0, 4);
 
-  if (!list.length) return <EmptyState icon={ListIcon} title="No reports yet" body="Snap a photo on the Report tab and it shows up here." />;
+  const topCitizens = [...(users || [])].filter(u => u.role === 'citizen').sort((a, b) => b.trustScore - a.trustScore).slice(0, 5);
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-      {list.map(issue => {
-        const stage = STAGES[Math.min(STAGES.length, issueProgress(issue)) - 1];
-        const isHero = heroIssue && issue.id === heroIssue.id;
-        const isTracking = trackingIssueId === issue.id;
-        return (
-          <div
-            key={issue.id}
-            data-tour-id={isHero ? 'tour-myreports-hero' : undefined}
-            className="glass-panel"
-            style={{ padding: '1.1rem', display: 'flex', flexDirection: 'column', gap: '0.9rem' }}
-          >
-            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-              <img src={issue.photoUrl} alt={issue.category} style={{ width: '64px', height: '64px', objectFit: 'cover', borderRadius: 'var(--radius-ctl)', border: '1px solid var(--cream-300)', flexShrink: 0 }} />
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem' }}>
-                  <h3 style={{ fontSize: '1rem', textTransform: 'capitalize' }}>{(issue.title || issue.category.replace('_', ' '))}</h3>
-                  <span className="badge badge-info" style={{ textTransform: 'capitalize' }}>{stage?.label || issue.status}</span>
-                </div>
-                <p style={{ fontSize: '0.78rem', color: 'var(--ink-muted)' }}>#{issue.id} · {issue.ward}</p>
-              </div>
-            </div>
-
-            {/* mini Loop tracker */}
-            <div style={{ background: 'var(--cream-100)', border: '1px solid var(--cream-300)', borderRadius: 'var(--radius-ctl)', padding: '0.85rem 1rem', overflowX: 'auto' }}>
-              <LoopPipeline issue={issue} />
-            </div>
-
-            {isTracking && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', marginTop: '0.5rem', borderTop: '1px dashed var(--cream-300)', paddingTop: '1.25rem' }}>
-                <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
-                  <div style={{ flex: '1 1 360px', minWidth: '0' }}>
-                    <AgentActivityPanel
-                      issue={issue}
-                      onTriggerAgent={handleTriggerAgent}
-                      onRunAgent={handleRunAgent}
-                      onReleaseEscrow={handleReleaseEscrow}
-                      loading={agentLoading}
-                    />
-                  </div>
-                  <div style={{ flex: '1 1 300px', minWidth: '0' }}>
-                    <LedgerTimeline issue={issue} />
-                  </div>
-                </div>
-              </div>
-            )}
-
-            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-              <button
-                onClick={() => { setSelectedIssue(issue); setTrackingIssueId(isTracking ? null : issue.id); }}
-                className="glow-btn-secondary"
-                style={{ fontSize: '0.78rem', padding: '0.45rem 0.8rem' }}
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+      {list.length === 0 ? (
+        <EmptyState icon={ListIcon} title="No reports yet" body="Snap a photo on the Report tab and it shows up here." />
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          {list.map(issue => {
+            const stage = STAGES[Math.min(STAGES.length, issueProgress(issue)) - 1];
+            const isHero = heroIssue && issue.id === heroIssue.id;
+            const isTracking = trackingIssueId === issue.id;
+            return (
+              <div
+                key={issue.id}
+                data-tour-id={isHero ? 'tour-myreports-hero' : undefined}
+                className="glass-panel"
+                style={{ padding: '1.1rem', display: 'flex', flexDirection: 'column', gap: '0.9rem' }}
               >
-                {isTracking ? (
-                  <>Hide agent activity <ChevronUp size={14} /></>
-                ) : (
-                  <>Watch the agent <ChevronDown size={14} /></>
+                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                  <img src={issue.photoUrl} alt={issue.category} style={{ width: '64px', height: '64px', objectFit: 'cover', borderRadius: 'var(--radius-ctl)', border: '1px solid var(--cream-300)', flexShrink: 0 }} />
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem' }}>
+                      <h3 style={{ fontSize: '1rem', textTransform: 'capitalize' }}>{(issue.title || issue.category.replace('_', ' '))}</h3>
+                      <span className="badge badge-info" style={{ textTransform: 'capitalize' }}>{stage?.label || issue.status}</span>
+                    </div>
+                    <p style={{ fontSize: '0.78rem', color: 'var(--ink-muted)' }}>#{issue.id} · {issue.ward}</p>
+                  </div>
+                </div>
+
+                {/* mini Loop tracker */}
+                <div style={{ background: 'var(--cream-100)', border: '1px solid var(--cream-300)', borderRadius: 'var(--radius-ctl)', padding: '0.85rem 1rem', overflowX: 'auto' }}>
+                  <LoopPipeline issue={issue} />
+                </div>
+
+                {isTracking && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', marginTop: '0.5rem', borderTop: '1px dashed var(--cream-300)', paddingTop: '1.25rem' }}>
+                    <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
+                      <div style={{ flex: '1 1 360px', minWidth: '0' }}>
+                        <AgentActivityPanel
+                          issue={issue}
+                          onTriggerAgent={handleTriggerAgent}
+                          onRunAgent={handleRunAgent}
+                          onReleaseEscrow={handleReleaseEscrow}
+                          loading={agentLoading}
+                        />
+                      </div>
+                      <div style={{ flex: '1 1 300px', minWidth: '0' }}>
+                        <LedgerTimeline issue={issue} />
+                      </div>
+                    </div>
+                  </div>
                 )}
-              </button>
+
+                <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                  <button
+                    onClick={() => { setSelectedIssue(issue); setTrackingIssueId(isTracking ? null : issue.id); }}
+                    className="glow-btn-secondary"
+                    style={{ fontSize: '0.78rem', padding: '0.45rem 0.8rem' }}
+                  >
+                    {isTracking ? (
+                      <>Hide agent activity <ChevronUp size={14} /></>
+                    ) : (
+                      <>Watch the agent <ChevronDown size={14} /></>
+                    )}
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Reporter reputation leaderboard */}
+      <div className="glass-panel" style={{ padding: '1.25rem' }}>
+        <h3 style={{ fontSize: '1.05rem', marginBottom: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}><Star size={17} color="var(--alert)" /> Top trusted reporters</h3>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px,1fr))', gap: '0.75rem' }}>
+          {topCitizens.map((u, i) => (
+            <div key={u.id} className="sunken" style={{ padding: '0.8rem', borderRadius: 'var(--radius-ctl)', display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <span style={{ width: '30px', height: '30px', borderRadius: '50%', background: 'var(--teal)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.78rem' }}>{u.name[0]}</span>
+                <div style={{ lineHeight: 1.1 }}>
+                  <div style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--ink-strong)' }}>{u.name}</div>
+                  <span style={{ fontSize: '0.62rem', color: 'var(--teal-600)' }}>{u.badge}</span>
+                </div>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.68rem', color: 'var(--ink-muted)' }}>
+                <span>⭐ Trust {u.trustScore}</span><span>{u.confirmedFixes} confirms</span>
+              </div>
+              <div style={{ height: '5px', background: 'var(--cream-300)', borderRadius: '99px', overflow: 'hidden' }}>
+                <div style={{ height: '100%', width: `${u.trustScore}%`, background: 'var(--gradient-secondary)', borderRadius: '99px' }} />
+              </div>
             </div>
-          </div>
-        );
-      })}
+          ))}
+        </div>
+        <p style={{ fontSize: '0.72rem', color: 'var(--ink-muted)', marginTop: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+          <Link2 size={12} color="var(--teal)" /> Trusted reporters are weighted higher in dedupe & verification. Account age + confirmation rate resist Sybil gaming.
+        </p>
+      </div>
     </div>
   );
 }

@@ -366,6 +366,8 @@ export function OfficialDispatch() {
           onReleaseEscrow={handleReleaseEscrow}
           onWorkspace={handleWorkspace}
           hideRegistrationTab={true}
+          isOfficial={true}
+          issues={issues}
         />
       </div>
     </div>

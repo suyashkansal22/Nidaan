@@ -485,14 +485,19 @@ export const seedDatabase = async () => {
   } else {
     // Firestore: clear existing docs then write fresh so re-seeding is idempotent.
     try {
-      for (const coll of ['contractors', 'responders', 'issues', 'users']) {
+      // Clear existing docs in parallel
+      await Promise.all(['contractors', 'responders', 'issues', 'users'].map(async (coll) => {
         const existing = await db.getCollection(coll);
-        for (const doc of existing) await db.deleteDoc(coll, doc.id);
-      }
-      for (const item of sampleContractors) await db.addDoc('contractors', item);
-      for (const item of sampleResponders) await db.addDoc('responders', item);
-      for (const item of sampleUsers) await db.addDoc('users', item);
-      for (const item of issues) await db.addDoc('issues', item);
+        await Promise.all(existing.map(doc => db.deleteDoc(coll, doc.id)));
+      }));
+
+      // Write fresh docs in parallel
+      await Promise.all([
+        ...sampleContractors.map(item => db.addDoc('contractors', item)),
+        ...sampleResponders.map(item => db.addDoc('responders', item)),
+        ...sampleUsers.map(item => db.addDoc('users', item)),
+        ...issues.map(item => db.addDoc('issues', item))
+      ]);
       console.log('Firestore Database seeded successfully.');
     } catch (err) {
       console.error('Error seeding Firestore database:', err);

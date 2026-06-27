@@ -16,7 +16,7 @@ const EmptyState = ({ icon: Icon, title, body }) => (
 // escrow + warranty + rating when verified).
 function FixForcePanel({ issue, tourId }) {
   const {
-    contractors, agentLoading,
+    issues, contractors, agentLoading,
     handleTriggerFix, handleRegisterContractor, handleReportFailure,
     handleDonate, handleReleaseEscrow, handleWorkspace,
   } = useAppData();
@@ -33,6 +33,8 @@ function FixForcePanel({ issue, tourId }) {
         onReleaseEscrow={handleReleaseEscrow}
         onWorkspace={handleWorkspace}
         hideRegistrationTab={true}
+        isOfficial={false}
+        issues={issues}
       />
     </div>
   );

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Scale, Trophy, Droplets, Clock, CheckCircle2, Users, Star, Link2 } from 'lucide-react';
+import { Scale, Trophy, Droplets, Clock, CheckCircle2, Users } from 'lucide-react';
 
 const DEPARTMENTS = [
   { name: 'Water & Sewerage Board', cat: ['water_leak', 'drainage'] },
@@ -27,7 +27,6 @@ export default function PublicScorecard({ issues, users = [] }) {
     return { name: w, total: all.length, done, rate: all.length ? Math.round((done / all.length) * 100) : 0 };
   }).sort((a, b) => b.rate - a.rate);
 
-  const topCitizens = [...users].filter(u => u.role === 'citizen').sort((a, b) => b.trustScore - a.trustScore).slice(0, 5);
 
   const Stat = ({ icon: Icon, value, label, color }) => (
     <div className="glass-panel" style={{ padding: '1.1rem', borderTop: `3px solid ${color}` }}>
@@ -95,32 +94,7 @@ export default function PublicScorecard({ issues, users = [] }) {
         </div>
       </div>
 
-      {/* Reporter reputation leaderboard (2b) */}
-      <div className="glass-panel" style={{ padding: '1.25rem' }}>
-        <h3 style={{ fontSize: '1.05rem', marginBottom: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}><Star size={17} color="var(--alert)" /> Top trusted reporters</h3>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px,1fr))', gap: '0.75rem' }}>
-          {topCitizens.map((u, i) => (
-            <div key={u.id} className="sunken" style={{ padding: '0.8rem', borderRadius: 'var(--radius-ctl)', display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <span style={{ width: '30px', height: '30px', borderRadius: '50%', background: 'var(--teal)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.78rem' }}>{u.name[0]}</span>
-                <div style={{ lineHeight: 1.1 }}>
-                  <div style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--ink-strong)' }}>{u.name}</div>
-                  <span style={{ fontSize: '0.62rem', color: 'var(--teal-600)' }}>{u.badge}</span>
-                </div>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.68rem', color: 'var(--ink-muted)' }}>
-                <span>⭐ Trust {u.trustScore}</span><span>{u.confirmedFixes} confirms</span>
-              </div>
-              <div style={{ height: '5px', background: 'var(--cream-300)', borderRadius: '99px', overflow: 'hidden' }}>
-                <div style={{ height: '100%', width: `${u.trustScore}%`, background: 'var(--gradient-secondary)', borderRadius: '99px' }} />
-              </div>
-            </div>
-          ))}
-        </div>
-        <p style={{ fontSize: '0.72rem', color: 'var(--ink-muted)', marginTop: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-          <Link2 size={12} color="var(--teal)" /> Trusted reporters are weighted higher in dedupe & verification. Account age + confirmation rate resist Sybil gaming.
-        </p>
-      </div>
+
     </div>
   );
 }

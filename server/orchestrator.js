@@ -162,7 +162,15 @@ const tools = {
 
   // contractor proof upload (auto-simulated during autoRun)
   submitProofOfFix: async (issue) => {
-    const proof = issue.proofOfFixUrl || 'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=600&q=80';
+    let proof = issue.proofOfFixUrl;
+    if (!proof) {
+      if (issue.category === 'pothole') proof = 'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=600&q=80';
+      else if (issue.category === 'water_leak') proof = 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=600&q=80';
+      else if (issue.category === 'wiring') proof = 'https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?auto=format&fit=crop&w=600&q=80';
+      else if (issue.category === 'garbage') proof = 'https://images.unsplash.com/photo-1506974210756-8e1b8985d348?auto=format&fit=crop&w=600&q=80';
+      else if (issue.category === 'drainage') proof = 'https://images.unsplash.com/photo-1520638029027-68e7d22419ec?auto=format&fit=crop&w=600&q=80';
+      else proof = 'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=600&q=80';
+    }
     return writeStep(issue, {
       status: 'fixed', tool: 'submitProofOfFix', service: 'Maps',
       reasoning: 'Contractor uploaded a geotagged completion photo; queuing the triple-lock verification.',

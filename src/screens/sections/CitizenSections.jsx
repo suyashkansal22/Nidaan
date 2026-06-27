@@ -8,6 +8,16 @@ import AgentActivityPanel from '../../components/AgentActivityPanel.jsx';
 import LedgerTimeline from '../../components/LedgerTimeline.jsx';
 import LivePressureDashboard from '../../components/LivePressureDashboard.jsx';
 
+// Categories with a local "after" demo photo; others fall back to the pothole repair shot.
+const FIXED_FALLBACK = {
+  pothole: '/review_photos/pothole_fixed.png',
+  water_leak: '/review_photos/water_leak_fixed.png',
+  wiring: '/review_photos/wiring_fixed.png',
+  drainage: '/review_photos/drainage_fixed.png',
+  garbage: '/review_photos/garbage_fixed.png',
+};
+const fixedFallbackFor = (category) => FIXED_FALLBACK[category] || FIXED_FALLBACK.pothole;
+
 const EmptyState = ({ icon: Icon, title, body }) => (
   <div className="glass-panel" style={{ padding: '3rem 1.5rem', textAlign: 'center' }}>
     {Icon && <Icon size={40} style={{ color: 'var(--teal)', margin: '0 auto 0.75rem' }} />}
@@ -190,11 +200,11 @@ export function CitizenConfirmFix() {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
           <span className="badge badge-danger" style={{ alignSelf: 'flex-start' }}>Before</span>
-          <img src={target.proofOfFixUrl || 'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=600&q=80'} alt="Before" style={{ width: '100%', height: '150px', objectFit: 'cover', borderRadius: 'var(--radius-ctl)', border: '1px solid var(--cream-300)' }} />
+          <img src={target.photoUrl} alt="Before" style={{ width: '100%', height: '150px', objectFit: 'cover', borderRadius: 'var(--radius-ctl)', border: '1px solid var(--cream-300)' }} />
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
           <span className="badge badge-success" style={{ alignSelf: 'flex-start' }}>After</span>
-          <img src={target.photoUrl} alt="After" style={{ width: '100%', height: '150px', objectFit: 'cover', borderRadius: 'var(--radius-ctl)', border: '1px solid var(--cream-300)' }} />
+          <img src={target.proofOfFixUrl || fixedFallbackFor(target.category)} alt="After" style={{ width: '100%', height: '150px', objectFit: 'cover', borderRadius: 'var(--radius-ctl)', border: '1px solid var(--cream-300)' }} />
         </div>
       </div>
 

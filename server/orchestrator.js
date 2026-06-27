@@ -46,6 +46,7 @@ const BOM = {
   water_leak: { items: [{ name: 'PVC Mainline Pipe 3"', qty: '6 m', cost: 4200 }, { name: 'Iron Flanged Couplers', qty: '2 units', cost: 2800 }, { name: 'Quick-Dry Concrete', qty: '3 bags', cost: 2500 }], total: 9500 },
   wiring:     { items: [{ name: 'Copper Wiring 10mm', qty: '50 m', cost: 3800 }, { name: 'Weatherproof Junction Box', qty: '1', cost: 1500 }, { name: 'Insulator Caps', qty: '4', cost: 1200 }], total: 6500 },
   drainage:   { items: [{ name: 'RCC Drain Pipe', qty: '4 m', cost: 3600 }, { name: 'Desilting + Pump', qty: '1 day', cost: 2600 }, { name: 'Cement & Sand', qty: '4 bags', cost: 1000 }], total: 7200 },
+  fire:       { items: [{ name: 'Foam/CO2 Extinguisher Refill', qty: '6 units', cost: 4200 }, { name: 'Emergency Response Crew Dispatch', qty: '1 unit', cost: 5000 }, { name: 'Safety Cordon & Signage', qty: '1 set', cost: 800 }], total: 10000 },
   default:    { items: [{ name: 'Debris Sacks', qty: '15', cost: 1000 }, { name: 'Crew Dispatch Gear', qty: '1 set', cost: 900 }, { name: 'Broom & Shovel', qty: '2', cost: 600 }], total: 2500 },
 };
 const getBOM = (cat) => BOM[cat] || BOM.default;

@@ -3,13 +3,14 @@ import { Camera, Mic, MapPin, Send, AlertTriangle, CheckCircle, Sparkles, ScanLi
 import { useAppData } from '../app/AppDataContext.jsx';
 
 const SAMPLE_PHOTO_LINKS = {
-  pothole: 'https://images.unsplash.com/photo-1515162305285-0293e4767cc2?auto=format&fit=crop&w=600&q=80',
-  water_leak: 'https://images.unsplash.com/photo-1584824486509-112e4181ff6b?auto=format&fit=crop&w=600&q=80',
-  wiring: 'https://images.unsplash.com/photo-1620283085439-39620a1e21c4?auto=format&fit=crop&w=600&q=80',
-  garbage: 'https://images.unsplash.com/photo-1611284446314-60a58ac0deb9?auto=format&fit=crop&w=600&q=80',
-  drainage: 'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?auto=format&fit=crop&w=600&q=80',
-  debris: 'https://images.unsplash.com/photo-1590069261209-f8e9b8642343?auto=format&fit=crop&w=600&q=80',
-  road_sign: 'https://images.unsplash.com/photo-1500353391678-d7b57979d6d2?auto=format&fit=crop&w=600&q=80',
+  pothole: '/review_photos/pothole.png',
+  water_leak: '/review_photos/water_leak.png',
+  wiring: '/review_photos/wiring.png',
+  garbage: '/review_photos/garbage.png',
+  drainage: '/review_photos/drainage.png',
+  debris: 'https://images.unsplash.com/photo-1680643540767-183358f73827?auto=format&fit=crop&w=600&q=80',
+  road_sign: 'https://images.unsplash.com/photo-1642112539143-51086ead8cd5?auto=format&fit=crop&w=600&q=80',
+  fire: '/review_photos/fire_1.jpg',
 };
 
 // Scenario presets (feature 0 — selectable before the run)
@@ -17,6 +18,7 @@ const PRESETS = [
   { key: 'water_leak', label: 'Burst water pipe', hint: 'Underground water main burst, high-pressure jet flooding the road.', photo: SAMPLE_PHOTO_LINKS.water_leak },
   { key: 'pothole', label: 'Deep pothole', hint: 'Large deep pothole in the lane, water-logged, hazard to bikes.', photo: SAMPLE_PHOTO_LINKS.pothole },
   { key: 'wiring', label: 'Downed live wire', hint: 'Downed electrical wire sparking on the footpath, very dangerous.', photo: SAMPLE_PHOTO_LINKS.wiring },
+  { key: 'fire', label: 'Shop fire', hint: 'Electrical short caused a fire in a ground-floor shop, smoke spreading to neighbouring units.', photo: SAMPLE_PHOTO_LINKS.fire },
 ];
 
 export default function SnapToSolve({ onIssueCreated, user }) {
@@ -314,6 +316,7 @@ export default function SnapToSolve({ onIssueCreated, user }) {
                 <option value="drainage">Blocked drainage</option>
                 <option value="debris">Construction debris</option>
                 <option value="road_sign">Streetlight / Sign</option>
+                <option value="fire">Fire / Gas leak</option>
               </select>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>

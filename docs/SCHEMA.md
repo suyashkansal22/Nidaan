@@ -44,7 +44,7 @@ All documents carry a string `id` that matches the document key (so the mock-DB 
 | `timestamp`             | string (ISO 8601)   | ✓        | report time; `daysOpen` is derived from this                          |
 
 ### Category (enum)
-`pothole` · `water_leak` · `drainage` · `wiring` · `garbage` · `debris` · `road_sign`
+`pothole` · `water_leak` · `drainage` · `wiring` · `garbage` · `debris` · `road_sign` · `fire`
 > A contractor matches an issue when its `specialties` array contains the issue `category` (1:1 mapping in `orchestrator.js → get_nearby_contractors`).
 
 ### Severity (enum)

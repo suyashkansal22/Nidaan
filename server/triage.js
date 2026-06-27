@@ -21,6 +21,7 @@ const DEPT_BY_CATEGORY = {
   wiring: 'Electricity Authority',
   garbage: 'Solid Waste Management',
   debris: 'Solid Waste Management',
+  fire: 'Fire & Emergency Services',
 };
 
 const VALID_CATEGORIES = Object.keys(DEPT_BY_CATEGORY);
@@ -39,7 +40,8 @@ async function fetchImageAsInline(url) {
 function heuristicTriage(hint = '') {
   const t = hint.toLowerCase();
   let category = 'pothole';
-  if (/pothole|crack/.test(t)) category = 'pothole';
+  if (/fire|flame|blaze|burning|smoke/.test(t)) category = 'fire';
+  else if (/pothole|crack/.test(t)) category = 'pothole';
   else if (/water|pipe|leak|burst|flood/.test(t)) category = 'water_leak';
   else if (/wire|electric|spark|cable|pole|transformer/.test(t)) category = 'wiring';
   else if (/garbage|trash|litter|waste/.test(t)) category = 'garbage';

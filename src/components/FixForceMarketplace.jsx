@@ -10,8 +10,15 @@ export default function FixForceMarketplace({
   isOfficial = false,
   issues = []
 }) {
+  const FIXED_FALLBACK = {
+    pothole: '/review_photos/pothole_fixed.png',
+    water_leak: '/review_photos/water_leak_fixed.png',
+    wiring: '/review_photos/wiring_fixed.png',
+    drainage: '/review_photos/drainage_fixed.png',
+    garbage: '/review_photos/garbage_fixed.png',
+  };
   const [activeSubTab, setActiveSubTab] = useState('dispatch');
-  const [proofUrl, setProofUrl] = useState('https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=600&q=80');
+  const [proofUrl, setProofUrl] = useState(FIXED_FALLBACK[issue?.category] || FIXED_FALLBACK.pothole);
 
   const [regName, setRegName] = useState('');
   const [regSpecialty, setRegSpecialty] = useState('pothole');

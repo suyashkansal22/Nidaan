@@ -178,8 +178,8 @@ export function CitizenConfirmFix() {
 
   // Prefer a freshly-fixed repair; else the hero if it's been fixed/verified; else any verified job with proof.
   const target =
-    issues.find(i => i.status === 'fixed') ||
-    (heroIssue && ['fixed', 'verified'].includes(heroIssue.status) ? heroIssue : null) ||
+    issues.find(i => i.status === 'fixed' && i.proofOfFixUrl) ||
+    (heroIssue && ['fixed', 'verified'].includes(heroIssue.status) && heroIssue.proofOfFixUrl ? heroIssue : null) ||
     issues.find(i => i.status === 'verified' && i.proofOfFixUrl);
 
   if (!target) return <EmptyState icon={CheckCircle} title="No repairs waiting on you" body="When a contractor finishes a job near you, it appears here for confirmation." />;

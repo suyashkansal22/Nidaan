@@ -213,8 +213,29 @@ export function ContractorJobs() {
         const isPlaced = placed[issue.id];
         const b = bids[issue.id] || {};
         return (
-          <div key={issue.id} className="glass-panel" style={{ padding: '1.1rem', display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+          <div 
+            key={issue.id} 
+            className="glass-panel" 
+            style={{ 
+              padding: '1.1rem', 
+              display: 'flex', 
+              flexDirection: 'column', 
+              gap: '0.85rem',
+              transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)'
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.transform = 'translateY(-3px)';
+              e.currentTarget.style.boxShadow = '0 10px 24px rgba(15, 23, 42, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.15)';
+              e.currentTarget.style.borderColor = 'var(--brand)';
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.transform = 'none';
+              e.currentTarget.style.boxShadow = 'none';
+              e.currentTarget.style.borderColor = '';
+            }}
+          >
             <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+
               <img src={issue.photoUrl} alt={issue.category} style={{ width: '64px', height: '64px', objectFit: 'cover', borderRadius: 'var(--radius-ctl)', border: '1px solid var(--cream-300)', flexShrink: 0 }} />
               <div style={{ flex: 1, minWidth: 0 }}>
                 <h3 style={{ fontSize: '1rem', textTransform: 'capitalize' }}>{issue.title || issue.category.replace('_', ' ')}</h3>

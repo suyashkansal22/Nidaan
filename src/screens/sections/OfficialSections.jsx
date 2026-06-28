@@ -112,16 +112,44 @@ export function OfficialOverview() {
 
   return (
     <div className="glass-zone" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+      {/* Dynamic Keyframes for Liquid Floating Backdrops */}
+      <style>{`
+        @keyframes liquid-float-one {
+          0% { transform: translate(0, 0) scale(1); }
+          25% { transform: translate(-220px, 50px) scale(1.15); }
+          50% { transform: translate(-100px, -60px) scale(0.9); }
+          75% { transform: translate(120px, 40px) scale(1.1); }
+          100% { transform: translate(0, 0) scale(1); }
+        }
+        @keyframes liquid-float-two {
+          0% { transform: translate(0, 0) scale(1); }
+          33% { transform: translate(220px, -50px) scale(0.85); }
+          66% { transform: translate(-120px, 60px) scale(1.1); }
+          100% { transform: translate(0, 0) scale(1); }
+        }
+      `}</style>
+
       {/* Obsidian command banner */}
       <div style={{ borderRadius: 'var(--radius-card)', background: 'var(--gradient-obsidian)', color: '#fff', padding: '1.6rem 1.7rem', position: 'relative', overflow: 'hidden', boxShadow: 'var(--shadow-pop)' }}>
-        <span style={{ position: 'absolute', top: '-40%', right: '-5%', width: '380px', height: '380px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(37,99,235,.5), transparent 65%)', pointerEvents: 'none' }} />
+        {/* Animated Liquid glass blobs floating in background */}
+        <span style={{ 
+          position: 'absolute', top: '-20%', right: '10%', width: '450px', height: '450px', borderRadius: '50%', 
+          background: 'radial-gradient(circle, rgba(37,99,235,0.55), rgba(29,78,216,0.2) 45%, transparent 70%)', 
+          pointerEvents: 'none', animation: 'liquid-float-one 8s ease-in-out infinite' 
+        }} />
+        <span style={{ 
+          position: 'absolute', bottom: '-20%', left: '20%', width: '380px', height: '380px', borderRadius: '50%', 
+          background: 'radial-gradient(circle, rgba(59,130,246,0.45), rgba(30,58,138,0.15) 50%, transparent 80%)', 
+          pointerEvents: 'none', animation: 'liquid-float-two 7s ease-in-out infinite' 
+        }} />
+
+
+
         <span style={{ position: 'absolute', inset: 0, backgroundImage: 'linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px)', backgroundSize: '40px 40px', opacity: 0.35, pointerEvents: 'none', maskImage: 'linear-gradient(180deg, black, transparent)' }} />
         <div style={{ position: 'relative', display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: '1.5rem' }}>
           <div style={{ minWidth: '220px' }}>
-            <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.66rem', fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#7DD3FC', display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
-              <span className="pulsing-indicator" style={{ width: '7px', height: '7px', background: '#38BDF8' }} /> Live command
-            </span>
-            <h2 style={{ fontSize: '1.55rem', fontWeight: 800, color: '#fff', margin: '0.5rem 0 0.35rem', letterSpacing: '-0.02em' }}>Ward operations control</h2>
+            <h2 style={{ fontSize: '1.55rem', fontWeight: 800, color: '#fff', margin: '0 0 0.35rem', letterSpacing: '-0.02em' }}>Ward operations control</h2>
+
             <p style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,.7)', margin: 0, maxWidth: '320px' }}>Every open issue, ranked by what inaction costs — and what the agent is doing about it.</p>
           </div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1.6rem' }}>

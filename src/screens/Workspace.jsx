@@ -39,7 +39,10 @@ export default function Workspace() {
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', position: 'relative' }}>
+      <div className="mesh-bg" />
+
       {/* ---- Console top bar: Solid Blue Floating Panel ---- */}
+
       <header className="workspace-header" style={{
         position: 'sticky', top: '1.2rem', zIndex: 100,
         background: scrolled ? 'rgba(30, 64, 175, 0.72)' : '#1E40AF',

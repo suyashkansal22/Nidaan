@@ -225,7 +225,7 @@ export default function SnapToSolve({ onIssueCreated, user }) {
       )}
 
       {/* Scenario presets */}
-      <div style={{ display: 'flex', gap: '0.5rem' }}>
+      <div className="mobile-wrap" style={{ display: 'flex', gap: '0.5rem' }}>
         {PRESETS.map(p => (
           <button key={p.key} onClick={() => applyPreset(p)} className="glow-btn-secondary" style={{ flex: 1, fontSize: '0.72rem', padding: '0.45rem', justifyContent: 'center' }}>
             <Zap size={12} color="var(--teal)" /> {p.label}
@@ -305,7 +305,7 @@ export default function SnapToSolve({ onIssueCreated, user }) {
           </div>
 
           {/* AI-filled fields */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+          <div className="mobile-stack" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
               <label style={labelStyle}>Category <span style={{ color: 'var(--teal-600)', fontWeight: 700 }}>· AI</span></label>
               <select className="field" value={category} onChange={(e) => { setCategory(e.target.value); setPhotoBase64(null); setPhotoUrl(SAMPLE_PHOTO_LINKS[e.target.value]); }}>
@@ -331,7 +331,7 @@ export default function SnapToSolve({ onIssueCreated, user }) {
           </div>
 
           {/* Location */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '0.75rem', alignItems: 'flex-end' }}>
+          <div className="mobile-stack" style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '0.75rem', alignItems: 'flex-end' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
               <label style={labelStyle}>Location</label>
               <input className="field" type="text" value={address} onChange={(e) => setAddress(e.target.value)} />

@@ -281,7 +281,7 @@ export function OfficialOverview() {
             return (
               <div 
                 key={issue.id} 
-                className="glass-panel animate-fade-in-up" 
+                className="glass-panel animate-fade-in-up issue-card" 
                 style={{ 
                   padding: '1.25rem', 
                   display: 'flex', 
@@ -365,7 +365,7 @@ export function OfficialOverview() {
                 </div>
 
                 {/* Right Side: Loss & Actions */}
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.75rem', minWidth: '160px', flexShrink: 0 }}>
+                <div className="issue-card-actions" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.75rem', minWidth: '160px', flexShrink: 0 }}>
                   
                   {/* Daily Cost of Inaction / Loss Stopped Badge */}
                   {isVerified ? (

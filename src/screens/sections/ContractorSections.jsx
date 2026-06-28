@@ -145,7 +145,8 @@ export function ContractorRegister() {
           <input className="field" type="text" value={regName} onChange={(e) => setRegName(e.target.value)} placeholder="e.g. Kaveri Drainage Systems Ltd" required />
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+        <div className="mobile-stack" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
             <label style={{ fontSize: '0.85rem', fontWeight: 600 }}>Specialty</label>
             <select className="field" value={regSpecialty} onChange={(e) => setRegSpecialty(e.target.value)}>

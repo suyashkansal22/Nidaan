@@ -197,7 +197,8 @@ export function CitizenConfirmFix() {
         <h3 style={{ fontSize: '1.1rem', textTransform: 'capitalize' }}>{target.title || target.category.replace('_', ' ')} — repair completed</h3>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+      <div className="mobile-stack" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
           <span className="badge badge-danger" style={{ alignSelf: 'flex-start' }}>Before</span>
           <img src={target.photoUrl} alt="Before" style={{ width: '100%', height: '150px', objectFit: 'cover', borderRadius: 'var(--radius-ctl)', border: '1px solid var(--cream-300)' }} />

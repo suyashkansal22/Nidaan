@@ -51,7 +51,8 @@ export default function PublicScorecard({ issues, users = [] }) {
         <Stat icon={Trophy} value={`₹${paidOut.toLocaleString('en-IN')}`} label="Paid on proof" color="var(--grass-600)" />
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+      <div className="mobile-stack" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+
         {/* Department ranking */}
         <div className="glass-panel" style={{ padding: '1.25rem' }}>
           <h3 style={{ fontSize: '1.05rem', marginBottom: '0.9rem' }}>Department resolution rate</h3>

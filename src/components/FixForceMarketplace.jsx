@@ -173,7 +173,7 @@ Daily economic cost of inaction: ₹${issue.costOfInaction}. Please register thi
               <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Firm / Contractor name</label>
               <input className="field" type="text" value={regName} onChange={(e) => setRegName(e.target.value)} placeholder="e.g. Kaveri Drainage Systems Ltd" />
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <div className="mobile-stack" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
                 <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Specialty</label>
                 <select className="field" value={regSpecialty} onChange={(e) => setRegSpecialty(e.target.value)}>
@@ -191,7 +191,7 @@ Daily economic cost of inaction: ₹${issue.costOfInaction}. Please register thi
                 <input className="field" type="number" value={regRate} onChange={(e) => setRegRate(e.target.value)} />
               </div>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <div className="mobile-stack" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
                 <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Latitude offset</label>
                 <input className="field" type="text" value={regLatOffset} onChange={(e) => setRegLatOffset(e.target.value)} placeholder="0.003" />
@@ -254,13 +254,13 @@ Daily economic cost of inaction: ₹${issue.costOfInaction}. Please register thi
                   {ranked.length > 0 ? (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
                       {/* table header */}
-                      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr 0.8fr', gap: '0.5rem', fontSize: '0.64rem', textTransform: 'uppercase', letterSpacing: '0.04em', color: 'var(--ink-muted)', fontWeight: 700, padding: '0 0.85rem' }}>
+                      <div className="mobile-hide" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr 0.8fr', gap: '0.5rem', fontSize: '0.64rem', textTransform: 'uppercase', letterSpacing: '0.04em', color: 'var(--ink-muted)', fontWeight: 700, padding: '0 0.85rem' }}>
                         <span>Vendor</span><span>Rating</span><span>ETA</span><span>Quote</span><span title="Price 40% · Rating 30% · ETA 20% · Reputation 10%">Score</span>
                       </div>
                       {ranked.map((bid, i) => {
                         const contractor = contractors.find(c => c.id === bid.contractorId);
                         return (
-                          <div key={i} style={{
+                          <div key={i} className="mobile-bid-row" style={{
                             display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr 0.8fr', gap: '0.5rem', alignItems: 'center',
                             padding: '0.7rem 0.85rem', borderRadius: 'var(--radius-ctl)',
                             background: bid.recommended ? 'var(--teal-tint)' : 'var(--cream-50)',
@@ -371,7 +371,7 @@ Daily economic cost of inaction: ₹${issue.costOfInaction}. Please register thi
                 </div>
 
                 {/* Before / After with AI verdict ribbon */}
-                <div style={{ position: 'relative', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                <div className="mobile-stack" style={{ position: 'relative', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
                     <span className="badge badge-danger" style={{ alignSelf: 'flex-start' }}>Before</span>
                     <img src={issue.photoUrl} alt="Before" style={{ width: '100%', height: '140px', objectFit: 'cover', borderRadius: 'var(--radius-ctl)', border: '1px solid var(--cream-300)' }} />
@@ -423,7 +423,7 @@ Daily economic cost of inaction: ₹${issue.costOfInaction}. Please register thi
                 {/* Scorecard impact */}
                 <div style={{ borderTop: '1px solid var(--cream-300)', paddingTop: '1rem' }}>
                   <h4 style={{ fontSize: '0.85rem', color: 'var(--ink)', marginBottom: '0.75rem' }}>Contractor scorecard impact</h4>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem' }}>
+                  <div className="mobile-stack" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem' }}>
                     {[['Completed jobs', '+1', 'var(--grass-600)'], ['Reputation', '+2%', 'var(--grass-600)'], ['Warranty', '1 Yr', 'var(--teal-600)']].map(([l, v, c], i) => (
                       <div key={i} className="sunken" style={{ padding: '0.6rem', textAlign: 'center', borderRadius: 'var(--radius-ctl)' }}>
                         <span style={{ fontSize: '0.66rem', color: 'var(--ink-muted)' }}>{l}</span>
@@ -458,7 +458,7 @@ Daily economic cost of inaction: ₹${issue.costOfInaction}. Please register thi
                     </div>
                     <button onClick={() => onDonate(issue.id, 500)} className="glow-btn-primary" style={{ width: '100%', justifyContent: 'center', padding: '0.4rem', fontSize: '0.78rem' }}>+ Contribute ₹500</button>
                   </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
+                  <div className="mobile-stack" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
                     <button onClick={() => alert('Delegated complaint packet to East Bengaluru Citizens Forum NGO.')} className="glow-btn-secondary" style={{ padding: '0.4rem', fontSize: '0.72rem', justifyContent: 'center' }}>Delegate to NGO</button>
                     <button onClick={() => alert('Auto-requested HDFC CSR community grant.')} className="glow-btn-secondary" style={{ padding: '0.4rem', fontSize: '0.72rem', justifyContent: 'center' }}>Trigger CSR</button>
                   </div>

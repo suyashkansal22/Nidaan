@@ -101,7 +101,7 @@ export default function IntelligencePanel({ issues, onSelectIssue, onPreparednes
         </div>
         {opt && (
           <>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '0.6rem', marginBottom: '0.9rem' }}>
+            <div className="mobile-stack" style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '0.6rem', marginBottom: '0.9rem' }}>
               {[['Spent', `₹${opt.spent.toLocaleString('en-IN')}`, 'var(--teal-600)'], ['Citizens helped', opt.citizensHelped.toLocaleString('en-IN'), 'var(--grass-600)'], ['₹/day stopped', `₹${opt.perDayStopped.toLocaleString('en-IN')}`, 'var(--pressure)']].map(([l, v, c], i) => (
                 <div key={i} className="sunken" style={{ padding: '0.6rem', textAlign: 'center', borderRadius: 'var(--radius-ctl)' }}>
                   <div style={{ fontSize: '0.62rem', color: 'var(--ink-muted)', textTransform: 'uppercase' }}>{l}</div>
@@ -109,7 +109,7 @@ export default function IntelligencePanel({ issues, onSelectIssue, onPreparednes
                 </div>
               ))}
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.9rem' }}>
+            <div className="mobile-stack" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.9rem' }}>
               <div>
                 <div style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--grass-600)', textTransform: 'uppercase', marginBottom: '0.4rem' }}>✓ Fund now ({opt.fund.length})</div>
                 {opt.fund.map(f => (
@@ -134,7 +134,7 @@ export default function IntelligencePanel({ issues, onSelectIssue, onPreparednes
         )}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+      <div className="mobile-stack" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
         {/* Preparedness pre-dispatch (5b) */}
         <div className="glass-panel" style={{ padding: '1.25rem' }}>
           <h3 style={{ fontSize: '1.0rem', display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.5rem' }}><CloudRain size={16} color="var(--teal)" /> Preparedness pre-dispatch</h3>

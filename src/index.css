@@ -471,3 +471,81 @@ select:focus-visible, textarea:focus-visible, [tabindex]:focus-visible {
 @media (prefers-reduced-motion: reduce) {
   * { animation: none !important; transition: none !important; }
 }
+
+/* ============================================================
+   MOBILE RESPONSIVENESS OVERRIDES
+   ============================================================ */
+
+/* Top bar / header layout overrides for viewport <= 990px */
+@media (max-width: 990px) {
+  .workspace-header {
+    flex-wrap: wrap !important;
+    padding: 0.8rem 1.2rem !important;
+    gap: 0.75rem !important;
+    margin: 0.8rem 1rem 0.8rem !important;
+  }
+  .header-brand-block {
+    order: 1 !important;
+  }
+  .header-actions-block {
+    order: 2 !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+  }
+  .header-actions-block button {
+    padding: 0.35rem 0.7rem !important;
+  }
+  .header-nav-block {
+    order: 3 !important;
+    width: 100% !important;
+    flex: none !important;
+    margin-top: 0.25rem !important;
+  }
+  .header-nav-block nav {
+    width: 100% !important;
+    overflow-x: auto !important;
+    justify-content: flex-start !important;
+    padding: 4px !important;
+  }
+}
+
+/* General Layout modifications for mobile <= 768px */
+@media (max-width: 768px) {
+  /* Canvas body margins and padding */
+  main {
+    padding: 1rem 0.75rem 2.5rem !important;
+  }
+  
+  /* Less aggressive padding inside cards */
+  .glass-panel {
+    padding: 1rem !important;
+  }
+  .glass-zone {
+    padding: 1rem !important;
+    gap: 0.80rem !important;
+  }
+
+  /* Grid layout overrides (Force grids to single column) */
+  .agent-grid, 
+  .two-col-grid, 
+  .grid-cols-2, 
+  .grid-cols-3, 
+  .grid-cols-4,
+  .dashboard-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1rem !important;
+  }
+
+  /* Force side-by-side forms and lists to stack */
+  .flex-row-mobile-stack {
+    flex-direction: column !important;
+  }
+
+  /* Form column widths */
+  form div[style*="gridTemplateColumns"] {
+    grid-template-columns: 1fr !important;
+    gap: 0.8rem !important;
+  }
+}
+

@@ -18,6 +18,20 @@ export default function Workspace() {
   const { loading, toast } = useAppData();
   const tour = useTour();
 
+  const [scrolled, setScrolled] = React.useState(false);
+
+  React.useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 20) {
+        setScrolled(true);
+      } else {
+        setScrolled(false);
+      }
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   const roleDef = roleById(role);
   const tabs = sectionsFor(role);
   const meta = sectionMeta(role, section);
@@ -25,28 +39,31 @@ export default function Workspace() {
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', position: 'relative' }}>
-      <div className="mesh-bg" />      {/* ---- Console top bar: Solid Blue Floating Panel ---- */}
-      <header style={{
+      {/* ---- Console top bar: Solid Blue Floating Panel ---- */}
+      <header className="workspace-header" style={{
         position: 'sticky', top: '1.2rem', zIndex: 100,
-        background: '#1E40AF',
-        border: '1px solid rgba(255, 255, 255, 0.12)',
+        background: scrolled ? 'rgba(30, 64, 175, 0.72)' : '#1E40AF',
+        backdropFilter: scrolled ? 'blur(20px) saturate(180%)' : 'none',
+        WebkitBackdropFilter: scrolled ? 'blur(20px) saturate(180%)' : 'none',
+        border: scrolled ? '1px solid rgba(255, 255, 255, 0.22)' : '1px solid rgba(255, 255, 255, 0.12)',
         borderRadius: '8px',
-        boxShadow: '0 12px 32px rgba(30, 64, 175, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.15)',
+        boxShadow: scrolled 
+          ? '0 12px 40px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.25)'
+          : '0 12px 32px rgba(30, 64, 175, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.15)',
         margin: '1.2rem 1.5rem 1.2rem',
         display: 'flex', flexDirection: 'row',
         alignItems: 'center', justifyContent: 'space-between',
         padding: '0.95rem 1.8rem', gap: '1.5rem',
-        transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+        transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
       }}>
         {/* Left Block: Logo & Brand Name only */}
-        <button onClick={goToRoleSelect} style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', background: 'transparent', border: 'none', cursor: 'pointer', padding: 0, color: '#ffffff', flexShrink: 0 }} title="Back to role select">
+        <button onClick={goToRoleSelect} className="header-brand-block" style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', background: 'transparent', border: 'none', cursor: 'pointer', padding: 0, color: '#ffffff', flexShrink: 0 }} title="Back to role select">
           <img src="/logo.png" alt="Nidaan" width={42} height={42} style={{ borderRadius: '6px', boxShadow: '0 2px 8px rgba(0,0,0,0.12), 0 0 0 1.5px rgba(255,255,255,0.9)' }} />
           <span style={{ fontSize: '1.5rem', fontWeight: 800, color: '#ffffff', letterSpacing: '-0.035em', fontFamily: 'var(--font-display)' }}>Nidaan</span>
         </button>
 
-
         {/* Center Block: Navigation tabs + Integrated Hint Text */}
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', flex: 1, overflowX: 'auto' }} className="hide-scroll">
+        <div className="header-nav-block hide-scroll" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', flex: 1, overflowX: 'auto' }}>
           <nav style={{
             display: 'flex',
             alignItems: 'center',
@@ -101,11 +118,9 @@ export default function Workspace() {
           </span>
         </div>
 
-
-
-
         {/* Right Block: Stacked Role name (top) and Guided Tour (bottom) */}
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.4rem', flexShrink: 0 }}>
+        <div className="header-actions-block" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.4rem', flexShrink: 0 }}>
+
           {/* Role switcher dropdown trigger on top */}
           <RoleSwitcher />
           

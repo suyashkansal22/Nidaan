@@ -356,7 +356,7 @@ export function OfficialOverview() {
                             }}>
                               {passed && <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: active ? '#fff' : accentColor }} />}
                             </div>
-                            <span style={{ fontSize: '0.55rem', fontWeight: active ? 700 : 500, color: active ? accentColor : 'var(--ink-muted)', whiteSpace: 'nowrap' }}>{stage.label}</span>
+                            <span className="stage-label" style={{ fontSize: '0.55rem', fontWeight: active ? 700 : 500, color: active ? accentColor : 'var(--ink-muted)', whiteSpace: 'nowrap' }}>{stage.label}</span>
                           </div>
                         </React.Fragment>
                       );
@@ -369,7 +369,7 @@ export function OfficialOverview() {
                   
                   {/* Daily Cost of Inaction / Loss Stopped Badge */}
                   {isVerified ? (
-                    <div style={{ 
+                    <div className="issue-loss-badge" style={{ 
                       width: '100%',
                       textAlign: 'right',
                       background: 'var(--grass-tint)', 
@@ -385,7 +385,7 @@ export function OfficialOverview() {
                       </span>
                     </div>
                   ) : (
-                    <div style={{ 
+                    <div className="issue-loss-badge" style={{ 
                       width: '100%',
                       textAlign: 'right',
                       background: isRedAlert ? 'var(--critical-tint)' : 'var(--alert-tint)', 

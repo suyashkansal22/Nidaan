@@ -82,7 +82,7 @@ export function CitizenMyReports() {
                 className="glass-panel"
                 style={{ padding: '1.1rem', display: 'flex', flexDirection: 'column', gap: '0.9rem' }}
               >
-                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                <div className="citizen-report-header-row" style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
                   <img src={issue.photoUrl} alt={issue.category} style={{ width: '64px', height: '64px', objectFit: 'cover', borderRadius: 'var(--radius-ctl)', border: '1px solid var(--cream-300)', flexShrink: 0 }} />
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem' }}>

@@ -116,9 +116,10 @@ export default function Workspace() {
           </nav>
 
           {/* Integrated hint text directly below navigation tabs in the center */}
-          <span style={{ fontSize: '0.76rem', color: 'rgba(255, 255, 255, 0.75)', fontWeight: 500, textAlign: 'center' }}>
+          <span className="header-nav-hint" style={{ fontSize: '0.76rem', color: 'rgba(255, 255, 255, 0.75)', fontWeight: 500, textAlign: 'center' }}>
             Hover (or tap) the ⓘ to learn about the feature
           </span>
+
         </div>
 
         {/* Right Block: Stacked Role name (top) and Guided Tour (bottom) */}
@@ -150,7 +151,8 @@ export default function Workspace() {
               e.currentTarget.style.transform = 'none';
             }}
           >
-            <Play size={10} fill="currentColor" /> Guided Tour
+            <Play size={10} fill="currentColor" />
+            <span className="tour-button-text"> Guided Tour</span>
           </button>
         </div>
       </header>

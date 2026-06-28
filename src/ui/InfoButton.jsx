@@ -52,6 +52,7 @@ export default function InfoButton({ text, tag, size = 18, label = 'More info' }
         <div
           id={popId}
           role="tooltip"
+          className="info-popover"
           style={{
             position: 'absolute', top: 'calc(100% + 8px)', left: 0, zIndex: 200,
             width: '260px', maxWidth: '78vw',

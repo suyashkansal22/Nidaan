@@ -8,7 +8,7 @@ import InfoButton from './InfoButton.jsx';
 */
 export default function SectionHeader({ icon: Icon, title, info, tag, hint, action, eyebrow }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
+    <div className="section-header-container" style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
       <div style={{ minWidth: 0 }}>
         {eyebrow && <span className="eyebrow" style={{ fontSize: '0.62rem', marginBottom: '0.5rem', display: 'inline-flex' }}>{eyebrow}</span>}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.7rem' }}>
@@ -28,7 +28,7 @@ export default function SectionHeader({ icon: Icon, title, info, tag, hint, acti
           {info && <InfoButton text={info} tag={tag} />}
         </div>
         {hint && (
-          <p style={{ fontSize: '0.92rem', color: 'var(--ink-muted)', margin: '0.55rem 0 0', paddingLeft: Icon ? '3.45rem' : 0, maxWidth: '660px', lineHeight: 1.5 }}>
+          <p className="section-header-hint" style={{ fontSize: '0.92rem', color: 'var(--ink-muted)', margin: '0.55rem 0 0', paddingLeft: Icon ? '3.45rem' : 0, maxWidth: '660px', lineHeight: 1.5 }}>
             {hint}
           </p>
         )}

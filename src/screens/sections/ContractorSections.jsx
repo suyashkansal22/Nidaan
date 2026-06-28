@@ -235,7 +235,7 @@ export function ContractorJobs() {
               e.currentTarget.style.borderColor = '';
             }}
           >
-            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+            <div className="contractor-job-row" style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
 
               <img src={issue.photoUrl} alt={issue.category} style={{ width: '64px', height: '64px', objectFit: 'cover', borderRadius: 'var(--radius-ctl)', border: '1px solid var(--cream-300)', flexShrink: 0 }} />
               <div style={{ flex: 1, minWidth: 0 }}>
@@ -254,7 +254,7 @@ export function ContractorJobs() {
                 <CheckCircle size={14} /> Bid placed — you'll be notified if you win.
               </div>
             ) : open ? (
-              <div className="sunken" style={{ padding: '1rem', borderRadius: 'var(--radius-ctl)', display: 'flex', gap: '0.75rem', alignItems: 'flex-end', flexWrap: 'wrap' }}>
+              <div className="sunken bid-submission-form" style={{ padding: '1rem', borderRadius: 'var(--radius-ctl)', display: 'flex', gap: '0.75rem', alignItems: 'flex-end', flexWrap: 'wrap' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
                   <label style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--ink-muted)' }}>Your quote (₹)</label>
                   <input className="field" type="number" placeholder="9500" value={b.price || ''} onChange={e => setBids(s => ({ ...s, [issue.id]: { ...b, price: e.target.value } }))} style={{ width: '130px' }} />

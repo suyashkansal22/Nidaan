@@ -53,12 +53,12 @@ function MiniLoop({ issue }) {
 
 function Metric({ icon: Icon, value, label, color }) {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: '74px' }}>
+    <div className="pressure-metric" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: '74px' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', color: color || 'var(--ink-strong)' }}>
         <Icon size={14} />
         <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 700, fontSize: '1.05rem', fontVariantNumeric: 'tabular-nums' }}>{value}</span>
       </div>
-      <span style={{ fontSize: '0.62rem', color: 'var(--ink-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.03em' }}>{label}</span>
+      <span className="pressure-metric-label" style={{ fontSize: '0.62rem', color: 'var(--ink-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.03em' }}>{label}</span>
     </div>
   );
 }
@@ -216,12 +216,12 @@ export default function LivePressureDashboard({ issues, onSelectIssue, onVoteIss
           return (
             <div
               key={issue.id}
-              className="glass-panel glass-panel-interactive"
+              className="glass-panel glass-panel-interactive pressure-card"
               onClick={() => onSelectIssue(issue)}
               style={{ padding: '1rem', display: 'flex', gap: '1rem', alignItems: 'stretch', borderLeft: `4px solid ${SEVERITY_BORDER[issue.severity] || 'var(--cream-400)'}` }}
             >
               {/* thumbnail */}
-              <div style={{ position: 'relative', flexShrink: 0 }}>
+              <div className="pressure-card-thumb" style={{ position: 'relative', flexShrink: 0 }}>
                 <img src={issue.photoUrl} alt={issue.category} style={{ width: '88px', height: '88px', objectFit: 'cover', borderRadius: 'var(--radius-ctl)', border: '1px solid var(--cream-300)' }} />
                 <span className={`badge ${isRed ? 'badge-danger' : issue.severity === 'high' ? 'badge-warning' : 'badge-info'}`} style={{ position: 'absolute', bottom: '-8px', left: '50%', transform: 'translateX(-50%)', fontSize: '0.58rem', padding: '0.1rem 0.4rem' }}>
                   {issue.severity}
@@ -229,8 +229,8 @@ export default function LivePressureDashboard({ issues, onSelectIssue, onVoteIss
               </div>
 
               {/* body */}
-              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.35rem', minWidth: 0 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem' }}>
+              <div className="pressure-card-body" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.35rem', minWidth: 0 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
                   <span style={{ fontSize: '0.7rem', fontFamily: 'var(--font-mono)', color: 'var(--ink-muted)' }}>#{issue.id} · {issue.ward}</span>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.75rem', color: sla.urgent ? 'var(--critical)' : 'var(--ink-muted)', fontWeight: 600 }}>
                     <Clock size={12} /> {sla.text}
@@ -294,7 +294,7 @@ export default function LivePressureDashboard({ issues, onSelectIssue, onVoteIss
               </div>
 
               {/* always-on metrics */}
-              <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '0.6rem', paddingLeft: '0.75rem', borderLeft: '1px solid var(--cream-300)' }}>
+              <div className="pressure-card-metrics" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '0.6rem', paddingLeft: '0.75rem', borderLeft: '1px solid var(--cream-300)' }}>
                 <Metric icon={Users} value={issue.citizensAffected || 1} label="citizens" />
                 <Metric icon={IndianRupee} value={(issue.costOfInaction || 0).toLocaleString('en-IN')} label="₹/day" color="var(--pressure)" />
                 <Metric icon={Clock} value={`${daysOpen(issue.timestamp)}d`} label="open" />

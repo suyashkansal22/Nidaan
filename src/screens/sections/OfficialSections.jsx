@@ -68,44 +68,137 @@ export function OfficialOverview() {
     return idx !== -1 ? idx : 0;
   };
 
+  // ---- Analytics (no green anywhere) ----
+  const CATEGORY_META = {
+    pothole:    { label: 'Potholes',    color: 'var(--hue-amber)' },
+    water_leak: { label: 'Water leaks', color: 'var(--hue-cobalt)' },
+    wiring:     { label: 'Wiring',      color: 'var(--hue-violet)' },
+    garbage:    { label: 'Garbage',     color: 'var(--hue-sky)' },
+    drainage:   { label: 'Drainage',    color: '#0EA5E9' },
+    debris:     { label: 'Debris',      color: 'var(--hue-pink)' },
+    road_sign:  { label: 'Signage',     color: 'var(--hue-indigo)' },
+    fire:       { label: 'Fire / gas',  color: 'var(--hue-rose)' },
+  };
+  const STAGE_HUES = ['var(--hue-cobalt)', 'var(--hue-indigo)', 'var(--hue-violet)', '#0EA5E9', 'var(--hue-sky)', 'var(--hue-amber)', 'var(--hue-sky)'];
+
+  const resolved = issues.filter(i => i.status === 'verified');
+  const lossStopped = resolved.reduce((a, c) => a + (c.costOfInaction || 0), 0);
+  const animatedStopped = useCountUp(lossStopped);
+
+  const stageCounts = STAGES.map((s, idx) => ({ ...s, idx, count: issues.filter(i => getStageIndex(i.status) === idx).length }));
+  const maxStage = Math.max(1, ...stageCounts.map(s => s.count));
+
+  const catCounts = Object.entries(issues.reduce((m, i) => { m[i.category] = (m[i.category] || 0) + 1; return m; }, {}))
+    .map(([k, v]) => ({ key: k, label: (CATEGORY_META[k]?.label || k), color: (CATEGORY_META[k]?.color || 'var(--ink-muted)'), count: v }))
+    .sort((a, b) => b.count - a.count);
+  const maxCat = Math.max(1, ...catCounts.map(c => c.count));
+
+  const SEV = [
+    { key: 'RedAlert', label: 'RedAlert', color: 'var(--critical)' },
+    { key: 'high', label: 'High', color: 'var(--alert)' },
+    { key: 'medium', label: 'Medium', color: 'var(--hue-cobalt)' },
+    { key: 'low', label: 'Low', color: 'var(--hue-sky)' },
+  ].map(s => ({ ...s, count: issues.filter(i => i.severity === s.key).length }));
+  const sevTotal = Math.max(1, SEV.reduce((a, c) => a + c.count, 0));
+  let _acc = 0;
+  const sevConic = SEV.map(s => { const a = (_acc / sevTotal) * 360; _acc += s.count; const b = (_acc / sevTotal) * 360; return `${s.color} ${a}deg ${b}deg`; }).join(', ');
+
+  const BANNER_STATS = [
+    { label: 'Total reports', value: issues.length, icon: ListChecks, tone: '#fff' },
+    { label: 'In verification', value: verificationIssues.length, icon: ShieldCheck, tone: '#fff' },
+    { label: 'Active loss / day', value: `₹${animatedRisk.toLocaleString('en-IN')}`, icon: IndianRupee, tone: '#FCA5A5' },
+    { label: 'Loss stopped / day', value: `₹${animatedStopped.toLocaleString('en-IN')}`, icon: CheckCircle2, tone: '#7DD3FC' },
+  ];
+
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.75rem' }}>
-      {/* Top Banner Stats Row */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.25rem' }}>
-        
-        {/* Total reports */}
-        <div className="glass-panel" style={{ padding: '1.25rem', borderTop: '3px solid var(--teal)', display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <div style={{ width: '40px', height: '40px', borderRadius: '8px', background: 'var(--teal-tint)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <ListChecks size={20} color="var(--teal)" />
+    <div className="glass-zone" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+      {/* Obsidian command banner */}
+      <div style={{ borderRadius: 'var(--radius-card)', background: 'var(--gradient-obsidian)', color: '#fff', padding: '1.6rem 1.7rem', position: 'relative', overflow: 'hidden', boxShadow: 'var(--shadow-pop)' }}>
+        <span style={{ position: 'absolute', top: '-40%', right: '-5%', width: '380px', height: '380px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(37,99,235,.5), transparent 65%)', pointerEvents: 'none' }} />
+        <span style={{ position: 'absolute', inset: 0, backgroundImage: 'linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px)', backgroundSize: '40px 40px', opacity: 0.35, pointerEvents: 'none', maskImage: 'linear-gradient(180deg, black, transparent)' }} />
+        <div style={{ position: 'relative', display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: '1.5rem' }}>
+          <div style={{ minWidth: '220px' }}>
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.66rem', fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#7DD3FC', display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
+              <span className="pulsing-indicator" style={{ width: '7px', height: '7px', background: '#38BDF8' }} /> Live command
+            </span>
+            <h2 style={{ fontSize: '1.55rem', fontWeight: 800, color: '#fff', margin: '0.5rem 0 0.35rem', letterSpacing: '-0.02em' }}>Ward operations control</h2>
+            <p style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,.7)', margin: 0, maxWidth: '320px' }}>Every open issue, ranked by what inaction costs — and what the agent is doing about it.</p>
           </div>
-          <div>
-            <div style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--ink-strong)', fontFamily: 'var(--font-mono)' }}>{issues.length}</div>
-            <div style={{ fontSize: '0.72rem', color: 'var(--ink-muted)', textTransform: 'uppercase', letterSpacing: '0.04em', fontWeight: 600 }}>Total Reports</div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1.6rem' }}>
+            {BANNER_STATS.map((s, i) => {
+              const Icon = s.icon;
+              return (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.7rem' }}>
+                  <span style={{ width: '42px', height: '42px', borderRadius: '50%', border: '2px solid rgba(255,255,255,.28)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <Icon size={18} color="rgba(255,255,255,.85)" />
+                  </span>
+                  <div>
+                    <div style={{ fontSize: '1.5rem', fontWeight: 800, fontFamily: 'var(--font-mono)', letterSpacing: '-0.02em', color: s.tone, lineHeight: 1 }}>{s.value}</div>
+                    <div style={{ fontSize: '0.64rem', color: 'rgba(255,255,255,.6)', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 600, marginTop: '0.25rem' }}>{s.label}</div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* Analytics row */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(290px, 1fr))', gap: '1.1rem' }}>
+        {/* Pipeline funnel */}
+        <div className="glass-panel" style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <TrendingUp size={16} color="var(--brand)" />
+            <span style={{ fontSize: '0.92rem', fontWeight: 700, color: 'var(--ink-strong)' }}>Resolution pipeline</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'flex-end', gap: '0.4rem', height: '120px' }}>
+            {stageCounts.map((s) => (
+              <div key={s.id} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.35rem', height: '100%', justifyContent: 'flex-end' }}>
+                <span style={{ fontSize: '0.72rem', fontWeight: 800, fontFamily: 'var(--font-mono)', color: s.count ? 'var(--ink-strong)' : 'var(--ink-muted)' }}>{s.count}</span>
+                <div title={`${s.count} at ${s.label}`} style={{ width: '100%', maxWidth: '26px', height: `${Math.max(6, (s.count / maxStage) * 92)}%`, background: s.count ? STAGE_HUES[s.idx] : 'var(--cream-300)', borderRadius: '6px 6px 3px 3px', transition: 'height var(--transition-slow)', boxShadow: s.count ? `0 4px 10px color-mix(in srgb, ${STAGE_HUES[s.idx]} 35%, transparent)` : 'none' }} />
+                <span style={{ fontSize: '0.58rem', color: 'var(--ink-muted)', fontWeight: 600, whiteSpace: 'nowrap' }}>{s.label}</span>
+              </div>
+            ))}
           </div>
         </div>
 
-        {/* Verification count */}
-        <div className="glass-panel" style={{ padding: '1.25rem', borderTop: '3px solid var(--alert)', display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <div style={{ width: '40px', height: '40px', borderRadius: '8px', background: 'var(--alert-tint)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <ShieldCheck size={20} color="var(--alert)" />
-          </div>
-          <div>
-            <div style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--ink-strong)', fontFamily: 'var(--font-mono)' }}>{verificationIssues.length}</div>
-            <div style={{ fontSize: '0.72rem', color: 'var(--ink-muted)', textTransform: 'uppercase', letterSpacing: '0.04em', fontWeight: 600 }}>In Verification</div>
-          </div>
-        </div>
-
-        {/* Cumulative Daily Loss */}
-        <div className="glass-panel" style={{ padding: '1.25rem', borderTop: '3px solid var(--pressure)', display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <div style={{ width: '40px', height: '40px', borderRadius: '8px', background: 'var(--critical-tint)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <IndianRupee size={20} color="var(--pressure)" />
-          </div>
-          <div>
-            <div style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--pressure)', fontFamily: 'var(--font-mono)' }}>₹{animatedRisk.toLocaleString('en-IN')}</div>
-            <div style={{ fontSize: '0.72rem', color: 'var(--ink-muted)', textTransform: 'uppercase', letterSpacing: '0.04em', fontWeight: 600 }}>Active Loss / Day</div>
+        {/* By category */}
+        <div className="glass-panel" style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.9rem' }}>
+          <span style={{ fontSize: '0.92rem', fontWeight: 700, color: 'var(--ink-strong)' }}>Issues by category</span>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
+            {catCounts.slice(0, 6).map((c) => (
+              <div key={c.key} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                <span style={{ width: '78px', fontSize: '0.74rem', color: 'var(--ink)', fontWeight: 600, flexShrink: 0 }}>{c.label}</span>
+                <div style={{ flex: 1, height: '9px', background: 'var(--cream-200)', borderRadius: '99px', overflow: 'hidden' }}>
+                  <div style={{ height: '100%', width: `${(c.count / maxCat) * 100}%`, background: c.color, borderRadius: '99px', transition: 'width var(--transition-slow)' }} />
+                </div>
+                <span style={{ width: '20px', textAlign: 'right', fontSize: '0.74rem', fontWeight: 800, fontFamily: 'var(--font-mono)', color: 'var(--ink-strong)' }}>{c.count}</span>
+              </div>
+            ))}
           </div>
         </div>
 
+        {/* By severity (donut) */}
+        <div className="glass-panel" style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.9rem' }}>
+          <span style={{ fontSize: '0.92rem', fontWeight: 700, color: 'var(--ink-strong)' }}>By severity</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1.1rem' }}>
+            <div style={{ width: '92px', height: '92px', borderRadius: '50%', background: `conic-gradient(${sevConic})`, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: 'var(--shadow-soft)' }}>
+              <div style={{ width: '58px', height: '58px', borderRadius: '50%', background: '#fff', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                <span style={{ fontSize: '1.1rem', fontWeight: 800, fontFamily: 'var(--font-mono)', color: 'var(--ink-strong)', lineHeight: 1 }}>{issues.length}</span>
+                <span style={{ fontSize: '0.5rem', color: 'var(--ink-muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>total</span>
+              </div>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', flex: 1 }}>
+              {SEV.map(s => (
+                <div key={s.key} style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', fontSize: '0.74rem' }}>
+                  <span style={{ width: '9px', height: '9px', borderRadius: '3px', background: s.color, flexShrink: 0 }} />
+                  <span style={{ color: 'var(--ink)', flex: 1 }}>{s.label}</span>
+                  <span style={{ fontWeight: 800, fontFamily: 'var(--font-mono)', color: 'var(--ink-strong)' }}>{s.count}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Filter Tabs */}
@@ -123,7 +216,7 @@ export function OfficialOverview() {
                 style={{
                   padding: '0.5rem 1.1rem',
                   background: active ? 'var(--teal-tint)' : 'transparent',
-                  border: active ? '1px solid rgba(26,169,160,.3)' : '1px solid transparent',
+                  border: active ? '1px solid rgba(var(--brand-rgb),.3)' : '1px solid transparent',
                   color: active ? 'var(--teal-600)' : 'var(--ink-muted)',
                   fontWeight: 600,
                   borderRadius: 'var(--radius-ctl)',
@@ -252,7 +345,7 @@ export function OfficialOverview() {
                       width: '100%',
                       textAlign: 'right',
                       background: 'var(--grass-tint)', 
-                      border: '1px solid rgba(91,170,71,.2)', 
+                      border: '1px solid rgba(var(--grass-rgb),.2)', 
                       padding: '0.4rem 0.75rem', 
                       borderRadius: 'var(--radius-ctl)',
                       display: 'flex',
@@ -268,7 +361,7 @@ export function OfficialOverview() {
                       width: '100%',
                       textAlign: 'right',
                       background: isRedAlert ? 'var(--critical-tint)' : 'var(--alert-tint)', 
-                      border: `1px solid ${isRedAlert ? 'rgba(215,64,47,.2)' : 'rgba(224,138,30,.15)'}`, 
+                      border: `1px solid ${isRedAlert ? 'rgba(var(--critical-rgb),.2)' : 'rgba(var(--alert-rgb),.15)'}`, 
                       padding: '0.4rem 0.75rem', 
                       borderRadius: 'var(--radius-ctl)',
                       display: 'flex',
@@ -328,7 +421,7 @@ export function OfficialAgent() {
   }
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 360px)', gap: '1.5rem', alignItems: 'start' }} className="agent-grid">
+    <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 360px)', gap: '1.5rem', alignItems: 'start' }} className="agent-grid glass-zone">
       <div data-tour-id="tour-agent-feed">
         <AgentActivityPanel
           issue={tracked}
@@ -385,15 +478,17 @@ export function OfficialPressure() {
   };
 
   return (
-    <LivePressureDashboard
-      issues={issues}
-      users={users}
-      view="pressure"
-      onSelectIssue={handleTrack}
-      onVoteIssue={handleVoteIssue}
-      onSlaSweep={handleSlaSweep}
-      onPreparedness={handlePreparedness}
-    />
+    <div className="glass-zone">
+      <LivePressureDashboard
+        issues={issues}
+        users={users}
+        view="pressure"
+        onSelectIssue={handleTrack}
+        onVoteIssue={handleVoteIssue}
+        onSlaSweep={handleSlaSweep}
+        onPreparedness={handlePreparedness}
+      />
+    </div>
   );
 }
 

@@ -62,7 +62,7 @@ function NodeChip({ stage, state, count, vertical }) {
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           color: fg,
           flexShrink: 0,
-          boxShadow: isActive ? '0 0 0 4px rgba(26,169,160,.12)' : 'none',
+          boxShadow: isActive ? '0 0 0 4px rgba(var(--brand-rgb),.12)' : 'none',
           animation: isActive ? 'pulseGlow 2.4s infinite' : 'none',
           transition: 'all var(--transition-normal)'
         }}

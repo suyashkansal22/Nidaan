@@ -39,7 +39,7 @@ export default function InfoButton({ text, tag, size = 18, label = 'More info' }
           width: size + 6, height: size + 6, borderRadius: '50%',
           display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
           background: visible ? 'var(--teal-tint)' : 'transparent',
-          border: `1px solid ${visible ? 'rgba(26,169,160,.4)' : 'var(--cream-300)'}`,
+          border: `1px solid ${visible ? 'rgba(var(--brand-rgb),.4)' : 'var(--cream-300)'}`,
           color: visible ? 'var(--teal-600)' : 'var(--ink-muted)',
           cursor: 'pointer', padding: 0, flexShrink: 0,
           transition: 'background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast)',

@@ -138,7 +138,7 @@ Daily economic cost of inaction: ₹${issue.costOfInaction}. Please register thi
               <button key={t.id} onClick={() => setActiveSubTab(t.id)} style={{
                 flex: 1, padding: '0.6rem',
                 background: active ? 'var(--teal-tint)' : 'transparent',
-                border: active ? '1px solid rgba(26,169,160,.3)' : '1px solid transparent',
+                border: active ? '1px solid rgba(var(--brand-rgb),.3)' : '1px solid transparent',
                 color: active ? 'var(--teal-600)' : 'var(--ink-muted)',
                 fontWeight: 600, borderRadius: 'var(--radius-ctl)', cursor: 'pointer', fontSize: '0.85rem',
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', transition: 'all var(--transition-fast)'
@@ -230,7 +230,7 @@ Daily economic cost of inaction: ₹${issue.costOfInaction}. Please register thi
               return (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                   {/* Smart BOM */}
-                  <div style={{ background: 'var(--teal-tint)', border: '1px solid rgba(26,169,160,.25)', borderRadius: 'var(--radius-ctl)', padding: '1rem' }}>
+                  <div style={{ background: 'var(--teal-tint)', border: '1px solid rgba(var(--brand-rgb),.25)', borderRadius: 'var(--radius-ctl)', padding: '1rem' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
                       <FileText size={16} color="var(--teal-600)" />
                       <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--ink-strong)' }}>Agent-inferred Bill of Materials</span>
@@ -295,8 +295,8 @@ Daily economic cost of inaction: ₹${issue.costOfInaction}. Please register thi
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                   {/* Escrow held pill */}
                   {accepted && (
-                    <div style={{ background: 'var(--alert-tint)', border: '1px solid rgba(224,138,30,.35)', borderRadius: 'var(--radius-ctl)', padding: '1rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                      <span style={{ width: '36px', height: '36px', borderRadius: '50%', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(224,138,30,.4)' }}>
+                    <div style={{ background: 'var(--alert-tint)', border: '1px solid rgba(var(--alert-rgb),.35)', borderRadius: 'var(--radius-ctl)', padding: '1rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                      <span style={{ width: '36px', height: '36px', borderRadius: '50%', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(var(--alert-rgb),.4)' }}>
                         <Lock size={18} color="var(--alert)" />
                       </span>
                       <div style={{ flex: 1 }}>
@@ -366,7 +366,7 @@ Daily economic cost of inaction: ₹${issue.costOfInaction}. Please register thi
               const allGreen = v?.allGreen;
               return (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                <div style={{ background: allGreen ? 'var(--grass-tint)' : 'var(--alert-tint)', border: `1px solid ${allGreen ? 'rgba(91,170,71,.35)' : 'rgba(224,138,30,.3)'}`, borderRadius: 'var(--radius-ctl)', padding: '0.75rem 1rem', fontSize: '0.82rem', color: 'var(--ink)' }}>
+                <div style={{ background: allGreen ? 'var(--grass-tint)' : 'var(--alert-tint)', border: `1px solid ${allGreen ? 'rgba(var(--grass-rgb),.35)' : 'rgba(var(--alert-rgb),.3)'}`, borderRadius: 'var(--radius-ctl)', padding: '0.75rem 1rem', fontSize: '0.82rem', color: 'var(--ink)' }}>
                   <strong>{allGreen ? 'Triple-lock passed.' : 'Pending verification.'}</strong> {allGreen ? 'All three proof locks are green — escrow can be released below.' : 'Proof uploaded. The agent is running the triple-lock; the Pay button stays locked until all three pass.'}
                 </div>
 
@@ -388,7 +388,7 @@ Daily economic cost of inaction: ₹${issue.costOfInaction}. Please register thi
                 {/* Triple-lock checklist (live verification) */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                   {locks.map(([t, d, pass], i) => (
-                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.78rem', background: pass ? 'var(--grass-tint)' : 'var(--cream-200)', padding: '0.5rem 0.7rem', borderRadius: 'var(--radius-ctl)', border: `1px solid ${pass ? 'rgba(91,170,71,.25)' : 'var(--cream-400)'}` }}>
+                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.78rem', background: pass ? 'var(--grass-tint)' : 'var(--cream-200)', padding: '0.5rem 0.7rem', borderRadius: 'var(--radius-ctl)', border: `1px solid ${pass ? 'rgba(var(--grass-rgb),.25)' : 'var(--cream-400)'}` }}>
                       {pass ? <CheckCircle size={16} color="var(--grass-600)" /> : <Circle size={16} color="var(--ink-muted)" />}
                       <span><strong style={{ color: 'var(--ink-strong)' }}>{t}</strong> — <span style={{ color: 'var(--ink-muted)' }}>{d}</span></span>
                     </div>
@@ -408,7 +408,7 @@ Daily economic cost of inaction: ₹${issue.costOfInaction}. Please register thi
             {issue.status === 'verified' && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                 {/* Unlock flourish */}
-                <div style={{ background: 'var(--grass-tint)', border: '1px solid rgba(91,170,71,.35)', borderRadius: 'var(--radius-ctl)', padding: '1.25rem', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
+                <div style={{ background: 'var(--grass-tint)', border: '1px solid rgba(var(--grass-rgb),.35)', borderRadius: 'var(--radius-ctl)', padding: '1.25rem', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
                   <span style={{ width: '52px', height: '52px', borderRadius: '50%', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: 'var(--shadow-soft)' }}>
                     <Unlock size={26} color="var(--grass-600)" />
                   </span>
@@ -438,11 +438,11 @@ Daily economic cost of inaction: ₹${issue.costOfInaction}. Please register thi
             {/* ESCALATED — crowdfund + RTI */}
             {issue.status === 'escalated' && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                <div style={{ background: 'var(--critical-tint)', border: '1px solid rgba(215,64,47,.3)', borderRadius: 'var(--radius-ctl)', padding: '1rem', fontSize: '0.82rem', color: 'var(--ink)' }}>
+                <div style={{ background: 'var(--critical-tint)', border: '1px solid rgba(var(--critical-rgb),.3)', borderRadius: 'var(--radius-ctl)', padding: '1rem', fontSize: '0.82rem', color: 'var(--ink)' }}>
                   <strong style={{ color: 'var(--critical)' }}>SLA breached · escalated.</strong> Resolution timeline exceeded — the orchestrator drafted a formal grievance.
                 </div>
 
-                <div style={{ background: 'var(--teal-tint)', border: '1px solid rgba(26,169,160,.25)', borderRadius: 'var(--radius-ctl)', padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                <div style={{ background: 'var(--teal-tint)', border: '1px solid rgba(var(--brand-rgb),.25)', borderRadius: 'var(--radius-ctl)', padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     <Activity size={16} color="var(--teal-600)" />
                     <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--ink-strong)' }}>Collective pressure mitigation</span>
@@ -476,7 +476,7 @@ Daily economic cost of inaction: ₹${issue.costOfInaction}. Please register thi
                 </pre>
 
                 {issue.petition && (
-                  <div style={{ background: 'var(--teal-tint)', border: '1px solid rgba(26,169,160,.25)', borderRadius: 'var(--radius-ctl)', padding: '1rem' }}>
+                  <div style={{ background: 'var(--teal-tint)', border: '1px solid rgba(var(--brand-rgb),.25)', borderRadius: 'var(--radius-ctl)', padding: '1rem' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
                       <span style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--ink-strong)' }}>{issue.petition.title}</span>
                       <span className="badge badge-info">{issue.petition.signatures} signatures</span>
@@ -488,7 +488,7 @@ Daily economic cost of inaction: ₹${issue.costOfInaction}. Please register thi
             )}
 
             {isOfficial && isRepeatOffender && (
-              <div style={{ background: 'var(--teal-tint)', border: '1px solid rgba(26,169,160,.3)', borderRadius: 'var(--radius-ctl)', padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: '0.5rem' }}>
+              <div style={{ background: 'var(--teal-tint)', border: '1px solid rgba(var(--brand-rgb),.3)', borderRadius: 'var(--radius-ctl)', padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: '0.5rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--teal-600)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>FixWarranty active</span>
                   <span className="badge badge-info">365 days</span>
@@ -497,7 +497,7 @@ Daily economic cost of inaction: ₹${issue.costOfInaction}. Please register thi
                   If this repair fails within the window, Nidaan can flag it — the contractor's rating is penalised and the ticket auto-reopens.
                 </p>
                 {showConfirmFailure ? (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', background: 'var(--critical-tint)', border: '1px solid rgba(215,64,47,.25)', padding: '0.75rem', borderRadius: 'var(--radius-ctl)', marginTop: '0.25rem' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', background: 'var(--critical-tint)', border: '1px solid rgba(var(--critical-rgb),.25)', padding: '0.75rem', borderRadius: 'var(--radius-ctl)', marginTop: '0.25rem' }}>
                     <span style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--critical)' }}>Are you sure? This reopens the issue and penalises the contractor rating.</span>
                     <div style={{ display: 'flex', gap: '0.5rem' }}>
                       <button
@@ -520,7 +520,7 @@ Daily economic cost of inaction: ₹${issue.costOfInaction}. Please register thi
                   <button
                     type="button"
                     onClick={() => setShowConfirmFailure(true)}
-                    style={{ background: 'var(--critical-tint)', border: '1px solid rgba(215,64,47,.3)', color: 'var(--critical)', padding: '0.5rem', borderRadius: 'var(--radius-ctl)', fontSize: '0.75rem', cursor: 'pointer', fontWeight: 600, marginTop: '0.25rem' }}
+                    style={{ background: 'var(--critical-tint)', border: '1px solid rgba(var(--critical-rgb),.3)', color: 'var(--critical)', padding: '0.5rem', borderRadius: 'var(--radius-ctl)', fontSize: '0.75rem', cursor: 'pointer', fontWeight: 600, marginTop: '0.25rem' }}
                   >
                     Report warranty failure (reopen)
                   </button>

@@ -71,7 +71,7 @@ export default function IntelligencePanel({ issues, onSelectIssue, onPreparednes
       <div className="glass-panel" style={{ padding: '1.25rem' }}>
         <h3 style={{ fontSize: '1.05rem', display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.75rem' }}><Layers size={17} color="var(--alert)" /> Cross-issue emergent detection</h3>
         {clusters && clusters.alerts.length ? clusters.alerts.map(a => (
-          <div key={a.id} style={{ background: a.severity === 'high' ? 'var(--critical-tint)' : 'var(--alert-tint)', border: `1px solid ${a.severity === 'high' ? 'rgba(215,64,47,.3)' : 'rgba(224,138,30,.3)'}`, borderRadius: 'var(--radius-ctl)', padding: '0.9rem', marginBottom: '0.6rem' }}>
+          <div key={a.id} style={{ background: a.severity === 'high' ? 'var(--critical-tint)' : 'var(--alert-tint)', border: `1px solid ${a.severity === 'high' ? 'rgba(var(--critical-rgb),.3)' : 'rgba(var(--alert-rgb),.3)'}`, borderRadius: 'var(--radius-ctl)', padding: '0.9rem', marginBottom: '0.6rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem' }}>
               <span style={{ fontWeight: 700, color: 'var(--ink-strong)', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}><AlertTriangle size={15} color={a.severity === 'high' ? 'var(--critical)' : 'var(--alert)'} /> {a.title}</span>
               <span className="badge badge-neutral">conf {(a.confidence * 100).toFixed(0)}%</span>

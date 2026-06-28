@@ -207,7 +207,7 @@ export function ContractorJobs() {
   };
 
   return (
-    <div data-tour-id="tour-jobs" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+    <div data-tour-id="tour-jobs" className="glass-zone" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
       {jobs.map(issue => {
         const open = openId === issue.id;
         const isPlaced = placed[issue.id];
@@ -282,5 +282,5 @@ export function ContractorEarnings() {
     (heroIssue && heroIssue.status === 'verified' ? heroIssue : null) ||
     issues.find(i => i.status === 'verified' && i.assignedContractorId);
   if (!pick) return <EmptyState icon={Wallet} title="No payouts yet" body="When a job passes the triple-lock proof, the escrow release, warranty and rating impact show here." />;
-  return <FixForcePanel issue={pick} tourId="tour-earnings" />;
+  return <div className="glass-zone"><FixForcePanel issue={pick} tourId="tour-earnings" /></div>;
 }

@@ -51,12 +51,12 @@ export default function ResponderRadar({ issues, contractors, responders, onSele
         <div style={{
           position: 'absolute', inset: 0, pointerEvents: 'none',
           backgroundSize: '44px 44px',
-          backgroundImage: 'linear-gradient(to right, rgba(22,57,91,.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(22,57,91,.05) 1px, transparent 1px)'
+          backgroundImage: 'linear-gradient(to right, rgba(var(--ink-rgb),.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(var(--ink-rgb),.05) 1px, transparent 1px)'
         }} />
         {/* Water body accent */}
-        <div style={{ position: 'absolute', bottom: '-10%', right: '-6%', width: '46%', height: '52%', background: '#CDE4E1', borderRadius: '50%', filter: 'blur(2px)', opacity: 0.7, pointerEvents: 'none' }} />
-        {/* Park accent */}
-        <div style={{ position: 'absolute', top: '-8%', left: '8%', width: '30%', height: '40%', background: '#DCEBCB', borderRadius: '50%', opacity: 0.7, pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', bottom: '-10%', right: '-6%', width: '46%', height: '52%', background: '#DBEAFE', borderRadius: '50%', filter: 'blur(2px)', opacity: 0.85, pointerEvents: 'none' }} />
+        {/* District accent */}
+        <div style={{ position: 'absolute', top: '-8%', left: '8%', width: '30%', height: '40%', background: '#E2E8F0', borderRadius: '50%', opacity: 0.85, pointerEvents: 'none' }} />
 
         <div className="radar-sweep-line" />
 

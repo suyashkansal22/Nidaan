@@ -31,7 +31,7 @@ export function CitizenReport() {
   const { citizen, handleIssueCreated, setSelectedIssue } = useAppData();
   const { navigate } = useRole();
   return (
-    <div data-tour-id="tour-report-form">
+    <div data-tour-id="tour-report-form" className="glass-zone">
       <SnapToSolve
         user={citizen}
         onIssueCreated={(issue, meta) => {
@@ -210,7 +210,7 @@ export function CitizenConfirmFix() {
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
         {locks.map((l, i) => (
-          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem', background: l.pass ? 'var(--grass-tint)' : 'var(--cream-200)', padding: '0.55rem 0.75rem', borderRadius: 'var(--radius-ctl)', border: `1px solid ${l.pass ? 'rgba(91,170,71,.3)' : 'var(--cream-400)'}` }}>
+          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem', background: l.pass ? 'var(--grass-tint)' : 'var(--cream-200)', padding: '0.55rem 0.75rem', borderRadius: 'var(--radius-ctl)', border: `1px solid ${l.pass ? 'rgba(var(--grass-rgb),.3)' : 'var(--cream-400)'}` }}>
             {l.pass ? <CheckCircle size={16} color="var(--grass-600)" /> : <Circle size={16} color="var(--ink-muted)" />}
             <span><strong style={{ color: 'var(--ink-strong)' }}>{l.label}</strong> — <span style={{ color: 'var(--ink-muted)' }}>{l.note}</span></span>
           </div>
@@ -311,7 +311,7 @@ Daily economic cost of inaction: ₹${issue.costOfInaction}. Please register thi
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', maxWidth: '720px' }}>
+    <div className="glass-zone" style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', maxWidth: '720px' }}>
       {/* Trust score */}
       <div className="glass-panel" style={{ padding: '1.5rem', display: 'flex', alignItems: 'center', gap: '1.25rem', borderTop: '3px solid var(--teal)' }}>
         <span style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'var(--teal)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', fontWeight: 800, flexShrink: 0 }}>
@@ -380,10 +380,10 @@ export function CitizenNearbyReports() {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+    <div className="glass-zone" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
       <div>
-        <h2 style={{ fontSize: '1.25rem', fontWeight: 800 }}>Nearby active reports</h2>
-        <p style={{ fontSize: '0.85rem', color: 'var(--ink-muted)', marginTop: '0.25rem' }}>
+        <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--ink-strong)' }}>Nearby active reports</h2>
+        <p style={{ fontSize: '0.9rem', color: 'var(--ink)', opacity: 0.78, marginTop: '0.3rem' }}>
           Upvote issues in your neighborhood to apply collective pressure and accelerate resolution.
         </p>
       </div>

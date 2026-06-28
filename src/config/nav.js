@@ -16,21 +16,21 @@ export const ROLES = [
     name: 'Citizen',
     icon: User,
     tagline: 'Report a problem and watch it get fixed.',
-    accent: 'var(--teal)',
+    accent: 'var(--hue-cobalt)',
   },
   {
     id: 'contractor',
     name: 'Contractor / Responder',
     icon: HardHat,
     tagline: 'Win jobs, prove the fix, get paid.',
-    accent: 'var(--grass)',
+    accent: 'var(--hue-sky)',
   },
   {
     id: 'official',
     name: 'Municipal Official',
     icon: Building2,
     tagline: 'Command the agent and clear the backlog.',
-    accent: 'var(--ink-strong)',
+    accent: 'var(--hue-indigo)',
   },
 ];
 

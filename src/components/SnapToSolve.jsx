@@ -203,8 +203,8 @@ export default function SnapToSolve({ onIssueCreated, user }) {
 
       {agentMode === 'simulated' && (
         <div style={{
-          background: 'rgba(215,64,47,0.06)',
-          border: '1px dashed rgba(215,64,47,0.3)',
+          background: 'rgba(var(--critical-rgb),0.06)',
+          border: '1px dashed rgba(var(--critical-rgb),0.3)',
           borderRadius: 'var(--radius-ctl)',
           padding: '0.75rem 1rem',
           fontSize: '0.8rem',
@@ -238,7 +238,7 @@ export default function SnapToSolve({ onIssueCreated, user }) {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
           <div style={{ height: '230px', background: `linear-gradient(rgba(14,42,69,0.2), rgba(14,42,69,0.4)), url(${photoUrl}) center/cover`, borderRadius: 'var(--radius-card)', border: '2px dashed var(--cream-400)', position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             {confidence != null && (
-              <div style={{ position: 'absolute', top: '26%', left: '22%', border: '2px solid var(--teal)', borderRadius: '6px', padding: '0.2rem 0.5rem', background: 'rgba(26,169,160,.28)', color: '#fff', fontSize: '0.66rem', fontWeight: 700, fontFamily: 'var(--font-mono)', animation: 'pulseGlow 2.4s infinite', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+              <div style={{ position: 'absolute', top: '26%', left: '22%', border: '2px solid var(--teal)', borderRadius: '6px', padding: '0.2rem 0.5rem', background: 'rgba(var(--brand-rgb),.28)', color: '#fff', fontSize: '0.66rem', fontWeight: 700, fontFamily: 'var(--font-mono)', animation: 'pulseGlow 2.4s infinite', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
                 <ScanLine size={12} /> {category.toUpperCase()} · {severity.toUpperCase()}
               </div>
             )}
@@ -254,7 +254,7 @@ export default function SnapToSolve({ onIssueCreated, user }) {
           </div>
 
           {confidence != null && (
-            <div style={{ background: 'var(--teal-tint)', border: '1px solid rgba(26,169,160,.3)', borderRadius: 'var(--radius-ctl)', padding: '0.6rem 0.8rem', fontSize: '0.78rem' }}>
+            <div style={{ background: 'var(--teal-tint)', border: '1px solid rgba(var(--brand-rgb),.3)', borderRadius: 'var(--radius-ctl)', padding: '0.6rem 0.8rem', fontSize: '0.78rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span style={{ fontWeight: 700, color: 'var(--ink-strong)', display: 'flex', alignItems: 'center', gap: '0.35rem' }}><Sparkles size={13} color="var(--teal-600)" /> {title || 'AI triage result'}</span>
                 <span className="svc-badge">{triageSource === 'gemini' ? 'Gemini Flash' : 'heuristic'} · {(confidence * 100).toFixed(0)}%</span>
@@ -274,7 +274,7 @@ export default function SnapToSolve({ onIssueCreated, user }) {
                 <button type="button" onClick={() => setLang(l => l === 'en-IN' ? 'hi-IN' : 'en-IN')} style={{ background: 'var(--cream-100)', border: '1px solid var(--cream-300)', borderRadius: '99px', padding: '0.25rem 0.6rem', fontSize: '0.68rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.3rem', color: 'var(--teal-600)', fontWeight: 600 }}>
                   <Languages size={12} /> {lang === 'en-IN' ? 'English' : 'हिन्दी'}
                 </button>
-                <button type="button" onClick={handleVoiceRecord} style={{ background: recording ? 'var(--critical-tint)' : 'var(--cream-100)', border: `1px solid ${recording ? 'rgba(215,64,47,.4)' : 'var(--cream-300)'}`, color: recording ? 'var(--critical)' : 'var(--teal-600)', borderRadius: '99px', padding: '0.3rem 0.7rem', fontSize: '0.72rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.35rem', fontWeight: 600 }}>
+                <button type="button" onClick={handleVoiceRecord} style={{ background: recording ? 'var(--critical-tint)' : 'var(--cream-100)', border: `1px solid ${recording ? 'rgba(var(--critical-rgb),.4)' : 'var(--cream-300)'}`, color: recording ? 'var(--critical)' : 'var(--teal-600)', borderRadius: '99px', padding: '0.3rem 0.7rem', fontSize: '0.72rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.35rem', fontWeight: 600 }}>
                   <Mic size={12} style={{ animation: recording ? 'pulse 1s infinite' : 'none' }} />
                   {recording ? 'Listening…' : 'Voice report'}
                 </button>
@@ -282,12 +282,12 @@ export default function SnapToSolve({ onIssueCreated, user }) {
             </div>
 
             {voiceError && (
-              <div style={{ color: 'var(--critical)', fontSize: '0.8rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', background: 'var(--critical-tint)', padding: '0.6rem 0.8rem', borderRadius: 'var(--radius-ctl)', border: '1px solid rgba(215,64,47,.2)' }}>
+              <div style={{ color: 'var(--critical)', fontSize: '0.8rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', background: 'var(--critical-tint)', padding: '0.6rem 0.8rem', borderRadius: 'var(--radius-ctl)', border: '1px solid rgba(var(--critical-rgb),.2)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                   <AlertTriangle size={14} style={{ flexShrink: 0 }} />
                   <span>{voiceError}</span>
                 </div>
-                <button type="button" onClick={() => { simulateVoice(); setVoiceError(null); }} className="glow-btn-secondary" style={{ alignSelf: 'flex-start', fontSize: '0.72rem', padding: '0.25rem 0.6rem', height: 'auto', background: 'rgba(215,64,47,.1)', border: '1px solid rgba(215,64,47,.2)', color: 'var(--critical)', cursor: 'pointer', fontWeight: 600 }}>
+                <button type="button" onClick={() => { simulateVoice(); setVoiceError(null); }} className="glow-btn-secondary" style={{ alignSelf: 'flex-start', fontSize: '0.72rem', padding: '0.25rem 0.6rem', height: 'auto', background: 'rgba(var(--critical-rgb),.1)', border: '1px solid rgba(var(--critical-rgb),.2)', color: 'var(--critical)', cursor: 'pointer', fontWeight: 600 }}>
                   Run Demo Simulation
                 </button>
               </div>

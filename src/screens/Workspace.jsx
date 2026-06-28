@@ -9,9 +9,9 @@ import SectionHeader from '../ui/SectionHeader.jsx';
 import RoleSwitcher from '../ui/RoleSwitcher.jsx';
 
 /*
-  SCREEN 2 — Role Workspace shell. Same shell for every role: top bar (brand,
-  section tabs, role switcher, tour restart) and a body that renders exactly ONE
-  focused section at a time with its title + "i" InfoButton + "what to do" hint.
+  SCREEN 2 — Role Workspace. A thin glass top bar (brand, pill section nav, tour,
+  role switcher) over the slate canvas, and a body that renders exactly ONE
+  focused section with its header + InfoButton.
 */
 export default function Workspace() {
   const { role, section, setSection, goToRoleSelect } = useRole();
@@ -25,82 +25,133 @@ export default function Workspace() {
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', position: 'relative' }}>
-      <div className="mesh-bg" />
-
-      {/* ---- Top bar ---- */}
+      <div className="mesh-bg" />      {/* ---- Console top bar: Solid Blue Floating Panel ---- */}
       <header style={{
-        position: 'sticky', top: 0, zIndex: 100,
-        background: 'rgba(252,249,242,0.86)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
-        borderBottom: '1px solid var(--cream-300)', padding: '0.7rem 1.5rem',
-        display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', flexWrap: 'wrap',
+        position: 'sticky', top: '1.2rem', zIndex: 100,
+        background: '#1E40AF',
+        border: '1px solid rgba(255, 255, 255, 0.12)',
+        borderRadius: '8px',
+        boxShadow: '0 12px 32px rgba(30, 64, 175, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.15)',
+        margin: '1.2rem 1.5rem 1.2rem',
+        display: 'flex', flexDirection: 'row',
+        alignItems: 'center', justifyContent: 'space-between',
+        padding: '0.95rem 1.8rem', gap: '1.5rem',
+        transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
       }}>
-        {/* Brand → back to Role Select */}
-        <button onClick={goToRoleSelect} style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', background: 'transparent', border: 'none', cursor: 'pointer', padding: 0 }} title="Back to Role Select">
-          <img src="/logo.png" alt="Nidaan" width={40} height={40} style={{ borderRadius: '50%', boxShadow: 'var(--shadow-soft)' }} />
-          <div style={{ lineHeight: 1.05, textAlign: 'left' }}>
-            <h1 style={{ fontSize: '1.2rem', fontWeight: 800, margin: 0, color: 'var(--ink-strong)', letterSpacing: '-0.02em' }}>Nidaan</h1>
-            <span style={{ fontSize: '0.6rem', textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--teal-600)', fontWeight: 700 }}>
-              {roleDef?.name}
-            </span>
-          </div>
+        {/* Left Block: Logo & Brand Name only */}
+        <button onClick={goToRoleSelect} style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', background: 'transparent', border: 'none', cursor: 'pointer', padding: 0, color: '#ffffff', flexShrink: 0 }} title="Back to role select">
+          <img src="/logo.png" alt="Nidaan" width={42} height={42} style={{ borderRadius: '6px', boxShadow: '0 2px 8px rgba(0,0,0,0.12), 0 0 0 1.5px rgba(255,255,255,0.9)' }} />
+          <span style={{ fontSize: '1.5rem', fontWeight: 800, color: '#ffffff', letterSpacing: '-0.035em', fontFamily: 'var(--font-display)' }}>Nidaan</span>
         </button>
 
-        {/* Section tabs */}
-        <nav style={{ display: 'flex', gap: '0.3rem', background: 'var(--cream-200)', padding: '0.3rem', borderRadius: '99px', border: '1px solid var(--cream-300)', flexWrap: 'wrap', justifyContent: 'center' }}>
-          {tabs.map(t => {
-            const Icon = t.icon; const isActive = section === t.id;
-            return (
-              <button
-                key={t.id}
-                onClick={() => setSection(t.id)}
-                className={isActive ? '' : 'nav-btn-hover'}
-                style={{
-                  background: isActive ? 'var(--cream-50)' : 'transparent',
-                  color: isActive ? 'var(--teal-600)' : 'var(--ink-muted)',
-                  padding: '0.45rem 0.8rem', borderRadius: '99px', fontWeight: 600, fontSize: '0.8rem',
-                  cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.35rem',
-                  transition: 'all var(--transition-fast)',
-                  border: isActive ? '1px solid var(--cream-300)' : '1px solid transparent',
-                  boxShadow: isActive ? 'var(--shadow-soft)' : 'none',
-                }}
-              >
-                <Icon size={14} /> {t.label}
-              </button>
-            );
-          })}
-        </nav>
 
-        {/* Right: Guided Tour + Role switcher */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-          <button onClick={() => tour?.start()} className="glow-btn-secondary" style={{ fontSize: '0.78rem', padding: '0.45rem 0.8rem' }}>
-            <Play size={13} fill="currentColor" color="var(--teal)" /> Guided Tour
-          </button>
+        {/* Center Block: Navigation tabs + Integrated Hint Text */}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', flex: 1, overflowX: 'auto' }} className="hide-scroll">
+          <nav style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.2rem',
+            background: 'rgba(255, 255, 255, 0.08)',
+            padding: '3px',
+            borderRadius: '6px',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            boxShadow: 'inset 0 1px 2px rgba(0, 0, 0, 0.05)',
+            maxWidth: '100%'
+          }}>
+            {tabs.map(t => {
+              const Icon = t.icon; const isActive = section === t.id;
+              return (
+                <button
+                  key={t.id}
+                  onClick={() => setSection(t.id)}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: '0.45rem',
+                    padding: '0.45rem 1.1rem', borderRadius: '4px',
+                    fontFamily: 'var(--font-body)', fontSize: '0.82rem',
+                    fontWeight: isActive ? 700 : 600,
+                    color: isActive ? 'var(--brand-700)' : 'rgba(255, 255, 255, 0.85)',
+                    background: isActive ? '#ffffff' : 'transparent',
+                    border: isActive ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid transparent',
+                    cursor: 'pointer', whiteSpace: 'nowrap', transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+                    boxShadow: isActive ? '0 2px 6px rgba(15, 23, 42, 0.08)' : 'none',
+                    flexShrink: 0
+                  }}
+                  onMouseOver={(e) => {
+                    if (!isActive) {
+                      e.currentTarget.style.background = 'rgba(255, 255, 255, 0.12)';
+                      e.currentTarget.style.color = '#ffffff';
+                    }
+                  }}
+                  onMouseOut={(e) => {
+                    if (!isActive) {
+                      e.currentTarget.style.background = 'transparent';
+                      e.currentTarget.style.color = 'rgba(255, 255, 255, 0.85)';
+                    }
+                  }}
+                >
+                  <Icon size={14} /> {t.label}
+                </button>
+              );
+            })}
+          </nav>
+
+          {/* Integrated hint text directly below navigation tabs in the center */}
+          <span style={{ fontSize: '0.76rem', color: 'rgba(255, 255, 255, 0.75)', fontWeight: 500, textAlign: 'center' }}>
+            Hover (or tap) the ⓘ to learn about the feature
+          </span>
+        </div>
+
+
+
+
+        {/* Right Block: Stacked Role name (top) and Guided Tour (bottom) */}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.4rem', flexShrink: 0 }}>
+          {/* Role switcher dropdown trigger on top */}
           <RoleSwitcher />
+          
+          {/* Guided Tour button directly below it */}
+          <button 
+            onClick={() => tour?.start()} 
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: '0.35rem',
+              fontSize: '0.74rem', fontWeight: 700,
+              background: 'rgba(255, 255, 255, 0.06)',
+              border: '1px solid rgba(255, 255, 255, 0.12)',
+              color: '#ffffff',
+              borderRadius: '6px', padding: '0.4rem 0.9rem',
+              cursor: 'pointer', transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)'
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.background = '#ffffff';
+              e.currentTarget.style.color = '#0f172a';
+              e.currentTarget.style.transform = 'translateY(-1px)';
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.06)';
+              e.currentTarget.style.color = '#ffffff';
+              e.currentTarget.style.transform = 'none';
+            }}
+          >
+            <Play size={10} fill="currentColor" /> Guided Tour
+          </button>
         </div>
       </header>
 
-      {/* ---- Hint strip: point new users at the InfoButtons ---- */}
-      <div style={{
-        background: 'var(--cream-100)', borderBottom: '1px solid var(--cream-300)',
-        padding: '0.4rem 1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem',
-      }}>
-        <Info size={12} style={{ color: 'var(--teal-600)', flexShrink: 0 }} />
-        <span style={{ fontSize: '0.72rem', color: 'var(--ink-muted)', fontWeight: 500 }}>
-          Hover (or tap) the <strong style={{ color: 'var(--teal-600)' }}>"i"</strong> next to a section title to learn what that feature does and why it matters.
-        </span>
-      </div>
 
-      {/* ---- Body: exactly one section ---- */}
-      <main style={{ flex: 1, padding: '1.75rem 1.5rem', maxWidth: '1280px', width: '100%', margin: '0 auto' }}>
+
+
+
+      {/* ---- Body ---- */}
+      <main style={{ flex: 1, padding: '1.9rem 1.5rem 3rem', maxWidth: '1320px', width: '100%', margin: '0 auto' }}>
         {loading ? (
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '320px', gap: '1rem' }}>
             <div className="pulsing-indicator" style={{ width: '20px', height: '20px' }} />
             <p style={{ fontSize: '0.9rem', color: 'var(--ink-muted)' }}>Establishing Nidaan connection…</p>
           </div>
         ) : (
-          <div key={`${role}/${section}`} className="animate-fade-in-up" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          <div key={`${role}/${section}`} className="animate-fade-in-up" style={{ display: 'flex', flexDirection: 'column', gap: '1.6rem' }}>
             {meta && (
-              <SectionHeader icon={meta.icon} title={meta.label} info={meta.info} tag={meta.tag} hint={meta.hint} />
+              <SectionHeader icon={meta.icon} title={meta.label} info={meta.info} tag={meta.tag} hint={meta.hint} eyebrow={roleDef?.name} />
             )}
             {SectionView ? <SectionView /> : <p style={{ color: 'var(--ink-muted)' }}>Section not found.</p>}
           </div>
@@ -112,8 +163,8 @@ export default function Workspace() {
         <div style={{
           position: 'fixed', bottom: '1.5rem', left: '50%', transform: 'translateX(-50%)', zIndex: 950,
           background: 'var(--ink-strong)', color: '#fff', padding: '0.8rem 1.2rem', borderRadius: '99px',
-          boxShadow: 'var(--shadow-lift)', fontSize: '0.85rem', fontWeight: 600, maxWidth: '90vw',
-          borderLeft: `4px solid ${toast.tone === 'danger' ? 'var(--critical)' : toast.tone === 'success' ? 'var(--grass)' : 'var(--teal)'}`,
+          boxShadow: 'var(--shadow-pop)', fontSize: '0.85rem', fontWeight: 600, maxWidth: '90vw',
+          borderLeft: `4px solid ${toast.tone === 'danger' ? 'var(--critical)' : toast.tone === 'success' ? 'var(--grass)' : 'var(--brand)'}`,
           animation: 'slideInUp 0.3s ease-out',
         }}>
           {toast.text}

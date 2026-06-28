@@ -78,7 +78,7 @@ function StepCard({ trail, isLast }) {
               {open ? 'hide reasoning' : 'view reasoning'}
             </button>
             {open && (
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.68rem', color: 'var(--ink)', background: 'var(--teal-tint)', border: '1px dashed rgba(26,169,160,.4)', borderRadius: '8px', padding: '0.5rem', lineHeight: 1.5 }}>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.68rem', color: 'var(--ink)', background: 'var(--teal-tint)', border: '1px dashed rgba(var(--brand-rgb),.4)', borderRadius: '8px', padding: '0.5rem', lineHeight: 1.5 }}>
                 💭 {trail.reasoning}
               </div>
             )}
@@ -153,7 +153,7 @@ export default function AgentActivityPanel({ issue, onTriggerAgent, onRunAgent, 
 
         {/* Human-in-the-loop checkpoint at assign */}
         {showApprove && !loading && (
-          <div style={{ marginLeft: '0.25rem', marginTop: '0.25rem', background: 'var(--teal-tint)', border: '1px solid rgba(26,169,160,.3)', borderRadius: 'var(--radius-ctl)', padding: '0.6rem 0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <div style={{ marginLeft: '0.25rem', marginTop: '0.25rem', background: 'var(--teal-tint)', border: '1px solid rgba(var(--brand-rgb),.3)', borderRadius: 'var(--radius-ctl)', padding: '0.6rem 0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <span style={{ flex: 1, fontSize: '0.72rem', color: 'var(--ink)', fontWeight: 600 }}>Human checkpoint — approve the agent's next action.</span>
             <button onClick={() => onTriggerAgent(issue.id)} className="glow-btn-primary" style={{ padding: '0.3rem 0.7rem', fontSize: '0.72rem' }}>Approve</button>
             <button onClick={() => alert('Override: reassign the winning bid or inspector from the FixForce console.')} className="glow-btn-secondary" style={{ padding: '0.3rem 0.7rem', fontSize: '0.72rem' }}>Override</button>
@@ -162,7 +162,7 @@ export default function AgentActivityPanel({ issue, onTriggerAgent, onRunAgent, 
 
         {/* Proof-gated payout control */}
         {issue?.status === 'fixed' && !loading && (
-          <div style={{ marginLeft: '0.25rem', marginTop: '0.5rem', background: payoutReady ? 'var(--grass-tint)' : 'var(--alert-tint)', border: `1px solid ${payoutReady ? 'rgba(91,170,71,.4)' : 'rgba(224,138,30,.4)'}`, borderRadius: 'var(--radius-ctl)', padding: '0.7rem 0.8rem', display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+          <div style={{ marginLeft: '0.25rem', marginTop: '0.5rem', background: payoutReady ? 'var(--grass-tint)' : 'var(--alert-tint)', border: `1px solid ${payoutReady ? 'rgba(var(--grass-rgb),.4)' : 'rgba(var(--alert-rgb),.4)'}`, borderRadius: 'var(--radius-ctl)', padding: '0.7rem 0.8rem', display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
             {payoutReady ? <Unlock size={18} color="var(--grass-600)" /> : <Lock size={18} color="var(--alert)" />}
             <span style={{ flex: 1, fontSize: '0.74rem', color: 'var(--ink)', fontWeight: 600 }}>
               {payoutReady ? 'Triple-lock all green — escrow can be released.' : 'Payout locked until all three proof locks pass.'}

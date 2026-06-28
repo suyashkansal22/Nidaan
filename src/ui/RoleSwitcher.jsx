@@ -41,21 +41,35 @@ export default function RoleSwitcher() {
         onClick={() => setOpen(o => !o)}
         aria-haspopup="menu" aria-expanded={open}
         style={{
-          display: 'flex', alignItems: 'center', gap: '0.5rem',
-          background: 'var(--cream-50)', border: '1px solid var(--cream-300)',
-          borderRadius: '99px', padding: '0.35rem 0.5rem 0.35rem 0.4rem', cursor: 'pointer',
-          boxShadow: 'var(--shadow-soft)',
+          display: 'flex', alignItems: 'center', gap: '0.6rem',
+          background: 'rgba(255, 255, 255, 0.06)', border: '1px solid rgba(255, 255, 255, 0.12)',
+          borderRadius: '6px', padding: '0.45rem 0.8rem 0.45rem 0.5rem', cursor: 'pointer',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.1)',
+          color: '#ffffff',
+          transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)'
+        }}
+        onMouseOver={(e) => {
+          e.currentTarget.style.background = 'rgba(255, 255, 255, 0.14)';
+          e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.25)';
+          e.currentTarget.style.transform = 'translateY(-1px)';
+        }}
+        onMouseOut={(e) => {
+          e.currentTarget.style.background = 'rgba(255, 255, 255, 0.06)';
+          e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.12)';
+          e.currentTarget.style.transform = 'none';
         }}
       >
         <span style={{
-          width: '28px', height: '28px', borderRadius: '50%', background: current.accent,
+          width: '26px', height: '26px', borderRadius: '4px', background: current.accent,
           color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
         }}>
-          <CurrentIcon size={15} />
+          <CurrentIcon size={14} />
         </span>
-        <span style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--ink-strong)' }}>{current.name}</span>
-        <ChevronDown size={15} color="var(--ink-muted)" style={{ transform: open ? 'rotate(180deg)' : 'none', transition: 'transform var(--transition-fast)' }} />
+        <span style={{ fontSize: '0.86rem', fontWeight: 700, color: '#ffffff', letterSpacing: '-0.01em' }}>{current.name}</span>
+        <ChevronDown size={15} color="rgba(241, 245, 249, 0.8)" style={{ transform: open ? 'rotate(180deg)' : 'none', transition: 'transform var(--transition-fast)' }} />
       </button>
+
+
 
       {open && (
         <div

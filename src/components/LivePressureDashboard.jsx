@@ -42,7 +42,7 @@ function MiniLoop({ issue }) {
             width: active ? '9px' : '7px', height: active ? '9px' : '7px',
             borderRadius: '50%',
             background: done ? 'var(--grass)' : active ? 'var(--teal)' : 'var(--cream-300)',
-            boxShadow: active ? '0 0 0 3px rgba(26,169,160,.18)' : 'none',
+            boxShadow: active ? '0 0 0 3px rgba(var(--brand-rgb),.18)' : 'none',
             transition: 'all var(--transition-fast)'
           }} />
         );
@@ -140,7 +140,7 @@ export default function LivePressureDashboard({ issues, onSelectIssue, onVoteIss
   // ---- Composable pieces (single source of truth, reused across views) ----
 
   const monsoonBanner = (
-    <div className="glass-panel" style={{ padding: '0.9rem 1.1rem', display: 'flex', alignItems: 'center', gap: '0.75rem', background: 'var(--teal-tint)', border: '1px solid rgba(26,169,160,.3)', flexWrap: 'wrap' }}>
+    <div className="glass-panel" style={{ padding: '0.9rem 1.1rem', display: 'flex', alignItems: 'center', gap: '0.75rem', background: 'var(--teal-tint)', border: '1px solid rgba(var(--brand-rgb),.3)', flexWrap: 'wrap' }}>
       <CloudRain size={22} color="var(--teal-600)" style={{ animation: 'pulse 2.5s infinite' }} />
       <div style={{ flex: 1, minWidth: '240px' }}>
         <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--ink-strong)' }}>Monsoon weather preparedness active</div>
@@ -307,7 +307,7 @@ export default function LivePressureDashboard({ issues, onSelectIssue, onVoteIss
   );
 
   const repeatOffenderCard = offender ? (
-    <div className="glass-panel" style={{ padding: '1.25rem', border: '1px solid rgba(224,138,30,.4)', borderTop: '3px solid var(--alert)', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+    <div className="glass-panel" style={{ padding: '1.25rem', border: '1px solid rgba(var(--alert-rgb),.4)', borderTop: '3px solid var(--alert)', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
         <Repeat size={18} color="var(--alert)" />
         <h2 style={{ fontSize: '1.05rem' }}>Repeat-Offender Callout</h2>
@@ -318,7 +318,7 @@ export default function LivePressureDashboard({ issues, onSelectIssue, onVoteIss
       {/* cost-history mini bar chart */}
       <div style={{ display: 'flex', alignItems: 'flex-end', gap: '5px', height: '48px' }}>
         {[2200, 1800, 2600, 1500, 2400].map((v, i) => (
-          <div key={i} style={{ flex: 1, height: `${(v / 2600) * 100}%`, background: 'linear-gradient(180deg, var(--alert), rgba(224,138,30,.35))', borderRadius: '4px 4px 0 0' }} title={`₹${v}`} />
+          <div key={i} style={{ flex: 1, height: `${(v / 2600) * 100}%`, background: 'linear-gradient(180deg, var(--alert), rgba(var(--alert-rgb),.35))', borderRadius: '4px 4px 0 0' }} title={`₹${v}`} />
         ))}
         <div style={{ flex: 1, height: '100%', background: 'var(--grass-tint)', border: '1px dashed var(--grass)', borderRadius: '4px 4px 0 0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.55rem', color: 'var(--grass-600)', fontWeight: 700 }}>FIX</div>
       </div>

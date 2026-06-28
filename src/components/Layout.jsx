@@ -144,7 +144,7 @@ export default function Layout({ children, activeTab, setActiveTab, onResetDb, d
           <div style={{
             display: 'flex', alignItems: 'center', gap: '0.7rem',
             background: 'var(--critical-tint)',
-            border: '1px solid rgba(215,64,47,.25)',
+            border: '1px solid rgba(var(--critical-rgb),.25)',
             borderRadius: 'var(--radius-ctl)',
             padding: '0.55rem 0.9rem', flexShrink: 0
           }}>
